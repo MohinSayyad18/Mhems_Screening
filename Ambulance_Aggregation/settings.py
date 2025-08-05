@@ -44,7 +44,6 @@ INSTALLED_APPS = [
 
     'corsheaders',  
 
-    'Com',
     'rest_framework',
     'Screening',
 
@@ -98,16 +97,32 @@ WSGI_APPLICATION = 'Ambulance_Aggregation.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'Screening3',
+#         'USER': 'postgres',
+#         'PASSWORD': '4411',
+#         'HOST': 'localhost',
+#         'PORT': '5432',
+#     }
+# }
+
+
 DATABASES = {
-    'default': {
+'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'Screening3',
+        'NAME': 'Mhems_Screening',
         'USER': 'postgres',
-        'PASSWORD': '4411',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'PASSWORD': 'postgres',
+        'HOST': '192.168.1.109',
+        'PORT': '5432',  # Default PostgreSQL port
+        'OPTIONS': {
+            'options': '-c timezone=Asia/Kolkata',
+        },
     }
 }
+
 
 
 # Password validation
