@@ -219,10 +219,10 @@ admin.site.register(GrowthMonitoring)
 
 
 
-admin.site.register(WHO_BMI_bmifa_boys_and_girlfriend_z_5_19_years)
-admin.site.register(wt_for_age_0_to_10_boys_girlfriend)
-admin.site.register(wt_for_ht_0_to_10_yrs_boys_girlfriend)
-admin.site.register(ht_for_age_0_to_10_yrs_boys_girlfriend)
+admin.site.register(WHO_BMI_bmi_boys_and_girl_5_19_years)
+admin.site.register(wt_for_age_0_to_10_boys_and_girl)
+admin.site.register(wt_for_ht_0_to_10_boys_and_girl)
+admin.site.register(ht_for_age_0_to_10_boys_and_girl)
 
 
 # @admin.register(wt_for_ht_0_to_10_yrs_boys_girlfriend)

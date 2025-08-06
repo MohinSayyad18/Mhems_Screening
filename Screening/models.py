@@ -1471,7 +1471,7 @@ class agg_sc_tahsil(models.Model):
 # ----------------------------------- Add_New_Citizen -------------------------------------------------------------
 
 
-class WHO_BMI_bmifa_boys_and_girlfriend_z_5_19_years(models.Model):
+class WHO_BMI_bmi_boys_and_girl_5_19_years(models.Model):
     bmi_id = models.FloatField()
     birth_year = models.IntegerField()
     birth_month = models.IntegerField()
@@ -1484,7 +1484,7 @@ class WHO_BMI_bmifa_boys_and_girlfriend_z_5_19_years(models.Model):
     gender = models.IntegerField()
 
 
-class wt_for_age_0_to_10_boys_girlfriend(models.Model):
+class wt_for_age_0_to_10_boys_and_girl(models.Model):
     hfa_id = models.FloatField()
     birth_year = models.IntegerField()
     birth_month = models.IntegerField()
@@ -1497,7 +1497,7 @@ class wt_for_age_0_to_10_boys_girlfriend(models.Model):
     gender = models.IntegerField()
 
 
-class wt_for_ht_0_to_10_yrs_boys_girlfriend(models.Model):
+class wt_for_ht_0_to_10_boys_and_girl(models.Model):
     wfh_id = models.FloatField()
     From = models.FloatField()
     to = models.FloatField()
@@ -1511,7 +1511,7 @@ class wt_for_ht_0_to_10_yrs_boys_girlfriend(models.Model):
 
 
 
-class ht_for_age_0_to_10_yrs_boys_girlfriend(models.Model):
+class ht_for_age_0_to_10_boys_and_girl(models.Model):
     hfa_id = models.FloatField()
     birth_year = models.IntegerField()
     birth_month = models.IntegerField()
@@ -1588,7 +1588,7 @@ class agg_sc_add_new_citizens(models.Model):
     
     doj = models.DateField(null=True,blank=True)
     official_email = models.EmailField(null=True,blank=True)
-    site_plant = models.CharField(null=True,blank=True)
+    site_plant = models.CharField(null=True,blank=True,max_length=255)
     official_mobile =  models.CharField(max_length=10, null=True,blank=True) 
     #------------------------------Corporate-----------------------------------
     is_deleted = models.BooleanField(default=False)
@@ -1596,7 +1596,6 @@ class agg_sc_add_new_citizens(models.Model):
     added_date = models.DateTimeField(auto_now_add=True)#Mohin
     modify_by =	models.ForeignKey('agg_com_colleague', related_name='modify_by', on_delete=models.CASCADE, blank=True,null=True)
     modify_date = models.DateTimeField(auto_now=True, null=True)#mohin
-    Screening_complete = models.BooleanField(default=False,null=True, blank=True)
     #------------------------------Emergency Contact -----------------------------------
     emergency_prefix = models.CharField(max_length=255,null=True,blank=True)
     emergency_fullname = models.CharField(max_length=255,null=True,blank=True)

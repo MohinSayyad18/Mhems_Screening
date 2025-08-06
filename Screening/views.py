@@ -8109,19 +8109,19 @@ class SAM_MAM_BMI_Serializer_ViewSet(APIView):
 
             if 0 <= year <= 9.11:
                 # Query the database to get the BMI values for the given year, month, and gender
-                weight_for_age = wt_for_age_0_to_10_boys_girlfriend.objects.filter(
+                weight_for_age = wt_for_age_0_to_10_boys_and_girl.objects.filter(
                     birth_year=year,
                     birth_month=month,
                     gender=gender
                 ).first()
 
-                height_for_age = ht_for_age_0_to_10_yrs_boys_girlfriend.objects.filter(
+                height_for_age = ht_for_age_0_to_10_boys_and_girl.objects.filter(
                     birth_year=year,
                     birth_month=month,
                     gender=gender
                 ).first()
 
-                weight_for_height = wt_for_ht_0_to_10_yrs_boys_girlfriend.objects.filter(
+                weight_for_height = wt_for_ht_0_to_10_boys_and_girl.objects.filter(
                     gender=gender,
                     From__lte=float(height),
                     to__gte=float(height)
@@ -8416,7 +8416,7 @@ class SAM_MAM_BMI_Serializer_ViewSet(APIView):
             # Check elif the person is between 10 and 18 years old
             elif 10 <= year <= 18:
                 # Query the database to get the BMI values for the given year, month, and gender
-                bmi_data = WHO_BMI_bmifa_boys_and_girlfriend_z_5_19_years.objects.filter(
+                bmi_data = WHO_BMI_bmi_boys_and_girl_5_19_years.objects.filter(
                     birth_year=year,
                     birth_month=month,
                     gender=gender
