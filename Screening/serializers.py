@@ -2625,4 +2625,29 @@ class img_analyse_data_get_Serializer(serializers.ModelSerializer):
         model = anayalse_img_data_save_table
         fields = ['anlyse_pk_id','schedule_id','citizen_id','citizen_pk_id','oral_hygine','gum_condition','discolouration_of_teeth','oral_ulcers','food_impaction','fluorosis','carious_teeth','english','marathi']
 
-    
+
+class location_serializer(serializers.ModelSerializer):
+    class Meta:
+        model = agg_sc_location
+        fields = ['location_pk_id','location_name']
+
+class agg_sc_route_Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = agg_sc_route
+        fields = ['route_pk_id','route_name']
+        
+class ambulance_Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = agg_sc_ambulance
+        fields = ['amb_pk_id','ambulance_number']
+        
+class doctor_Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = agg_sc_doctor
+        fields = ['doc_id','doctor_name']
+
+class pilot_Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = agg_sc_pilot
+        fields = ['pilot_pk_id','pilot_name']
+        

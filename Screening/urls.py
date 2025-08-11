@@ -462,9 +462,13 @@ urlpatterns = [
     path('device_data/', DeviceDataView.as_view(), name='device_data'),
     
     
+    #-----------------------Location API-----------------------
+    path('location_get_api/<int:source_name_id>/', location_get_api.as_view(), name='location_get_api'),
+    path('route_get_api/<int:source_name_id>/', route_get_api.as_view(), name='route_get_api'),
     
-    
-    
+    path('amb_get_api/', ambulance_get_api.as_view(), name='ambulance_get_api'),
+    path('doctor_get_api/', doctor_get_api.as_view(), name='doctor_get_api'),
+    path('pilot_get_api/', pilot_get_api.as_view(), name='pilot_get_api'),
     
     
     

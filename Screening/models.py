@@ -2583,6 +2583,82 @@ class anayalse_img_data_save_table(models.Model):
     modify_date = models.DateTimeField(auto_now=True, null=True)
     
     
+    
+class agg_sc_location(models.Model):
+    location_pk_id = models.AutoField(primary_key=True)
+    location_name = models.CharField(max_length=255)
+    source_id = models.ForeignKey('agg_source', on_delete=models.CASCADE, null=True, blank=True)
+    source_name_id = models.ForeignKey('agg_sc_add_new_source', on_delete=models.CASCADE, null=True, blank=True)
+    state = models.ForeignKey('agg_sc_state', on_delete=models.CASCADE, null=True, blank=True)
+    district = models.ForeignKey('agg_sc_district', on_delete=models.CASCADE, null=True, blank=True)
+    tehsil = models.ForeignKey('agg_sc_tahsil', on_delete=models.CASCADE, null=True, blank=True)
+    pincode = models.CharField(max_length=10, null=True, blank=True)
+    address = models.CharField(max_length=500, null=True, blank=True)
+    is_deleted = models.BooleanField(default=False)
+    added_by = models.ForeignKey('agg_com_colleague', related_name='location_added_by', on_delete=models.CASCADE, blank=True, null=True)
+    added_date = models.DateTimeField(auto_now_add=True)
+    modify_by = models.ForeignKey('agg_com_colleague', related_name='location_modify_by', on_delete=models.CASCADE, blank=True, null=True)
+    modify_date = models.DateTimeField(auto_now=True, null=True)
+
+
+class agg_sc_route(models.Model):
+    route_pk_id = models.AutoField(primary_key=True)
+    route_name = models.CharField(max_length=255)
+    source_id = models.ForeignKey('agg_source', on_delete=models.CASCADE, null=True, blank=True)
+    source_name_id = models.ForeignKey('agg_sc_add_new_source', on_delete=models.CASCADE, null=True, blank=True)
+    is_deleted = models.BooleanField(default=False)
+    added_by = models.ForeignKey('agg_com_colleague', related_name='route_added_by', on_delete=models.CASCADE, blank=True, null=True)
+    added_date = models.DateTimeField(auto_now_add=True)
+    modify_by = models.ForeignKey('agg_com_colleague', related_name='route_modify_by', on_delete=models.CASCADE, blank=True, null=True)
+    modify_date = models.DateTimeField(auto_now=True, null=True)
+    
+
+
+class agg_sc_doctor(models.Model):
+    doc_id = models.AutoField(primary_key=True)
+    doctor_name = models.CharField(max_length=255)
+    # source_name = models.ForeignKey('agg_sc_add_new_source', on_delete=models.CASCADE, null=True, blank=True)
+    # source_id = models.ForeignKey('agg_source', on_delete=models.CASCADE, null=True, blank=True)
+    # route_id = models.ForeignKey('agg_sc_route', on_delete=models.CASCADE, null=True, blank=True)
+    is_deleted = models.BooleanField(default=False)
+    added_by = models.ForeignKey('agg_com_colleague', related_name='doctor_added_by', on_delete=models.CASCADE, blank=True, null=True)
+    added_date = models.DateTimeField(auto_now_add=True)
+    modify_by = models.ForeignKey('agg_com_colleague', related_name='doctor_modify_by', on_delete=models.CASCADE, blank=True, null=True)
+    modify_date = models.DateTimeField(auto_now=True, null=True)
+
+class agg_sc_pilot(models.Model):
+    pilot_pk_id = models.AutoField(primary_key=True)
+    pilot_name = models.CharField(max_length=255)
+    # source_id = models.ForeignKey('agg_source', on_delete=models.CASCADE, null=True, blank=True)
+    # source_name_id = models.ForeignKey('agg_sc_add_new_source', on_delete=models.CASCADE, null=True, blank=True)
+    # route_id = models.ForeignKey('agg_sc_route', on_delete=models.CASCADE, null=True, blank=True)
+    is_deleted = models.BooleanField(default=False)
+    added_by = models.ForeignKey('agg_com_colleague', related_name='pilot_added_by', on_delete=models.CASCADE, blank=True, null=True)
+    added_date = models.DateTimeField(auto_now_add=True)
+    modify_by = models.ForeignKey('agg_com_colleague', related_name='pilot_modify_by', on_delete=models.CASCADE, blank=True, null=True)
+    modify_date = models.DateTimeField(auto_now=True, null=True)
+    
+
+class agg_sc_ambulance(models.Model):
+    amb_pk_id = models.AutoField(primary_key=True)
+    ambulance_number = models.CharField(max_length=255)
+    # source_id = models.ForeignKey('agg_source', on_delete=models.CASCADE, null=True, blank=True)
+    # source_name_id = models.ForeignKey('agg_sc_add_new_source', on_delete=models.CASCADE, null=True, blank=True)
+    # route = models.ForeignKey('agg_sc_route', on_delete=models.CASCADE, null=True, blank=True)
+    # pilot_name = models.ForeignKey('agg_sc_pilot', on_delete=models.CASCADE, null=True, blank=True)
+    # doctor_id = models.ForeignKey('agg_sc_doctor', on_delete=models.CASCADE, null=True, blank=True)
+    status = models.BooleanField(default=True)  
+    is_deleted = models.BooleanField(default=False)
+    added_by = models.ForeignKey('agg_com_colleague', related_name='ambulance_added_by', on_delete=models.CASCADE, blank=True, null=True)
+    added_date = models.DateTimeField(auto_now_add=True)
+    modify_by = models.ForeignKey('agg_com_colleague', related_name='ambulance_modify_by', on_delete=models.CASCADE, blank=True, null=True)
+    modify_date = models.DateTimeField(auto_now=True, null=True)
+
+
+    
+    
+    
+
 # ip 192.168.0.109
 # user spero_it
 # pass Spero@108

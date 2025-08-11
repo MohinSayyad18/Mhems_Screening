@@ -13846,7 +13846,33 @@ class DeviceDataView(APIView):
             )
 
 
-# class img_analyse_daat
 
+class location_get_api(APIView):
+    def get(self, request,source_name_id):
+        snippet = agg_sc_location.objects.filter(source_name_id=source_name_id)
+        serializers = location_serializer(snippet, many=True)
+        return Response(serializers.data, status=status.HTTP_200_OK)
 
-        
+class route_get_api(APIView):
+    def get(self, request, source_name_id):
+        snippet = agg_sc_route.objects.filter(source_name_id=source_name_id)
+        serializers = agg_sc_route_Serializer(snippet, many=True)
+        return Response(serializers.data, status=status.HTTP_200_OK)
+    
+class ambulance_get_api(APIView):
+    def get(self, request):
+        snippet = agg_sc_ambulance.objects.all()
+        serializers = ambulance_Serializer(snippet, many=True)
+        return Response(serializers.data, status=status.HTTP_200_OK)
+    
+class doctor_get_api(APIView):
+    def get(self, request):
+        snippet = agg_sc_doctor.objects.all()
+        serializers = doctor_Serializer(snippet, many=True)
+        return Response(serializers.data, status=status.HTTP_200_OK)
+    
+class pilot_get_api(APIView):
+    def get(self, request):
+        snippet = agg_sc_pilot.objects.all()
+        serializers = pilot_Serializer(snippet, many=True)
+        return Response(serializers.data, status=status.HTTP_200_OK)
