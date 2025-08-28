@@ -217,6 +217,9 @@ urlpatterns = [
     path('citizen_basic_screening_info_post/<int:schedule_pk>', CitizenBasicScreeningInfoPost.as_view(), name='CitizenBasicScreeningInfoPost'),
     path('get_immunisation/',views.immunisation_get_info_ViewSet1),#Added Authuntication & Authorization Token 
     path('citizen_immunisation_info_post/<int:schedule_pk>', CitizenImmunisationInfoPost.as_view(), name='CitizenImmunisationInfoPost'),#Added Authuntication & Authorization Token 
+    path('citizen_other_info_post/<int:schedule_pk>', CitizenOtherInfoPost.as_view(), name='CitizenOtherInfoPost'),#Added Authuntication & Authorization Token 
+    
+    
 
 
 #-------------------------------Basic Information (Genral Examination)---------------------------------#
@@ -328,6 +331,7 @@ urlpatterns = [
     path('follow_up_citizen_get_idwise/<str:citizen_id>/<str:schedule_id>/', views. follow_up_citizen_get_idwise_info_ViewSet1),#Added Authuntication & Authorization Token
     path('followup_citizen_info_get/<str:citizen_id>/', views. follow_up_citizen_get_info_ViewSet1),#Added Authuntication & Authorization Token
     
+    path('citizen_other_info_get/<int:schedule_pk>/', agg_sc_get_other_info_ViewSet1.as_view(), name='citizen_other_info_get'),#Added Authuntication & Authorization Token
     
     path('citizen_medical_history/', views. medical_history_get_info_ViewSet1),#Added Authuntication & Authorization Token
     path('citizen_past_operative_history/', views. past_operative_history_get_info_ViewSet1),#Added Authuntication & Authorization Token
@@ -500,6 +504,7 @@ urlpatterns = [
     path('GET_Screening_List/', GET_Screening_List_View.as_view(), name='GET_Screening_List'),
     
     path('GET_Schedule_Screening_List/', GET_Schedule_Screening_List_View.as_view(), name='GET_Schedule_Screening_List'),
+    
     
     
 

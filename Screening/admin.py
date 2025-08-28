@@ -190,6 +190,7 @@ admin.site.register(agg_sc_follow_up_status)
 admin.site.register(agg_sc_medical_event_info)
 
 admin.site.register(agg_screening_list)
+admin.site.register(agg_screening_sub_list)
 #----------------Corparate-----------------------
 admin.site.register(agg_sc_department)
 admin.site.register(agg_sc_designation)
@@ -200,7 +201,7 @@ admin.site.register(agg_sc_investigation)
 admin.site.register(agg_sc_bad_habbits)
 admin.site.register(agg_save_permissions)
 admin.site.register(referred_hospital_list)
-
+admin.site.register(agg_sc_citizen_other_info)
 # _____________ Final ________________________
 
 # admin.site.register(agg_sc_state)
@@ -240,3 +241,10 @@ admin.site.register(ht_for_age_0_to_10_boys_and_girl)
 
 
 admin.site.register(imported_data_from_excel_csv)
+
+
+admin.site.register(agg_sc_location)
+admin.site.register(agg_sc_route)
+admin.site.register(agg_sc_ambulance)
+admin.site.register(agg_sc_doctor)
+admin.site.register(agg_sc_pilot)

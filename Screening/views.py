@@ -1625,18 +1625,148 @@ from .models import agg_sc_schedule_screening, agg_sc_add_new_citizens, agg_sc_c
 from .serializers import agg_sc_schedule_screening_Serializer
 
 
+# @api_view(['POST'])
+# @renderer_classes([UserRenderer])
+# @permission_classes([IsAuthenticated])
+# def agg_sc_schedule_screening_ViewSet_POST(request):
+#     """
+#     Create a new screening schedule and retrieve citizens under the added source name and class.
+#     """
+#     if request.method == 'POST':
+#         serializer = agg_sc_schedule_screening_POST_Serializer(data=request.data)
+#         if serializer.is_valid():
+#             try:
+#                 # Check if a schedule already exists for the same source, state, district, tehsil, source_name, and Class
+#                 existing_schedule = agg_sc_schedule_screening.objects.filter(
+#                     source=serializer.validated_data['source'],
+#                     state=serializer.validated_data['state'],
+#                     district=serializer.validated_data['district'],
+#                     tehsil=serializer.validated_data['tehsil'],
+#                     source_name=serializer.validated_data['source_name'],
+#                     from_date__lte=serializer.validated_data['to_date'],
+#                     to_date__gte=serializer.validated_data['from_date'],
+#                     type=serializer.validated_data['type']
+#                 )
+
+#                 if 'Class' in serializer.validated_data:
+#                     existing_schedule = existing_schedule.filter(
+#                         Class=serializer.validated_data['Class']
+#                     )
+#                 elif 'department' in serializer.validated_data:
+#                     existing_schedule = existing_schedule.filter(
+#                         department=serializer.validated_data['department']
+#                     )
+#                 else:
+#                     # If neither Class nor department is provided, add conditions for the other fields
+#                     existing_schedule = existing_schedule.filter(
+#                         type=serializer.validated_data['type']
+#                     )
+
+#                 existing_schedule = existing_schedule.first()
+
+#                 if existing_schedule:
+#                     # Return a response indicating that the screening is already scheduled
+#                     return Response({"error": "Screening is already scheduled for the specified time period."},
+#                                     status=status.HTTP_409_CONFLICT)
+
+#                 new_schedule = serializer.save()
+
+#                 # Retrieve citizens under the added source name and class
+#                 source = new_schedule.source
+#                 source_state = new_schedule.state
+#                 source_district = new_schedule.district
+#                 source_tahasil = new_schedule.tehsil
+#                 source_name = new_schedule.source_name
+#                 source_class = new_schedule.Class
+#                 department = new_schedule.department
+#                 type = new_schedule.type
+
+#                 citizens_under_source = agg_sc_add_new_citizens.objects.filter(
+#                     source_name=source_name,
+#                     source=source,
+#                     state=source_state,
+#                     district=source_district, 
+#                     tehsil=source_tahasil,
+#                     # Class=source_class,
+#                     #department=department,
+#                     type=type,
+#                     is_deleted=False,
+#                 )
+
+#                 highest_schedule_count = 1  # Initialize highest count
+
+#                 for citizen in citizens_under_source:
+#                     latest_citizen_schedule = agg_sc_citizen_schedule.objects.filter(
+#                         citizen_id=citizen.citizen_id
+#                     ).order_by('-pk').first()
+
+#                     if latest_citizen_schedule:
+#                         schedule_count = int(latest_citizen_schedule.schedule_count) + 1
+#                     else:
+#                         schedule_count = 1
+
+#                     # Update schedule count in agg_sc_citizen_schedule for each citizen
+#                     schedule_entry = agg_sc_citizen_schedule(
+#                         schedule_count=schedule_count,
+#                         citizen_id=citizen.citizen_id,
+#                         schedule_id=new_schedule.schedule_id,
+#                         citizen_pk_id=citizen,  # Link to agg_sc_add_new_citizens instance
+#                         added_by=new_schedule.screening_person_name,
+#                         modify_by=new_schedule.screening_person_name,
+#                     )
+#                     schedule_entry.save()
+
+#                     if schedule_count > highest_schedule_count:
+#                         highest_schedule_count = schedule_count
+
+#                 new_schedule.schedule_count = highest_schedule_count
+#                 new_schedule.save()
+
+#                 response_data = {
+#                     "schedule_id": new_schedule.schedule_id,
+#                     "from_date": new_schedule.from_date.isoformat(), 
+#                     "to_date": new_schedule.to_date.isoformat(),  
+#                     "source": new_schedule.source.source,
+#                     "source_name": new_schedule.source_name.source_names,
+#                     "state": new_schedule.state.state_name,
+#                     "district": new_schedule.district.dist_name,
+#                     "Disease": new_schedule.Disease,
+#                     "Class": new_schedule.Class.class_name if new_schedule.Class else None,
+#                     "department":new_schedule.department.department if new_schedule.department else None,
+#                     "type": new_schedule.type.type,
+#                     "screening_person_name": new_schedule.screening_person_name,
+#                     "is_deleted": new_schedule.is_deleted,
+#                     "schedule_count": new_schedule.schedule_count,
+#                 }
+
+#                 return Response(response_data, status=status.HTTP_201_CREATED)
+
+#             except IntegrityError as e:
+#                 error_message = str(e)
+#                 return Response({"error": error_message}, status=status.HTTP_400_BAD_REQUEST)
+
+#             except Exception as e:
+#                 error_message = str(e)
+#                 return Response({"error": error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
 @api_view(['POST'])
 @renderer_classes([UserRenderer])
 @permission_classes([IsAuthenticated])
 def agg_sc_schedule_screening_ViewSet_POST(request):
     """
-    Create a new screening schedule and retrieve citizens under the added source name and class.
+    Create a new screening schedule and retrieve citizens under the added source name.
     """
     if request.method == 'POST':
         serializer = agg_sc_schedule_screening_POST_Serializer(data=request.data)
         if serializer.is_valid():
             try:
-                # Check if a schedule already exists for the same source, state, district, tehsil, source_name, and Class
+                # Check if a schedule already exists for the same source, state, district, tehsil, source_name
                 existing_schedule = agg_sc_schedule_screening.objects.filter(
                     source=serializer.validated_data['source'],
                     state=serializer.validated_data['state'],
@@ -1645,55 +1775,27 @@ def agg_sc_schedule_screening_ViewSet_POST(request):
                     source_name=serializer.validated_data['source_name'],
                     from_date__lte=serializer.validated_data['to_date'],
                     to_date__gte=serializer.validated_data['from_date'],
-                    type=serializer.validated_data['type']
-                )
-
-                if 'Class' in serializer.validated_data:
-                    existing_schedule = existing_schedule.filter(
-                        Class=serializer.validated_data['Class']
-                    )
-                elif 'department' in serializer.validated_data:
-                    existing_schedule = existing_schedule.filter(
-                        department=serializer.validated_data['department']
-                    )
-                else:
-                    # If neither Class nor department is provided, add conditions for the other fields
-                    existing_schedule = existing_schedule.filter(
-                        type=serializer.validated_data['type']
-                    )
-
-                existing_schedule = existing_schedule.first()
+                ).first()
 
                 if existing_schedule:
-                    # Return a response indicating that the screening is already scheduled
-                    return Response({"error": "Screening is already scheduled for the specified time period."},
-                                    status=status.HTTP_409_CONFLICT)
+                    return Response(
+                        {"error": "Screening is already scheduled for the specified time period."},
+                        status=status.HTTP_409_CONFLICT
+                    )
 
                 new_schedule = serializer.save()
 
-                # Retrieve citizens under the added source name and class
-                source = new_schedule.source
-                source_state = new_schedule.state
-                source_district = new_schedule.district
-                source_tahasil = new_schedule.tehsil
-                source_name = new_schedule.source_name
-                source_class = new_schedule.Class
-                department = new_schedule.department
-                type = new_schedule.type
-
+                # Retrieve citizens under the added source name
                 citizens_under_source = agg_sc_add_new_citizens.objects.filter(
-                    source_name=source_name,
-                    source=source,
-                    state=source_state,
-                    district=source_district, 
-                    tehsil=source_tahasil,
-                    # Class=source_class,
-                    #department=department,
-                    type=type,
+                    source_name=new_schedule.source_name,
+                    source=new_schedule.source,
+                    state=new_schedule.state,
+                    district=new_schedule.district,
+                    tehsil=new_schedule.tehsil,
                     is_deleted=False,
                 )
 
-                highest_schedule_count = 1  # Initialize highest count
+                highest_schedule_count = 1
 
                 for citizen in citizens_under_source:
                     latest_citizen_schedule = agg_sc_citizen_schedule.objects.filter(
@@ -1705,12 +1807,11 @@ def agg_sc_schedule_screening_ViewSet_POST(request):
                     else:
                         schedule_count = 1
 
-                    # Update schedule count in agg_sc_citizen_schedule for each citizen
                     schedule_entry = agg_sc_citizen_schedule(
                         schedule_count=schedule_count,
                         citizen_id=citizen.citizen_id,
                         schedule_id=new_schedule.schedule_id,
-                        citizen_pk_id=citizen,  # Link to agg_sc_add_new_citizens instance
+                        citizen_pk_id=citizen,
                         added_by=new_schedule.screening_person_name,
                         modify_by=new_schedule.screening_person_name,
                     )
@@ -1724,16 +1825,13 @@ def agg_sc_schedule_screening_ViewSet_POST(request):
 
                 response_data = {
                     "schedule_id": new_schedule.schedule_id,
-                    "from_date": new_schedule.from_date.isoformat(), 
-                    "to_date": new_schedule.to_date.isoformat(),  
+                    "from_date": new_schedule.from_date.isoformat(),
+                    "to_date": new_schedule.to_date.isoformat(),
                     "source": new_schedule.source.source,
                     "source_name": new_schedule.source_name.source_names,
                     "state": new_schedule.state.state_name,
                     "district": new_schedule.district.dist_name,
                     "Disease": new_schedule.Disease,
-                    "Class": new_schedule.Class.class_name if new_schedule.Class else None,
-                    "department":new_schedule.department.department if new_schedule.department else None,
-                    "type": new_schedule.type.type,
                     "screening_person_name": new_schedule.screening_person_name,
                     "is_deleted": new_schedule.is_deleted,
                     "schedule_count": new_schedule.schedule_count,
@@ -1742,14 +1840,13 @@ def agg_sc_schedule_screening_ViewSet_POST(request):
                 return Response(response_data, status=status.HTTP_201_CREATED)
 
             except IntegrityError as e:
-                error_message = str(e)
-                return Response({"error": error_message}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
             except Exception as e:
-                error_message = str(e)
-                return Response({"error": error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 # _____________________ POST Add New Schedule (POST Method) ______________________________
 #__________________ Add New Schedule (PUT/UPDATE Method) ________________________#
@@ -1992,9 +2089,10 @@ def agg_sc_add_new_citizen_get_info_ViewSet1(request):
 from django.core.exceptions import MultipleObjectsReturned
 
 @api_view(['POST'])
-@renderer_classes([UserRenderer])
-@permission_classes([IsAuthenticated])
+# @renderer_classes([UserRenderer])
+# @permission_classes([IsAuthenticated])
 def agg_sc_add_new_citizen_post_info_ViewSet1(request):
+    print("Request Data:", request.data)
     if request.method == 'POST':
         # aadhar_no = request.data['aadhar_id']
         # aadhar_no = request.data.get('aadhar_id', None)
@@ -2004,8 +2102,13 @@ def agg_sc_add_new_citizen_post_info_ViewSet1(request):
         # except agg_sc_add_new_citizens.DoesNotExist:
             # Create the new citizen record
             serializer = agg_sc_add_new_citizens_POST_Serializer(data=request.data)
+            print("Serializer Dataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:", serializer)
             if serializer.is_valid():
+                print("Serializer Validated Dataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+                print("Serializer Validated Data:", serializer.validated_data)
                 new_citizen = serializer.save()
+                print("New Citizen Data:", new_citizen)
+                print("New Citizen Data1111111111111111111111111111111111")
 
                 # Extract the source_name from the newly added citizen's data
                 source_name = new_citizen.source_name
@@ -2013,8 +2116,8 @@ def agg_sc_add_new_citizen_post_info_ViewSet1(request):
                 source_state = new_citizen.state
                 source_district = new_citizen.district
                 source_tahasil = new_citizen.tehsil
-                source_class = new_citizen.Class
-                type = new_citizen.type
+                # source_class = new_citizen.Class
+                # type = new_citizen.type
 
                 # Find the schedules that match the source_name
                 schedules = agg_sc_schedule_screening.objects.filter(
@@ -2023,8 +2126,8 @@ def agg_sc_add_new_citizen_post_info_ViewSet1(request):
                     state=source_state,
                     district=source_district,
                     tehsil=source_tahasil,
-                    Class=source_class,
-                    type=type
+                    # Class=source_class,
+                    # type=type
                 )
 
                 # Check if there are schedules for this source_name
@@ -2670,8 +2773,8 @@ from django.utils import timezone
 #         return Response(response_data)
 
 @api_view(['GET'])
-@renderer_classes([UserRenderer])
-@permission_classes([IsAuthenticated])
+# @renderer_classes([UserRenderer])
+# @permission_classes([IsAuthenticated])
 def agg_sc_get_start_screening_info_ViewSet1(request):
     if request.method == 'GET':
         filter_params = {}
@@ -2712,6 +2815,21 @@ def agg_sc_get_start_screening_info_ViewSet1(request):
                 
             ]
         elif source_id == '5':
+            tables = [
+                ('agg_sc_citizen_vision_info', agg_sc_citizen_vision_info),
+                ('agg_sc_basic_screening_info', agg_sc_basic_screening_info),
+                ('agg_sc_citizen_audit_info', agg_sc_citizen_audit_info),
+                ('agg_sc_citizen_vital_info', agg_sc_citizen_vital_info),
+                ('agg_sc_citizen_dental_info', agg_sc_citizen_dental_info),
+                ('agg_sc_citizen_family_info', agg_sc_citizen_family_info),
+                ('citizen_basic_info', citizen_basic_info),
+                ('agg_sc_growth_monitoring_info', agg_sc_growth_monitoring_info),
+                ('agg_sc_investigation', agg_sc_investigation),
+                ('agg_sc_citizen_medical_history', agg_sc_citizen_medical_history),
+                ('agg_sc_pft', agg_sc_pft)
+            ]
+        
+        elif source_id == '6':
             tables = [
                 ('agg_sc_citizen_vision_info', agg_sc_citizen_vision_info),
                 ('agg_sc_basic_screening_info', agg_sc_basic_screening_info),
@@ -3689,6 +3807,31 @@ class CitizenPychoInfoViewSet(APIView):
 
         serializer = CitizenPychoinfoSerializer(pycho_info_entries, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+class agg_sc_get_other_info_ViewSet1(APIView):
+    renderer_classes = [UserRenderer]
+    permission_classes = [IsAuthenticated]
+    def get(self, request, schedule_pk, *args, **kwargs):
+        print(f'schedule_pk: {schedule_pk}')
+        try:
+            citizen_schedule = get_object_or_404(agg_sc_citizen_schedule, pk_id=schedule_pk)
+            print(f'citizen_schedule: {citizen_schedule}')
+        except Http404:
+            return Response({'detail': f'Citizen schedule with pk_id {schedule_pk} does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+
+        other_info_entries = agg_sc_citizen_other_info.objects.filter(
+            citizen_id=citizen_schedule.citizen_id,
+            schedule_id=citizen_schedule.schedule_id
+        )
+
+        print(f'other_info_entries: {other_info_entries}')
+
+        serializer = other_info_get_Serializer(other_info_entries, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    
 
 @api_view(['GET'])
 @renderer_classes([UserRenderer])
@@ -7746,6 +7889,267 @@ class CitizenImmunisationInfoPost(APIView):
                 return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
             except Exception as e:
                 return Response({'detail': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+
+
+
+class CitizenOtherInfoPost(APIView):
+    # renderer_classes = [UserRenderer]
+    # permission_classes = [IsAuthenticated]
+    def post(self, request, *args, **kwargs):
+        try:
+            schedule_pk = kwargs.get('schedule_pk')
+            citizen_schedule = get_object_or_404(agg_sc_citizen_schedule, pk_id=schedule_pk)
+        except Http404:
+            return Response({'detail': f'Citizen schedule with pk_id {schedule_pk} does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'detail': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        citizen_id = citizen_schedule.citizen_id
+        schedule_id = citizen_schedule.schedule_id
+        schedule_count = citizen_schedule.schedule_count
+        
+        citizen_pk_id_value = request.data.get('citizen_pk_id')
+        added_by_id = request.data.get('added_by')
+        modify_by_id = request.data.get('modify_by')
+
+        try:
+            citizen_pk_instance = agg_sc_add_new_citizens.objects.get(pk=citizen_pk_id_value)
+        except agg_sc_add_new_citizens.DoesNotExist:
+            return Response({'detail': f'Citizen with pk_id {citizen_pk_id_value} does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            added_by_instance = agg_com_colleague.objects.get(pk=added_by_id)
+        except agg_com_colleague.DoesNotExist:
+            return Response({'detail': f'Colleague with pk {added_by_id} does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            modify_by_instance = agg_com_colleague.objects.get(pk=modify_by_id)
+        except agg_com_colleague.DoesNotExist:
+            return Response({'detail': f'Colleague with pk {modify_by_id} does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        existing_entry = agg_sc_citizen_other_info.objects.filter(
+            citizen_id=citizen_id,
+            schedule_id=schedule_id
+        ).first()
+
+        if existing_entry:
+            existing_entry.footfall = request.data.get('footfall')
+            existing_entry.footfall_refer = request.data.get('footfall_refer')
+            existing_entry.anc_services = request.data.get('anc_services')
+            existing_entry.anc_services_refer = request.data.get('anc_services_refer')
+            existing_entry.ifa_supplementation = request.data.get('ifa_supplementation')
+            existing_entry.ifa_supplementation_refer = request.data.get('ifa_supplementation_refer')
+            existing_entry.high_risk_pregnancy = request.data.get('high_risk_pregnancy')
+            existing_entry.high_risk_pregnancy_refer = request.data.get('high_risk_pregnancy_refer')
+            existing_entry.pnc_services = request.data.get('pnc_services')
+            existing_entry.pnc_services_refer = request.data.get('pnc_services_refer')
+            existing_entry.leprosy = request.data.get('leprosy')
+            existing_entry.leprosy_refer = request.data.get('leprosy_refer')
+            existing_entry.tuberculosis = request.data.get('tuberculosis')
+            existing_entry.tuberculosis_refer = request.data.get('tuberculosis_refer')
+            existing_entry.scd = request.data.get('scd')
+            existing_entry.scd_refer = request.data.get('scd_refer')
+            existing_entry.hypertension = request.data.get('hypertension')
+            existing_entry.hypertension_refer = request.data.get('hypertension_refer')
+            existing_entry.diabetes = request.data.get('diabetes')
+            existing_entry.diabetes_refer = request.data.get('diabetes_refer')
+            existing_entry.anaemia = request.data.get('anaemia')
+            existing_entry.anaemia_refer = request.data.get('anaemia_refer')
+            existing_entry.cervical_cancer = request.data.get('cervical_cancer')
+            existing_entry.cervical_cancer_refer = request.data.get('cervical_cancer_refer')
+            existing_entry.other_conditions = request.data.get('other_conditions')
+            existing_entry.other_conditions_refer = request.data.get('other_conditions_refer')
+            existing_entry.malaria_dengue_rdt = request.data.get('malaria_dengue_rdt')
+            existing_entry.malaria_dengue_rdt_refer = request.data.get('malaria_dengue_rdt_refer')
+            existing_entry.diagnostic_tests = request.data.get('diagnostic_tests')
+            existing_entry.diagnostic_tests_refer = request.data.get('diagnostic_tests_refer')
+            existing_entry.higher_facility = request.data.get('higher_facility')
+            existing_entry.higher_facility_refer = request.data.get('higher_facility_refer')
+            
+            existing_entry.form_submit = request.data.get('form_submit')
+            existing_entry.reffered_to_specialist = request.data.get('reffered_to_specialist')
+            existing_entry.modify_by = modify_by_instance
+            if not existing_entry.added_by:
+                existing_entry.added_by = added_by_instance
+            
+            existing_entry.save()
+
+            if existing_entry.reffered_to_specialist == 1:
+                follow_up_entry = agg_sc_follow_up_citizen.objects.filter(
+                    citizen_id=citizen_id,
+                    schedule_id=schedule_id
+                ).first()
+
+                if follow_up_entry:
+                    follow_up_entry.vital_refer = existing_entry.reffered_to_specialist
+                    follow_up_entry.added_by = added_by_instance
+                    follow_up_entry.modify_by = modify_by_instance
+                    follow_up_entry.modify_date = timezone.now()
+                    follow_up_entry.save()
+                else:
+                    follow_up_entry = agg_sc_follow_up_citizen.objects.create(
+                        vital_refer=request.data.get('reffered_to_specialist'),
+                        citizen_id=citizen_id,
+                        citizen_pk_id=citizen_pk_instance,
+                        schedule_id=schedule_id,
+                        added_by=added_by_instance,
+                        added_date=timezone.now(),
+                        modify_by=modify_by_instance,
+                        modify_date=timezone.now()
+                    )
+
+            if existing_entry.reffered_to_specialist == 2:
+                # Delete the 'vital_refer' field in the 'agg_sc_follow_up_citizen' table
+                follow_up_entry = agg_sc_follow_up_citizen.objects.filter(
+                    citizen_id=citizen_id,
+                    schedule_id=schedule_id
+                ).first()
+
+                if follow_up_entry:
+                    follow_up_entry.vital_refer = None
+                    follow_up_entry.save()
+
+            response_data = {
+                'message': 'Data updated successfully',
+                    'updated_data': {
+                    'footfall': existing_entry.footfall,
+                    'footfall_refer': existing_entry.footfall_refer,
+                    'anc_services': existing_entry.anc_services,
+                    'anc_services_refer': existing_entry.anc_services_refer,
+                    'ifa_supplementation': existing_entry.ifa_supplementation,
+                    'ifa_supplementation_refer': existing_entry.ifa_supplementation_refer,
+                    'high_risk_pregnancy': existing_entry.high_risk_pregnancy,
+                    'high_risk_pregnancy_refer': existing_entry.high_risk_pregnancy_refer,
+                    'pnc_services': existing_entry.pnc_services,
+                    'pnc_services_refer': existing_entry.pnc_services_refer,
+                    'leprosy': existing_entry.leprosy,
+                    'leprosy_refer': existing_entry.leprosy_refer,
+                    'tuberculosis': existing_entry.tuberculosis,
+                    'tuberculosis_refer': existing_entry.tuberculosis_refer,
+                    'scd': existing_entry.scd,
+                    'scd_refer': existing_entry.scd_refer,
+                    'hypertension': existing_entry.hypertension,
+                    'hypertension_refer': existing_entry.hypertension_refer,
+                    'diabetes': existing_entry.diabetes,
+                    'diabetes_refer': existing_entry.diabetes_refer,
+                    'anaemia': existing_entry.anaemia,
+                    'anaemia_refer': existing_entry.anaemia_refer,
+                    'cervical_cancer': existing_entry.cervical_cancer,
+                    'cervical_cancer_refer': existing_entry.cervical_cancer_refer,
+                    'other_conditions': existing_entry.other_conditions,
+                    'other_conditions_refer': existing_entry.other_conditions_refer,
+                    'malaria_dengue_rdt': existing_entry.malaria_dengue_rdt,
+                    'malaria_dengue_rdt_refer': existing_entry.malaria_dengue_rdt_refer,
+                    'diagnostic_tests': existing_entry.diagnostic_tests,
+                    'diagnostic_tests_refer': existing_entry.diagnostic_tests_refer,
+                    'higher_facility': existing_entry.higher_facility,
+                    'higher_facility_refer': existing_entry.higher_facility_refer,
+                    'reffered_to_specialist': existing_entry.reffered_to_specialist,
+                    'added_by': existing_entry.added_by.id if existing_entry.added_by else None,
+                    'modify_by': existing_entry.modify_by.id,
+                }
+            }
+
+            return Response(response_data, status=status.HTTP_200_OK)
+        else:
+            citizen_health_info = agg_sc_citizen_other_info(
+            citizen_id=citizen_id,
+            schedule_id=schedule_id,
+            schedule_count=schedule_count,
+            citizen_pk_id=citizen_pk_instance,
+            footfall=request.data.get('footfall'),
+            footfall_refer=request.data.get('footfall_refer'),
+            anc_services=request.data.get('anc_services'),
+            anc_services_refer=request.data.get('anc_services_refer'),
+            ifa_supplementation=request.data.get('ifa_supplementation'),
+            ifa_supplementation_refer=request.data.get('ifa_supplementation_refer'),
+            high_risk_pregnancy=request.data.get('high_risk_pregnancy'),
+            high_risk_pregnancy_refer=request.data.get('high_risk_pregnancy_refer'),
+            pnc_services=request.data.get('pnc_services'),
+            pnc_services_refer=request.data.get('pnc_services_refer'),
+            leprosy=request.data.get('leprosy'),
+            leprosy_refer=request.data.get('leprosy_refer'),
+            tuberculosis=request.data.get('tuberculosis'),
+            tuberculosis_refer=request.data.get('tuberculosis_refer'),
+            scd=request.data.get('scd'),
+            scd_refer=request.data.get('scd_refer'),
+            hypertension=request.data.get('hypertension'),
+            hypertension_refer=request.data.get('hypertension_refer'),
+            diabetes=request.data.get('diabetes'),
+            diabetes_refer=request.data.get('diabetes_refer'),
+            anaemia=request.data.get('anaemia'),
+            anaemia_refer=request.data.get('anaemia_refer'),
+            cervical_cancer=request.data.get('cervical_cancer'),
+            cervical_cancer_refer=request.data.get('cervical_cancer_refer'),
+            other_conditions=request.data.get('other_conditions'),
+            other_conditions_refer=request.data.get('other_conditions_refer'),
+            malaria_dengue_rdt=request.data.get('malaria_dengue_rdt'),
+            malaria_dengue_rdt_refer=request.data.get('malaria_dengue_rdt_refer'),
+            diagnostic_tests=request.data.get('diagnostic_tests'),
+            diagnostic_tests_refer=request.data.get('diagnostic_tests_refer'),
+            higher_facility=request.data.get('higher_facility'),
+            higher_facility_refer=request.data.get('higher_facility_refer'),
+            added_by=added_by_instance,
+            modify_by=modify_by_instance,
+        )
+
+            citizen_health_info.save()
+            if citizen_health_info.reffered_to_specialist == 2:
+                # Delete the 'auditory_refer' field in the 'agg_sc_follow_up_citizen' table
+                follow_up_entry = agg_sc_follow_up_citizen.objects.filter(
+                    citizen_id=citizen_id,
+                    schedule_id=schedule_id
+                ).first()
+
+                if follow_up_entry:
+                    follow_up_entry.vital_refer_refer = None
+                    follow_up_entry.save()
+
+            response_data = {
+                'message': 'Data sent successfully',
+                'posted_data': {
+                    'citizen_pk_id': citizen_pk_instance.pk,
+                    'footfall': citizen_health_info.footfall,
+                    'footfall_refer': citizen_health_info.footfall_refer,
+                    'anc_services': citizen_health_info.anc_services,
+                    'anc_services_refer': citizen_health_info.anc_services_refer,
+                    'ifa_supplementation': citizen_health_info.ifa_supplementation,
+                    'ifa_supplementation_refer': citizen_health_info.ifa_supplementation_refer,
+                    'high_risk_pregnancy': citizen_health_info.high_risk_pregnancy,
+                    'high_risk_pregnancy_refer': citizen_health_info.high_risk_pregnancy_refer,
+                    'pnc_services': citizen_health_info.pnc_services,
+                    'pnc_services_refer': citizen_health_info.pnc_services_refer,
+                    'leprosy': citizen_health_info.leprosy,
+                    'leprosy_refer': citizen_health_info.leprosy_refer,
+                    'tuberculosis': citizen_health_info.tuberculosis,
+                    'tuberculosis_refer': citizen_health_info.tuberculosis_refer,
+                    'scd': citizen_health_info.scd,
+                    'scd_refer': citizen_health_info.scd_refer,
+                    'hypertension': citizen_health_info.hypertension,
+                    'hypertension_refer': citizen_health_info.hypertension_refer,
+                    'diabetes': citizen_health_info.diabetes,
+                    'diabetes_refer': citizen_health_info.diabetes_refer,
+                    'anaemia': citizen_health_info.anaemia,
+                    'anaemia_refer': citizen_health_info.anaemia_refer,
+                    'cervical_cancer': citizen_health_info.cervical_cancer,
+                    'cervical_cancer_refer': citizen_health_info.cervical_cancer_refer,
+                    'other_conditions': citizen_health_info.other_conditions,
+                    'other_conditions_refer': citizen_health_info.other_conditions_refer,
+                    'malaria_dengue_rdt': citizen_health_info.malaria_dengue_rdt,
+                    'malaria_dengue_rdt_refer': citizen_health_info.malaria_dengue_rdt_refer,
+                    'diagnostic_tests': citizen_health_info.diagnostic_tests,
+                    'diagnostic_tests_refer': citizen_health_info.diagnostic_tests_refer,
+                    'higher_facility': citizen_health_info.higher_facility,
+                    'higher_facility_refer': citizen_health_info.higher_facility_refer,
+                    'added_by': added_by_instance.pk,
+                    'modify_by': modify_by_instance.pk,
+                }
+            }
+            return Response(response_data, status=status.HTTP_201_CREATED)
+
+            
+
 
 
 
@@ -11864,8 +12268,8 @@ from rest_framework.views import APIView
 from .models import imported_data_from_excel_csv
 
 class DownloadCSVView(APIView):
-    renderer_classes = [UserRenderer]
-    permission_classes = [IsAuthenticated]
+    # renderer_classes = [UserRenderer]
+    # permission_classes = [IsAuthenticated]
     
     def get(self, request, *args, **kwargs):
         # Retrieve the source_id from query parameters
@@ -13876,3 +14280,7 @@ class pilot_get_api(APIView):
         snippet = agg_sc_pilot.objects.all()
         serializers = pilot_Serializer(snippet, many=True)
         return Response(serializers.data, status=status.HTTP_200_OK)
+    
+    
+
+

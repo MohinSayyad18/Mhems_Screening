@@ -631,11 +631,9 @@ class agg_sc_add_new_citizens_DELETE_Serializer(serializers.ModelSerializer):
                 fields = ('citizens_pk_id','age', 'gender', 'source','type','disease', 'name', 'gender', 'dob', 'blood_groups', 'year', 'months', 'days', 'aadhar_id','Class','division','father_name', 'mother_name', 'occupation_of_father', 'occupation_of_mother', 'parents_mobile', 'sibling_count', 'state', 'district', 'tehsil', 'pincode', 'address', 'source_name', 'height', 'weight', 'weight_for_age', 'height_for_age', 'weight_for_height', 'bmi', 'arm_size', 'symptoms', 'modify_by')# 'modify_by' 
 
 class agg_sc_add_new_citizens_POST_Serializer(serializers.ModelSerializer):
-        # modify_by = agg_com_colleague_Serializer() #Amit
-        # added_by = agg_com_colleague_Serializer() #Amit
         class Meta:
-                model = agg_sc_add_new_citizens
-                fields = ('citizens_pk_id','age', 'gender', 'source','type','disease','prefix','name', 'gender', 'dob', 'blood_groups', 'year', 'months', 'days', 'aadhar_id','Class','division','father_name', 'mother_name', 'occupation_of_father', 'occupation_of_mother', 'parents_mobile', 'sibling_count', 'state', 'district', 'tehsil', 'pincode', 'address', 'source_name', 'height', 'weight', 'weight_for_age', 'height_for_age', 'weight_for_height', 'bmi', 'arm_size', 'symptoms', 'added_by')# 'added_by' 
+            model = agg_sc_add_new_citizens
+            fields = ['citizens_pk_id','age', 'gender', 'source','type','disease','prefix','name','dob', 'blood_groups', 'year', 'months', 'days', 'aadhar_id','Class','division','father_name', 'mother_name', 'occupation_of_father', 'occupation_of_mother', 'parents_mobile', 'sibling_count', 'state', 'district', 'tehsil', 'pincode', 'address', 'source_name', 'height', 'weight', 'weight_for_age', 'height_for_age', 'weight_for_height', 'bmi', 'arm_size', 'symptoms', 'added_by']# 'added_by' 
 
                  
 class agg_sc_add_new_citizens_PUT_Serializer(serializers.ModelSerializer):
@@ -2539,6 +2537,11 @@ class ScreeningVitalsSerializer(serializers.ModelSerializer):
 
 
 
+class other_info_get_Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = agg_sc_citizen_other_info
+        fields = '__all__'
+
 # class screening_sublist_Serializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = agg_sc_add_new_source
@@ -2651,3 +2654,5 @@ class pilot_Serializer(serializers.ModelSerializer):
         model = agg_sc_pilot
         fields = ['pilot_pk_id','pilot_name']
         
+        
+

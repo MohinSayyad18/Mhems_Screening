@@ -1323,9 +1323,9 @@ class agg_sc_add_new_source(models.Model):
     #_______________NEW FIELDS___________________
     is_deleted = models.BooleanField(default=False)
     added_by =	models.ForeignKey('agg_com_colleague', related_name='added_screenings',on_delete=models.CASCADE, null=True, blank=True)
-    added_date = models.DateTimeField(auto_now_add=True)
+    added_date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     modify_by =	models.ForeignKey('agg_com_colleague',related_name='modified_screenings',on_delete=models.CASCADE, null=True, blank=True)
-    modify_date = models.DateTimeField(auto_now=True, null=True)
+    modify_date = models.DateTimeField(auto_now=True, null=True, blank=True)
 
     def __str__(self):
         return self.source_names
@@ -1360,9 +1360,9 @@ class agg_sc_schedule_screening (models.Model):
     district = models.ForeignKey('agg_sc_district', on_delete=models.CASCADE)
     tehsil = models.ForeignKey('agg_sc_tahsil', on_delete=models.CASCADE)
     Disease = models.ForeignKey('agg_sc_disease', on_delete=models.CASCADE,blank=True,null=True)
-    type = models.ForeignKey('agg_sc_screening_for_type', on_delete=models.CASCADE)
-    Class = models.ForeignKey('agg_sc_class', on_delete=models.CASCADE,blank=True, null=True)
-    department = models.ForeignKey('agg_sc_department', on_delete=models.CASCADE,blank=True, null=True)
+    # type = models.ForeignKey('agg_sc_screening_for_type', on_delete=models.CASCADE,null=True, blank=True)
+    # Class = models.ForeignKey('agg_sc_class', on_delete=models.CASCADE,blank=True, null=True)
+    # department = models.ForeignKey('agg_sc_department', on_delete=models.CASCADE,blank=True, null=True)
     screening_person_name = models.CharField(max_length=255)
     mobile_number = models.BigIntegerField()
     #_______________NEW FIELDS___________________
@@ -1375,6 +1375,10 @@ class agg_sc_schedule_screening (models.Model):
     added_date = models.DateTimeField(auto_now_add=True)
     modify_by =	models.ForeignKey('agg_com_colleague',related_name='screenings_modified',on_delete=models.CASCADE, null=True, blank=True)
     modify_date = models.DateTimeField(auto_now=True, null=True)
+    location1 = models.CharField(max_length=255, null=True, blank=True)
+    location2 = models.CharField(max_length=255, null=True, blank=True)
+    location3 = models.CharField(max_length=255, null=True, blank=True)
+    location4 = models.CharField(max_length=255, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.schedule_id:
@@ -1524,6 +1528,9 @@ class ht_for_age_0_to_10_boys_and_girl(models.Model):
     gender = models.IntegerField()
 
 
+from django.db import models, IntegrityError, transaction
+from django.utils import timezone
+
 class agg_sc_add_new_citizens(models.Model):
 # _______________________ ID's ______________________________________________
     citizens_pk_id = models.AutoField(primary_key=True)
@@ -1532,9 +1539,9 @@ class agg_sc_add_new_citizens(models.Model):
 # _______________________________ Relation _______________________________
     # schedule_screening_pk_id = models.ForeignKey('agg_sc_schedule_screening', on_delete=models.CASCADE)
 # ________________________ Search_Fields ______________________________________
-    age = models.ForeignKey('agg_age', on_delete=models.CASCADE)
-    gender = models.ForeignKey('agg_gender', on_delete=models.CASCADE)
-    source = models.ForeignKey('agg_source', on_delete=models.CASCADE)
+    age = models.ForeignKey('agg_age', on_delete=models.CASCADE,null=True, blank=True)
+    gender = models.ForeignKey('agg_gender', on_delete=models.CASCADE,null=True, blank=True)
+    source = models.ForeignKey('agg_source', on_delete=models.CASCADE,null=True, blank=True)
     type = models.ForeignKey('agg_sc_screening_for_type', on_delete=models.CASCADE,blank=True,null=True)
     disease = models.ForeignKey('agg_sc_disease', on_delete=models.CASCADE,blank=True,null=True)
 #_________________________ CHILD DETAILS_______________________________________
@@ -1563,7 +1570,7 @@ class agg_sc_add_new_citizens(models.Model):
     district = models.ForeignKey('agg_sc_district', on_delete=models.CASCADE,blank=True, null=True)
     tehsil =  models.ForeignKey('agg_sc_tahsil', on_delete=models.CASCADE,blank=True, null=True)
     pincode = models.CharField(max_length=255)
-    address = models.CharField(max_length=255)
+    address = models.CharField(max_length=255,null=True,blank=True)
     permanant_address = models.CharField(max_length=255,null=True,blank=True)
 #___________GROWTH MONITORING________________
     height = models.FloatField(blank=True,null=True)
@@ -1588,7 +1595,7 @@ class agg_sc_add_new_citizens(models.Model):
     
     doj = models.DateField(null=True,blank=True)
     official_email = models.EmailField(null=True,blank=True)
-    site_plant = models.CharField(null=True,blank=True,max_length=255)
+    site_plant = models.CharField(max_length=500, null=True,blank=True)
     official_mobile =  models.CharField(max_length=10, null=True,blank=True) 
     #------------------------------Corporate-----------------------------------
     is_deleted = models.BooleanField(default=False)
@@ -1620,31 +1627,61 @@ class agg_sc_add_new_citizens(models.Model):
         
     #     super(agg_sc_add_new_citizens, self).save(*args, **kwargs)
     
-    def save(self, *args, **kwargs):
-        if not self.citizen_id:
-            while True:
-                last_id = agg_sc_add_new_citizens.objects.order_by('-citizen_id').first()
-                if last_id:
-                    last_id_value = int(last_id.citizen_id.split('-')[1][-4:])
-                    new_id_value = last_id_value + 1
-                else:
-                    new_id_value = 1
+    # def save(self, *args, **kwargs):
+    #     if not self.citizen_id:
+    #         while True:
+    #             last_id = agg_sc_add_new_citizens.objects.order_by('-citizen_id').first()
+    #             if last_id:
+    #                 last_id_value = int(last_id.citizen_id.split('-')[1][-4:])
+    #                 new_id_value = last_id_value + 1
+    #             else:
+    #                 new_id_value = 1
 
-                generated_id = int(str(timezone.now().strftime('%d%m%Y')) + str(new_id_value).zfill(5))
-                self.citizen_id = f"CITIZEN-{generated_id}"
+    #             generated_id = int(str(timezone.now().strftime('%d%m%Y')) + str(new_id_value).zfill(5))
+    #             self.citizen_id = f"CITIZEN-{generated_id}"
 
-                try:
-                    super(agg_sc_add_new_citizens, self).save(*args, **kwargs)
-                    break  # Break the loop if the save is successful
-                except IntegrityError as e:
-                    # Handle IntegrityError (duplicate key violation)
-                    if 'duplicate key value violates unique constraint' in str(e):
-                        # Retry the loop to generate a new citizen_id
-                        continue
-                    else:
-                        raise e  # Re-raise other IntegrityError types
+    #             try:
+    #                 super(agg_sc_add_new_citizens, self).save(*args, **kwargs)
+    #                 break  # Break the loop if the save is successful
+    #             except IntegrityError as e:
+    #                 # Handle IntegrityError (duplicate key violation)
+    #                 if 'duplicate key value violates unique constraint' in str(e):
+    #                     # Retry the loop to generate a new citizen_id
+    #                     continue
+    #                 else:
+    #                     raise e  # Re-raise other IntegrityError types
+    #     else:
+    #         super(agg_sc_add_new_citizens, self).save(*args, **kwargs)
+    
+    
+    def generate_citizen_id(self):
+        last_id = agg_sc_add_new_citizens.objects.order_by('-citizens_pk_id').first()
+        if last_id and last_id.citizen_id and '-' in last_id.citizen_id:
+            try:
+                last_id_value = int(last_id.citizen_id.split('-')[1][-5:])
+            except ValueError:
+                last_id_value = 0
+            new_id_value = last_id_value + 1
         else:
-            super(agg_sc_add_new_citizens, self).save(*args, **kwargs)
+            new_id_value = 1
+
+        generated_id = f"{timezone.now().strftime('%d%m%Y')}{str(new_id_value).zfill(5)}"
+        return f"CITIZEN-{generated_id}"
+
+    def save(self, *args, **kwargs):
+        for attempt in range(5):  # retry up to 5 times
+            if not self.citizen_id:  # always regenerate if missing
+                self.citizen_id = self.generate_citizen_id()
+            try:
+                with transaction.atomic():
+                    super().save(*args, **kwargs)
+                return  # ✅ success
+            except IntegrityError:
+                # regenerate ID and retry
+                self.citizen_id = None
+                if attempt == 4:
+                    raise
+                continue
 
 
 # ----------------------------------- END_Add_New_Citizen -------------------------------------------------------------
@@ -1951,7 +1988,7 @@ class agg_colleague_manager(BaseUserManager):
 
     # def create_user(self, clg_ref_id, clg_first_name, clg_mid_name ,clg_last_name ,grp_id , clg_email ,clg_mobile_no ,clg_gender ,clg_address ,clg_is_login ,clg_designation ,clg_state ,clg_division ,clg_district ,clg_break_type ,clg_senior ,clg_hos_id ,clg_agency_id ,clg_status ,clg_added_by ,clg_modify_by ,clg_Date_of_birth ,clg_Work_phone_number ,clg_work_email_id ,clg_Emplyee_code ,clg_qualification,clg_avaya_agentid ,clg_Aadhar_no,clg_specialization ,clg_profile_photo_path ,clg_joining_date ,clg_marital_status, clg_otp, clg_otp_count, clg_otp_expire_time,clg_source,clg_tahsil,clg_source_name,password=None,password2=None):#clg_source,clg_tahsil,clg_source_name,
     
-    def create_user(self, clg_ref_id, clg_mobile_no ,grp_id , clg_email ,clg_gender ,clg_address , clg_state ,clg_district , clg_Date_of_birth, clg_source,clg_tahsil, clg_added_by, clg_source_name,password=None,password2=None):# clg_first_name, clg_mid_name ,clg_last_name clg_is_loginclg_added_by ,clg_modify_by, clg_otp, clg_otp_count, clg_otp_expire_time,
+    def create_user(self, clg_ref_id, clg_mobile_no ,grp_id , clg_email ,clg_gender ,clg_address , clg_state ,clg_district , clg_Date_of_birth, clg_source,clg_tahsil, clg_source_name,password=None,password2=None):# clg_first_name, clg_mid_name ,clg_last_name clg_is_loginclg_added_by ,clg_modify_by, clg_otp, clg_otp_count, clg_otp_expire_time,
 
 
         """
@@ -1977,7 +2014,7 @@ class agg_colleague_manager(BaseUserManager):
 			# clg_otp = clg_otp,
 			# clg_otp_count = clg_otp_count,
 			# clg_otp_expire_time = clg_otp_expire_time,
-            clg_added_by = clg_added_by ,
+            # clg_added_by = clg_added_by ,
             # clg_modify_by = clg_modify_by,
             clg_source = clg_source,#added By mohin
             clg_tahsil = clg_tahsil,#added By mohin
@@ -2076,6 +2113,7 @@ class agg_com_colleague(AbstractBaseUser):
     # grp_id = models.IntegerField(null=True)
     grp_id = models.ForeignKey(agg_mas_group,related_name='clg_group', on_delete=models.CASCADE, null=True, default=None, blank=True)
     clg_gender = models.ForeignKey('agg_gender', on_delete=models.CASCADE,null=True, blank=True)
+    # clg_gender = models.IntegerField(null=True)
     clg_mobile_no =	models.BigIntegerField( null=True, blank=True)
     clg_Work_phone_number =	models.BigIntegerField(null=True, blank=True)
     clg_Date_of_birth =	models.DateField(null=True, blank=True)
@@ -2090,23 +2128,33 @@ class agg_com_colleague(AbstractBaseUser):
     clg_source = models.ForeignKey('agg_source', on_delete=models.CASCADE,null=True, blank=True)#added By mohin
     clg_tahsil =	models.ForeignKey('agg_sc_tahsil', on_delete=models.CASCADE,null=True, blank=True)#added By mohin
     clg_source_name = models.ForeignKey('agg_sc_add_new_source', on_delete=models.CASCADE,null=True, blank=True)#added By mohin
+    # clg_state =	models.IntegerField(null=True)
+    # clg_division =	models.IntegerField(null=True)
+    # clg_district =	models.IntegerField(null=True)
+    # clg_source = models.IntegerField(null=True)
+    # clg_tahsil =	models.IntegerField(null=True)
+    # clg_source_name = models.IntegerField(null=True)
+    
     clg_senior = models.CharField(max_length=50, null=True, blank=True)
     clg_break_type = models.IntegerField(null=True, blank=True)
     clg_status = models.CharField(max_length=50, default=True, null=True, blank=True)    
     clg_profile_photo_path = models.CharField(max_length=100, null=True, blank=True)
-    clg_joining_date =	models.CharField(max_length=50, null=True, blank=True)
+    # clg_joining_date =	models.CharField(max_length=50, null=True, blank=True)
+    clg_joining_date = models.DateTimeField(null=True, blank=True)
     clg_marital_status = models.CharField(max_length=50, null=True, blank=True)
     clg_otp =	models.IntegerField(null=True, blank=True)
     clg_otp_count =	models.IntegerField(null=True, blank=True)
     clg_otp_expire_time =	models.DateTimeField(null=True, blank=True)    
     clg_is_login =	models.BooleanField(default=False, blank=True)
     is_admin = models.BooleanField(default=False, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True, blank=True)
-    updated_at = models.DateTimeField(auto_now=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, blank=True,null=True)
+    updated_at = models.DateTimeField(auto_now=True, blank=True,null=True)
     is_deleted = models.BooleanField(default=False)
     clg_added_by =	models.ForeignKey('agg_com_colleague', related_name='added_by_screenings',on_delete=models.CASCADE, null=True, blank=True)
-    clg_added_date = models.DateField(auto_now_add=True, blank=True)
     clg_modify_by =	models.ForeignKey('agg_com_colleague', related_name='modify_by_screenings',on_delete=models.CASCADE, null=True, blank=True)
+    # clg_added_by =	models.IntegerField(null=True, blank=True)
+    # clg_modify_by =	models.IntegerField(null=True, blank=True)
+    clg_added_date = models.DateField(auto_now_add=True, blank=True)
     clg_modify_date = models.DateField(auto_now=True, null=True, blank=True)
 
 
@@ -2151,33 +2199,33 @@ class agg_com_colleague(AbstractBaseUser):
         # Simplest possible answer: All admins are staff
         return self.is_admin
     
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            if self.grp_id:
-                group = self.grp_id  # Assuming that self.grp_id is an instance of the agg_mas_group model
-                grp_name = group.grp_name  # Replace 'group_name' with the actual field name that stores the group name
+    # def save(self, *args, **kwargs):
+    #     if not self.pk:
+    #         if self.grp_id:
+    #             group = self.grp_id  # Assuming that self.grp_id is an instance of the agg_mas_group model
+    #             grp_name = group.grp_name  # Replace 'group_name' with the actual field name that stores the group name
 
-                # Check if grp_name starts with "UG-" and remove it if necessary
-                if grp_name.startswith("UG-"):
-                    grp_name = grp_name.replace("UG-", "")
+    #             # Check if grp_name starts with "UG-" and remove it if necessary
+    #             if grp_name.startswith("UG-"):
+    #                 grp_name = grp_name.replace("UG-", "")
 
-                # Get the current maximum code for the selected clg group with the same group and group name
-                existing_codes = agg_com_colleague.objects.filter(grp_id=self.grp_id, clg_Emplyee_code__startswith=f'UG-{grp_name}-').values_list('clg_Emplyee_code', flat=True)
+    #             # Get the current maximum code for the selected clg group with the same group and group name
+    #             existing_codes = agg_com_colleague.objects.filter(grp_id=self.grp_id, clg_Emplyee_code__startswith=f'UG-{grp_name}-').values_list('clg_Emplyee_code', flat=True)
                 
-                if existing_codes:
-                    # Extract the numeric parts of existing codes, find the maximum, and increment it
-                    code_numbers = [int(code.split('-')[-1]) for code in existing_codes]
-                    code_number = max(code_numbers) + 1
-                else:
-                    code_number = 1
+    #             if existing_codes:
+    #                 # Extract the numeric parts of existing codes, find the maximum, and increment it
+    #                 code_numbers = [int(code.split('-')[-1]) for code in existing_codes]
+    #                 code_number = max(code_numbers) + 1
+    #             else:
+    #                 code_number = 1
 
-                prefix = f'UG-{grp_name}-{code_number}'
-            else:
-                prefix = 'UG-OTHER'
+    #             prefix = f'UG-{grp_name}-{code_number}'
+    #         else:
+    #             prefix = 'UG-OTHER'
 
-            self.clg_Emplyee_code = prefix
+    #         self.clg_Emplyee_code = prefix
 
-        super(agg_com_colleague, self).save(*args, **kwargs)
+    #     super(agg_com_colleague, self).save(*args, **kwargs)
     
 
 
@@ -2655,6 +2703,102 @@ class agg_sc_ambulance(models.Model):
     modify_date = models.DateTimeField(auto_now=True, null=True)
 
 
+
+
+class agg_sc_citizen_other_info(models.Model):
+    pk_id=models.AutoField(primary_key=True)
+    # vital_code = models.CharField(max_length=1110, editable=False) 
+    created_date = models.DateField(default=timezone.now, editable=False)
+    citizen_id = models.CharField(max_length=255) 
+    schedule_id = models.CharField(max_length=255)
+    schedule_count = models.IntegerField()
+    citizen_pk_id = models.ForeignKey("agg_sc_add_new_citizens", on_delete=models.CASCADE)
+    
+    # 1. Footfall
+    footfall = models.IntegerField(null=True, blank=True)
+    footfall_refer = models.IntegerField(null=True, blank=True)
+
+    # 2. Ante-Natal Care (ANC) Services
+    anc_services = models.IntegerField(null=True, blank=True)
+    anc_services_refer = models.IntegerField(null=True, blank=True)
+
+    # 3. Iron Folic Acid (IFA) supplementation
+    ifa_supplementation = models.IntegerField(null=True, blank=True)
+    ifa_supplementation_refer = models.IntegerField(null=True, blank=True)
+
+    # 4. High Risk Pregnancy
+    high_risk_pregnancy = models.IntegerField(null=True, blank=True)
+    high_risk_pregnancy_refer = models.IntegerField(null=True, blank=True)
+
+    # 5. Post-Natal Care (PNC) Services
+    pnc_services = models.IntegerField(null=True, blank=True)
+    pnc_services_refer = models.IntegerField(null=True, blank=True)
+
+    # 6. Leprosy
+    leprosy = models.IntegerField(null=True, blank=True)
+    leprosy_refer = models.IntegerField(null=True, blank=True)
+
+    # 7. Tuberculosis (TB)
+    tuberculosis = models.IntegerField(null=True, blank=True)
+    tuberculosis_refer = models.IntegerField(null=True, blank=True)
+
+    # 8. Sickle Cell Disease (SCD)
+    scd = models.IntegerField(null=True, blank=True, verbose_name="Sickle Cell Disease (SCD)")
+    scd_refer = models.IntegerField(null=True, blank=True)
+
+    # 9. Hypertension
+    hypertension = models.IntegerField(null=True, blank=True)
+    hypertension_refer = models.IntegerField(null=True, blank=True)
+
+    # 10. Diabetes
+    diabetes = models.IntegerField(null=True, blank=True)
+    diabetes_refer = models.IntegerField(null=True, blank=True)
+
+    # 11. Anaemia
+    anaemia = models.IntegerField(null=True, blank=True)
+    anaemia_refer = models.IntegerField(null=True, blank=True)
+
+    # 12. Cervical Cancer
+    cervical_cancer = models.IntegerField(null=True, blank=True)
+    cervical_cancer_refer = models.IntegerField(null=True, blank=True)
+
+    # 13. Other health conditions/diseases
+    other_conditions = models.IntegerField(null=True, blank=True)
+    other_conditions_refer = models.IntegerField(null=True, blank=True)
+
+    # 14. RDT tests for Malaria/Dengue
+    malaria_dengue_rdt = models.IntegerField(null=True, blank=True)
+    malaria_dengue_rdt_refer = models.IntegerField(null=True, blank=True)
+
+    # 15. Diagnostic tests
+    diagnostic_tests = models.IntegerField(null=True, blank=True)
+    diagnostic_tests_refer = models.IntegerField(null=True, blank=True)
+
+    # 16. Higher health facility
+    higher_facility = models.IntegerField(null=True, blank=True)
+    higher_facility_refer = models.IntegerField(null=True, blank=True)
+    
+    is_deleted = models.BooleanField(default=False)
+    form_submit = models.BooleanField(default=False)
+    reffered_to_specialist = models.IntegerField(null=True, blank=True)
+    added_by =	models.ForeignKey('agg_com_colleague', related_name='other_info_added_by',on_delete=models.CASCADE, blank=True,null=True)
+    added_date = models.DateTimeField(auto_now_add=True)
+    modify_by =	models.ForeignKey('agg_com_colleague', related_name='other_info_modify_by', on_delete=models.CASCADE, blank=True,null=True)
+    modify_date = models.DateTimeField(auto_now=True, null=True)
+
+    # def save(self, *args, **kwargs):
+    #     if not self.vital_code:
+    #         last_id = agg_sc_citizen_vital_info.objects.order_by('-vital_code').first()
+    #         if last_id and '-' in last_id.vital_code:
+    #             last_id_value = int(last_id.vital_code.split('-')[1][-4:])
+    #             new_id_value = last_id_value + 1
+    #             generated_id = int(str(timezone.now().strftime('%d%m%Y')) + str(new_id_value).zfill(5))
+    #         else:
+    #             generated_id = int(str(timezone.now().strftime('%d%m%Y')) + '00001')
+
+    #         self.vital_code = f"VITAL-{generated_id}"
+
+    #     super(agg_sc_citizen_vital_info, self).save(*args, **kwargs)
     
     
     
