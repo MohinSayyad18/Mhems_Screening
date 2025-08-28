@@ -53,11 +53,13 @@ const Dashboard = () => {
     }, []);
 
     const [screeningSource, setScreeningSource] = useState([]);
-    const [selectedSource, setSelectedSource] = useState('');
+    const [selectedSource, setSelectedSource] = useState(SourceUrlId || '');
     const [selctedType, setSelctedType] = useState('')
     const [type, setType] = useState([]);
+    const [scheduleID, setScheduleID] = useState([]);
     const [classList, setClassList] = useState([]);
     const [selectedClassType, setSelectedClassType] = useState('');
+    const [selectedScreenID, setSelectedScreenID] = useState('');
     const [department, setDepartment] = useState([]);
     const [selectedDepartmentId, setSelectedDepartmentId] = useState()
 
@@ -261,6 +263,29 @@ const Dashboard = () => {
         }
     }, [selectedSource]);
 
+    //// Schedule ID WISE DATA
+    useEffect(() => {
+        const fetchScheduleID = async () => {
+            try {
+                const response = await axios.get(`${Port}/Screening/Schedule_id_GET/?source_id=${SourceUrlId}&source_name_id=${SourceNameUrlId}`, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`
+                    }
+                });
+
+                // Ensure response data is in the expected format
+                if (Array.isArray(response.data)) {
+                    setScheduleID(response.data);
+                } else {
+                    console.error("Unexpected response data format", response.data);
+                }
+            } catch (error) {
+                console.log('Error while fetching data', error);
+            }
+        };
+        fetchScheduleID();
+    }, []);
+
     useEffect(() => {
         const fetchClass = async () => {
             try {
@@ -304,7 +329,7 @@ const Dashboard = () => {
                     <div className="col-md-12">
                         <div className="card dahboardcardforadmin topcarddash">
                             <div className="row mt-3 ml-4">
-                                <div className="col-md-3" style={{ color: "white" }}>
+                                <div className="col-md-2" style={{ color: "white" }}>
                                     <TextField
                                         select
                                         className="DashboardDesignDropdown"
@@ -330,7 +355,7 @@ const Dashboard = () => {
                                     </TextField>
                                 </div>
 
-                                <div className="col-md-3" style={{ color: "white" }}>
+                                <div className="col-md-2" style={{ color: "white" }}>
                                     <TextField
                                         select
                                         className="DashboardDesignDropdown"
@@ -356,9 +381,35 @@ const Dashboard = () => {
                                     </TextField>
                                 </div>
 
+                                {/* Schedule ID */}
+                                <div className="col-md-2" style={{ color: "white" }}>
+                                    <TextField
+                                        select
+                                        className="DashboardDesignDropdown"
+                                        size="small"
+                                        label="Screening ID"
+                                        id="select-small"
+                                        variant="outlined"
+                                        InputLabelProps={{
+                                            style: {
+                                                fontWeight: '100',
+                                                fontSize: '14px',
+                                            },
+                                        }}
+                                        value={selectedScreenID}
+                                        onChange={(e) => setSelectedScreenID(e.target.value)}
+                                    >
+                                        {scheduleID.map((drop) => (
+                                            <MenuItem key={drop.schedule_id} value={drop.schedule_id}>
+                                                {drop.schedule_id}
+                                            </MenuItem>
+                                        ))}
+                                    </TextField>
+                                </div>
+
                                 {
                                     selectedSource === 1 && selctedType === 1 && (
-                                        <div className="col-md-3" style={{ color: "white" }}>
+                                        <div className="col-md-2" style={{ color: "white" }}>
                                             <TextField
                                                 select
                                                 className="DashboardDesignDropdown"
@@ -386,15 +437,14 @@ const Dashboard = () => {
                                     )
                                 }
 
-                                {source === '1' && canDownload && (
+                                {/* {source === '1' && canDownload && (
                                     <div className="col">
                                         <button type="button" className="btn btn-sm btndashboard" onClick={handleDownload}>
                                             Download
                                             <FileDownloadOutlinedIcon />
                                         </button>
                                     </div>
-                                )}
-
+                                )} */}
                             </div>
                         </div>
                     </div>
@@ -410,7 +460,9 @@ const Dashboard = () => {
                                             <TotalStudents
                                                 selctedType={selctedType}
                                                 selectedClassType={selectedClassType}
-                                                selectedSource={selectedSource} />
+                                                selectedSource={selectedSource}
+                                                selectedScreenID={selectedScreenID}
+                                            />
                                         </div>
                                     </div>
 
@@ -427,7 +479,9 @@ const Dashboard = () => {
                                                     <Bodymass
                                                         selctedType={selctedType}
                                                         selectedClassType={selectedClassType}
-                                                        selectedSource={selectedSource} />
+                                                        selectedSource={selectedSource}
+                                                        selectedScreenID={selectedScreenID}
+                                                    />
                                                 </div>
                                             </div>
 
@@ -442,7 +496,9 @@ const Dashboard = () => {
                                                     <BirthDefect
                                                         selctedType={selctedType}
                                                         selectedClassType={selectedClassType}
-                                                        selectedSource={selectedSource} />
+                                                        selectedSource={selectedSource}
+                                                        selectedScreenID={selectedScreenID}
+                                                    />
                                                 </div>
                                             </div>
 
@@ -451,7 +507,9 @@ const Dashboard = () => {
                                                     <Dental
                                                         selctedType={selctedType}
                                                         selectedClassType={selectedClassType}
-                                                        selectedSource={selectedSource} />
+                                                        selectedSource={selectedSource}
+                                                        selectedScreenID={selectedScreenID}
+                                                    />
                                                 </div>
                                             </div>
 
@@ -460,7 +518,9 @@ const Dashboard = () => {
                                                     <Vision
                                                         selctedType={selctedType}
                                                         selectedClassType={selectedClassType}
-                                                        selectedSource={selectedSource} />
+                                                        selectedSource={selectedSource}
+                                                        selectedScreenID={selectedScreenID}
+                                                    />
                                                 </div>
                                             </div>
                                         </div>
@@ -471,7 +531,9 @@ const Dashboard = () => {
                                             <Gender
                                                 selctedType={selctedType}
                                                 selectedClassType={selectedClassType}
-                                                selectedSource={selectedSource} />
+                                                selectedSource={selectedSource}
+                                                selectedScreenID={selectedScreenID}
+                                            />
                                         </div>
                                     </div>
 
@@ -480,7 +542,8 @@ const Dashboard = () => {
                                             <Age
                                                 selctedType={selctedType}
                                                 selectedClassType={selectedClassType}
-                                                selectedSource={selectedSource} />
+                                                selectedSource={selectedSource}
+                                                selectedScreenID={selectedScreenID} />
                                         </div>
                                     </div>
 
@@ -489,7 +552,8 @@ const Dashboard = () => {
                                             <Psychological
                                                 selctedType={selctedType}
                                                 selectedClassType={selectedClassType}
-                                                selectedSource={selectedSource} />
+                                                selectedSource={selectedSource}
+                                                selectedScreenID={selectedScreenID} />
                                         </div>
                                     </div>
 
@@ -499,6 +563,7 @@ const Dashboard = () => {
                                                 selctedType={selctedType}
                                                 selectedClassType={selectedClassType}
                                                 selectedSource={selectedSource}
+                                                selectedScreenID={selectedScreenID}
                                             />
                                         </div>
                                     </div>
@@ -516,7 +581,9 @@ const Dashboard = () => {
                                                     <CorporateEmployee
                                                         selctedType={selctedType}
                                                         selectedClassType={selectedClassType}
-                                                        selectedSource={selectedSource} />
+                                                        selectedSource={selectedSource}
+                                                        selectedScreenID={selectedScreenID}
+                                                    />
                                                 </div>
                                             </div>
                                         </div>
@@ -527,7 +594,9 @@ const Dashboard = () => {
                                                     <Gender
                                                         selctedType={selctedType}
                                                         selectedClassType={selectedClassType}
-                                                        selectedSource={selectedSource} />
+                                                        selectedSource={selectedSource}
+                                                        selectedScreenID={selectedScreenID}
+                                                    />
                                                 </div>
                                             </div>
 
@@ -536,7 +605,8 @@ const Dashboard = () => {
                                                     <Age
                                                         selctedType={selctedType}
                                                         selectedClassType={selectedClassType}
-                                                        selectedSource={selectedSource} />
+                                                        selectedSource={selectedSource}
+                                                        selectedScreenID={selectedScreenID} />
                                                 </div>
                                             </div>
                                         </div>
@@ -555,7 +625,9 @@ const Dashboard = () => {
                                                     <Bodymass
                                                         selctedType={selctedType}
                                                         selectedClassType={selectedClassType}
-                                                        selectedSource={selectedSource} />
+                                                        selectedSource={selectedSource}
+                                                        selectedScreenID={selectedScreenID}
+                                                    />
                                                 </div>
                                             </div>
 
@@ -569,7 +641,8 @@ const Dashboard = () => {
                                                     <Vision
                                                         selctedType={selctedType}
                                                         selectedClassType={selectedClassType}
-                                                        selectedSource={selectedSource} />
+                                                        selectedSource={selectedSource}
+                                                        selectedScreenID={selectedScreenID} />
                                                 </div>
                                             </div>
                                         </div>
@@ -582,7 +655,8 @@ const Dashboard = () => {
                                                             <Dental
                                                                 selctedType={selctedType}
                                                                 selectedClassType={selectedClassType}
-                                                                selectedSource={selectedSource} />
+                                                                selectedSource={selectedSource}
+                                                                selectedScreenID={selectedScreenID} />
                                                         </div>
                                                     </div>
 
@@ -593,6 +667,7 @@ const Dashboard = () => {
                                                                 selctedType={selctedType}
                                                                 selectedClassType={selectedClassType}
                                                                 selectedSource={selectedSource}
+                                                                selectedScreenID={selectedScreenID}
                                                             />
                                                         </div>
                                                     </div>
@@ -605,6 +680,7 @@ const Dashboard = () => {
                                                         selctedType={selctedType}
                                                         selectedClassType={selectedClassType}
                                                         selectedSource={selectedSource}
+                                                        selectedScreenID={selectedScreenID}
                                                     />
                                                 </div>
                                             </div>

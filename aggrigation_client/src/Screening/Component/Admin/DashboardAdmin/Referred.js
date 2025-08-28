@@ -4,7 +4,7 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 
-const Referred = ({ selectedSource, selctedType, selectedClassType }) => {
+const Referred = ({ selectedSource, selctedType, selectedClassType, selectedScreenID }) => {
     const [referredData, setReferredData] = useState({});
 
     const Port = process.env.REACT_APP_API_KEY;
@@ -24,12 +24,17 @@ const Referred = ({ selectedSource, selctedType, selectedClassType }) => {
             }
 
             if (selectedClassType) {
-                url += `class_id=${selectedClassType}&`;
+                url += `Class_id=${selectedClassType}&`;
             }
 
             if (SourceNameUrlId) {
                 url += `source_name_id=${SourceNameUrlId}`;
             }
+
+            if (selectedScreenID) {
+                url += `schedule_id=${selectedScreenID}`;
+            }
+
 
             const response = await fetch(url, {
                 headers: {
@@ -48,10 +53,10 @@ const Referred = ({ selectedSource, selctedType, selectedClassType }) => {
     };
 
     useEffect(() => {
-        if (selectedSource || selctedType || selectedClassType) {
+        if (selectedSource || selctedType || selectedClassType || selectedScreenID) {
             fetchData();
         }
-    }, [selectedSource, selctedType, selectedClassType]);
+    }, [selectedSource, selctedType, selectedClassType || selectedScreenID]);
 
     const chartData = {
         series: [
@@ -119,7 +124,7 @@ const Referred = ({ selectedSource, selctedType, selectedClassType }) => {
                                 series={chartData.series}
                                 type="radialBar"
                                 height="220"
-                                width="220" 
+                                width="220"
                             />
                         )}
                     </Box>

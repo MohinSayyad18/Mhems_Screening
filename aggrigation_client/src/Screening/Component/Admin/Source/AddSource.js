@@ -10,6 +10,9 @@ import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import { Modal, Button } from 'react-bootstrap';
 import TablePagination from '@mui/material/TablePagination';
 import CircularProgress from '@mui/material/CircularProgress';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+import { Checkbox, Grid } from '@mui/material';
 
 const AddSource = () => {
 
@@ -17,13 +20,15 @@ const AddSource = () => {
     console.log(userID);
     //// access the source from local storage
     const SourceUrlId = localStorage.getItem('loginSource');
-
-    //// access the source name from local storage
     const SourceNameUrlId = localStorage.getItem('SourceNameFetched');
+    /// State District Tehsil
+    const State = localStorage.getItem('StateLogin');
+    const District = localStorage.getItem('DistrictLogin');
+    const Tehsil = localStorage.getItem('TehsilLogin');
+
     //permission code start
     const [canAddSource, setCanAddSource] = useState(false);
     const [canDelete, setCanDelete] = useState(false);
-    const [canView, setCanView] = useState(false);
     const [canEdit, setCanEdit] = useState(false);
 
     useEffect(() => {
@@ -76,16 +81,16 @@ const AddSource = () => {
     const [isFormEnabled, setFormEnabled] = useState(false);  //Form Disable
     //////////////////////////// Nav Dropdown //////////////////////////
     const [sourceNav, setSourceNav] = useState([]); // State for source options
-    const [selectedSource, setSelectedSource] = useState(''); // State to store selected source
+    const [selectedSource, setSelectedSource] = useState(SourceUrlId || ''); // State to store selected source
 
     const [sourceStateNav, setSourceStateNav] = useState([]); // State for source state options
-    const [selectedStateNav, setSelectedStateNav] = useState('');
+    const [selectedStateNav, setSelectedStateNav] = useState(State || '');
 
     const [sourceDistrictNav, setSourceDistrictNav] = useState([]); // State for source district options
-    const [selectedDistrictNav, setSelectedDistrictNav] = useState('')
+    const [selectedDistrictNav, setSelectedDistrictNav] = useState(District || '')
 
     const [sourceTehsilNav, setSourceTehsilNav] = useState([]); // District for source Tehsil options
-    const [selectedTehsilNav, setSelectedTehsilNav] = useState('')
+    const [selectedTehsilNav, setSelectedTehsilNav] = useState(Tehsil || '')
 
     const [sourceName, setSourceName] = useState([]);
     const [selectedName, setSelectedName] = useState('');
@@ -103,6 +108,73 @@ const AddSource = () => {
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [loading, setLoading] = useState(true)
 
+    //_____________________________________VITALS API OF DROPDOWN_______________________________
+    const [screeningVitals, setScreeningVitals] = useState([]);
+    const [subScreening, setSubScreening] = useState([]);
+    const [selectedVitals, setSelectedVitals] = useState([]);
+    console.log(selectedVitals, 'vitals name fetching......');
+
+    const [selectedSubVitals, setSelectedSubVitals] = useState([]);
+    console.log(selectedSubVitals, 'selected sub vitals name');
+    const [selectedVitalId, setSelectedVitalId] = useState(null);
+
+    // Fetching screening vitals
+    useEffect(() => {
+        const fetchScreeningVitals = async () => {
+            try {
+                const response = await axios.get(`${Port}/Screening/GET_Screening_List/`, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                });
+                const data = response.data;
+                setScreeningVitals(data);
+            } catch (error) {
+                console.error('Error fetching screening vitals:', error);
+            }
+        };
+
+        fetchScreeningVitals();
+    }, []);
+
+    // Handling the change in selected vitals
+    useEffect(() => {
+        if (selectedVitals.includes(5)) {
+            const selectedVital = screeningVitals.find(vital => vital.sc_list_pk_id === 5);
+            if (selectedVital) {
+                setSelectedVitalId(selectedVital.sc_list_pk_id);
+            } else {
+                setSelectedVitalId(null);
+            }
+        } else {
+            setSelectedVitalId(null);
+        }
+    }, [selectedVitals, screeningVitals]);
+
+    useEffect(() => {
+        const fetchSubVitals = async () => {
+            if (selectedVitalId === 5) {
+                try {
+                    const response = await axios.get(`${Port}/Screening/Screening_sub_list/?screening_list=${selectedVitalId}`, {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    });
+                    const data = response.data;
+                    console.log('Fetching Sub Vitals....', data);
+                    setSubScreening(data);
+                } catch (error) {
+                    console.error('Error fetching screening sub-vitals:', error);
+                }
+            } else {
+                setSubScreening([]); // Clear subScreening if selectedVitalId is not 5
+            }
+        };
+
+        fetchSubVitals();
+    }, [selectedVitalId]);
+    //_____________________________________VITALS API OF DROPDOWN END_______________________________
+
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
     };
@@ -118,8 +190,6 @@ const AddSource = () => {
             .toLowerCase()
             .includes(searchQuery.toLowerCase())
     );
-
-    const pagination = 1; // replace
 
     const [selectedFile, setSelectedFile] = useState(null);
 
@@ -146,15 +216,6 @@ const AddSource = () => {
 
         if (!selectData.source_names) {
             newErrors.source_names = 'Source Name is required';
-        } else {
-            const isValidSourceName = /^[A-Za-z\s]+$/.test(selectData.source_names);
-            const wordCount = selectData.source_names.trim().split(/\s+/).length;
-
-            if (!isValidSourceName) {
-                newErrors.source_names = 'Source Name should only contain alphabetic characters and spaces';
-            } else if (wordCount > 3) {
-                newErrors.source_names = 'Source Name should contain up to 3 words';
-            }
         }
 
         if (!selectData.registration_no) {
@@ -201,9 +262,17 @@ const AddSource = () => {
     const handleChange = (e) => {
         const { name, value, files } = e.target;
 
+        if (name === 'screening_vitals') {
+            setSelectedVitals(e.target.value);
+        }
+        if (name === 'sub_screening_vitals') {
+            setSelectedSubVitals(e.target.value);
+        }
+
         if (name === 'Registration_details') {
             setSelectedFile(files.length > 0 ? files[0] : null);
-        } else {
+        }
+        else {
             setSelectData((prevData) => ({
                 ...prevData,
                 [name]: value,
@@ -254,7 +323,7 @@ const AddSource = () => {
             source_taluka: "",
             Registration_details: null
         }
-    )
+    );
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -263,32 +332,45 @@ const AddSource = () => {
         if (isValid) {
             if (selectData.mobile_no.length < 10) {
                 console.log('Contact number must be at least 10 characters long.');
-                alert("Contact number must be at least 10 digit long.")
+                alert("Contact number must be at least 10 digits long.");
                 return;
             }
 
+            // Create FormData
             const formData = new FormData();
-            formData.append('source', selectData.source);
-            formData.append('source_names', selectData.source_names);
-            formData.append('registration_no', selectData.registration_no);
-            formData.append('mobile_no', selectData.mobile_no);
-            formData.append('email_id', selectData.email_id);
+            formData.append('source', selectData.source || '');
+            formData.append('source_names', selectData.source_names || '');
+            formData.append('registration_no', selectData.registration_no || '');
+            formData.append('mobile_no', selectData.mobile_no || '');
+            formData.append('email_id', selectData.email_id || '');
 
             if (selectedFile) {
                 formData.append('Registration_details', selectedFile);
             }
 
-            formData.append('source_pincode', selectData.source_pincode);
-            formData.append('source_address', selectData.source_address);
-            formData.append('pk_id', selectData.pk_id);
-            formData.append('source_state', selectedState);
-            formData.append('source_district', selectedDistrict);
-            formData.append('source_taluka', selectedTahsil);
+            formData.append('source_pincode', selectData.source_pincode || '');
+            formData.append('source_address', selectData.source_address || '');
+            formData.append('pk_id', selectData.pk_id || '');
+
+            // Check for null values before appending
+            if (selectedState) {
+                formData.append('source_state', selectedState);
+            }
+            if (selectedDistrict) {
+                formData.append('source_district', selectedDistrict);
+            }
+            if (selectedTahsil) {
+                formData.append('source_taluka', selectedTahsil);
+            }
+
+            // Append selected vitals
+            formData.append('screening_vitals', JSON.stringify(selectedVitals) || '[]');
+            formData.append('sub_screening_vitals', JSON.stringify(selectedSubVitals) || '[]');
 
             const userID = localStorage.getItem('userID');
-            console.log(userID);
+            console.log('UserID:', userID);
 
-            if (updateSrc === true) {
+            if (updateSrc) {
                 try {
                     formData.append('added_by', userID);
 
@@ -329,18 +411,9 @@ const AddSource = () => {
                 } catch (error) {
                     console.error('Error sending data:', error);
                 }
-            }
-            else {
+            } else {
                 try {
                     formData.append('modify_by', userID);
-                    // formData.append('source_state', selectData.source_state); // Add these lines
-                    // formData.append('source_district', selectData.source_district); // Add these lines
-                    // formData.append('source_taluka', selectData.source_taluka);
-
-                    ///// changes Done 22 may
-                    formData.append('source_state', selectedState); // Add these lines
-                    formData.append('source_district', selectedDistrict); // Add these lines
-                    formData.append('source_taluka', selectedTahsil);
 
                     const response = await fetch(`${Port}/Screening/add_new_source_PUT/${selectData.pk_id}/`, {
                         method: 'PUT',
@@ -625,6 +698,10 @@ const AddSource = () => {
     }, [selectedDistrict]);
 
     ////////////////////// search Filter
+    useEffect(() => {
+        handleSearch()
+    }, [])
+
     const handleSearch = async (e) => {
         try {
             let apiUrl = `${Port}/Screening/filter-Source/?`;
@@ -635,7 +712,7 @@ const AddSource = () => {
             if (selectedTehsilNav) apiUrl += `source_taluka=${selectedTehsilNav}&`;
             if (selectedName) apiUrl += `source_pk_id=${selectedName}&`;
 
-            const accessToken = localStorage.getItem('token'); // Retrieve access token
+            const accessToken = localStorage.getItem('token');
 
             const response = await axios.get(apiUrl, {
                 headers: {
@@ -661,7 +738,7 @@ const AddSource = () => {
         console.log('id getting here:', selectedSourceId);
     }, [selectedSourceId]);
 
-    const fetchData = async () => {
+    const fetchData1 = async () => {
         try {
             if (selectedSourceId !== '') {
                 const response = await fetch(`${Port}/Screening/add_new_source_GET_ID_WISE/${selectedSourceId}/`, {
@@ -674,9 +751,8 @@ const AddSource = () => {
                 const data = await response.json();
                 console.log("JSON data from API:", data);
 
-                const fullImageURL = `http://103.186.133.168:9001${data.Registration_details}`;
+                const fullImageURL = `${Port}${data.Registration_details}`;
                 console.log("Full Image URL:", fullImageURL);
-
 
                 console.log('source_pk_id:', data.source.source_pk_id);
                 console.log('Source Name:', data.source_names);
@@ -688,56 +764,36 @@ const AddSource = () => {
                 console.log('Source Taluka:', data.source_taluka.tahsil_name);
                 console.log('Source Pincode:', data.source_pincode);
                 console.log('Source Address:', data.source_address);
+                console.log('Vitals :', data.screening_vitals);
+                console.log('Sub Vitals :', data.sub_screening_vitals);
 
                 console.log('source_pk_id:', data.source.source_pk_id);
 
                 if (response.headers.get('content-type') === 'application/json') {
                     console.log("Handling JSON response");
-                    // setSelectData({
-                    //     add_source_id: data.source,
-                    //     source: data.source_id,
-
-                    //     add_state_id: data.source_state,
-                    //     source_state: data.state_id,
-
-                    //     add_district_id: data.source_district,
-                    //     source_district: data.district_id,
-
-                    //     add_tehsil_id: data.source_taluka,
-                    //     source_taluka: data.tehsil_id,
-
-                    //     source_names: data.source_names,
-                    //     registration_no: data.registration_no,
-                    //     mobile_no: data.mobile_no,
-                    //     email_id: data.email_id,
-                    //     source_pincode: data.source_pincode,
-                    //     source_address: data.source_address,
-                    //     pk_id: data.source_pk_id,
-
-                    //     Registration_details: fullImageURL,
-                    // });
-
                     setSelectData(prevState => ({
+                        add_source_id: data.source?.source || '',
+                        source: data.source?.source_pk_id || '',
 
-                        add_source_id: data.source.source,
-                        source: data.source.source_pk_id,
+                        add_state_id: data.source_state?.state_name || '',
+                        source_state: data.source_state?.state_id || '',
 
-                        add_state_id: data.source_state.state_name,
-                        source_state: data.source_state.state_id,
+                        add_district_id: data.source_district?.dist_name || '',
+                        source_district: data.source_district?.dist_id || '',
+                        add_tehsil_id: data.source_taluka?.tahsil_name || '',
 
-                        add_district_id: data.source_district.dist_name,
-                        source_district: data.source_district.dist_id,
+                        source_taluka: data.source_taluka?.tal_id || '',
+                        source_names: data.source_names || '',
 
-                        add_tehsil_id: data.source_taluka.tahsil_name,
-                        source_taluka: data.source_taluka.tal_id,
-
-                        source_names: data.source_names,
-                        registration_no: data.registration_no,
-                        mobile_no: data.mobile_no,
-                        email_id: data.email_id,
-                        source_pincode: data.source_pincode,
-                        source_address: data.source_address,
-                        pk_id: data.source_pk_id,
+                        registration_no: data.registration_no || '',
+                        mobile_no: data.mobile_no || '',
+                        email_id: data.email_id || '',
+                        source_pincode: data.source_pincode || '',
+                        source_address: data.source_address || '',
+                        screening_vitals: data.screening_vitals || [],
+                        sub_screening_vitals: data.sub_screening_vitals || [],
+                        pk_id: data.source_pk_id || '',
+                        Registration_details: fullImageURL,
 
                     }));
                     console.log("Registration Details (Image URL):", selectData.Registration_details);
@@ -755,29 +811,29 @@ const AddSource = () => {
                     const fileBlob = await fileResponse.blob();
 
                     setSelectData(prevState => ({
-
-                        add_source_id: data.source.source,
-                        source: data.source.source_pk_id,
-
-                        add_state_id: data.source_state.state_name,
-                        source_state: data.source_state.state_id,
-
-                        add_district_id: data.source_district.dist_name,
-                        source_district: data.source_district.dist_id,
-
-                        add_tehsil_id: data.source_taluka.tahsil_name,
-                        source_taluka: data.source_taluka.tal_id,
-
-                        source_names: data.source_names,
-                        registration_no: data.registration_no,
-                        mobile_no: data.mobile_no,
-                        email_id: data.email_id,
-                        source_pincode: data.source_pincode,
-                        source_address: data.source_address,
-                        pk_id: data.source_pk_id,
-
+                        add_source_id: data.source?.source || '',
+                        source: data.source?.source_pk_id || '',
+                        add_state_id: data.source_state?.state_name || '',
+                        source_state: data.source_state?.state_id || '',
+                        add_district_id: data.source_district?.dist_name || '',
+                        source_district: data.source_district?.dist_id || '',
+                        add_tehsil_id: data.source_taluka?.tahsil_name || '',
+                        source_taluka: data.source_taluka?.tal_id || '',
+                        source_names: data.source_names || '',
+                        registration_no: data.registration_no || '',
+                        mobile_no: data.mobile_no || '',
+                        email_id: data.email_id || '',
+                        source_pincode: data.source_pincode || '',
+                        source_address: data.source_address || '',
+                        screening_vitals: data.screening_vitals || [],
+                        sub_screening_vitals: data.sub_screening_vitals || [],
+                        pk_id: data.source_pk_id || '',
                         Registration_details: fileBlob,
                     }));
+                    // Set the selectedVitals and selectedSubVitals based on the API response
+
+                    setSelectedVitals(data.screening_vitals || []);
+                    setSelectedSubVitals(data.sub_screening_vitals || []);
                 }
             }
         } catch (error) {
@@ -786,7 +842,7 @@ const AddSource = () => {
     };
 
     useEffect(() => {
-        fetchData();
+        fetchData1();
     }, [selectedSourceId]);
 
     return (
@@ -1018,7 +1074,8 @@ const AddSource = () => {
                                         </div>
                                     </div>
 
-                                    <div className="row pr-3">
+                                    {/* <div className="row pr-3"> */}
+                                    <div className="row">
                                         <div className="col">
                                             <form onSubmit={handleSubmit} encType="multipart/form-data">
                                                 <div className={`row ml-2 ${isFormEnabled ? '' : 'disabled'}`}>
@@ -1033,7 +1090,6 @@ const AddSource = () => {
                                                             name="source"
                                                             value={selectData.source} onChange={handleChange}
                                                         >
-                                                            {/* <option>Select a Source</option> */}
                                                             <option value="">{selectData.add_source_id ? selectData.add_source_id : 'Select Source'}</option>
                                                             {dropdownSource.map((option) => (
                                                                 <option key={option.source_pk_id} value={option.source_pk_id}>
@@ -1043,6 +1099,34 @@ const AddSource = () => {
                                                         </select>
                                                         {errors.source && <div className="invalid-feedback">{errors.source}</div>}
                                                     </div>
+
+                                                    {/* <Grid container spacing={2}>
+                                                        <Grid item xs={6}>
+                                                            <Box sx={{ minWidth: 120 }}>
+                                                                <FormControl fullWidth size="small">
+                                                                    <InputLabel id="demo-simple-select-label">Source</InputLabel>
+                                                                    <Select
+                                                                        labelId="demo-simple-select-label"
+                                                                        id="demo-simple-select"
+                                                                        label="Source"
+                                                                        name="source"
+                                                                        value={selectData.source}
+                                                                        onChange={handleChange}
+                                                                        sx={{
+                                                                            color: 'black',
+                                                                            '& .MuiSelect-icon': { color: 'black' }
+                                                                        }}
+                                                                    >
+                                                                        {dropdownSource.map((option) => (
+                                                                            <MenuItem key={option.source_pk_id} value={option.source_pk_id}>
+                                                                                {option.source}
+                                                                            </MenuItem>
+                                                                        ))}
+                                                                    </Select>
+                                                                </FormControl>
+                                                            </Box>
+                                                        </Grid>
+                                                    </Grid> */}
 
                                                     <div className="col-md-6">
                                                         <label className="visually-hidden forminputs2" id="newcal">Source Name<span className="text-danger">*</span></label>
@@ -1058,10 +1142,9 @@ const AddSource = () => {
                                                         />
                                                         {errors.source_names && <div className="invalid-feedback">{errors.source_names}</div>}
                                                     </div>
+                                                    {/* </div> */}
 
-                                                </div>
-
-                                                <div className={`row ml-2 mt-2 ${isFormEnabled ? '' : 'disabled'}`}>
+                                                    {/* <div className={`row ml-2 mt-2 ${isFormEnabled ? '' : 'disabled'}`}> */}
                                                     <div className="col-md-6">
                                                         <label htmlFor="registration" className="visually-hidden forminputs2"
                                                             id="newcal" >
@@ -1122,28 +1205,203 @@ const AddSource = () => {
 
                                                     <div className="col-md-6 input3">
                                                         <label htmlFor="Details" className="visually-hidden forminputs2" id="newcal" >
-                                                            Registration Details
-                                                            {/* <span className="text-danger">*</span> */}
+                                                            Source Logo
                                                         </label>
                                                         <input type="file" id="Registration_details"
                                                             className={`form-control inputfiledssouce`}
-                                                            // value={selectData.Registration_details} 
                                                             onChange={handleChange}
                                                             disabled={!isFormEnabled} name="Registration_details" placeholder=""
-                                                        // accept="image/jpeg, image/png"
                                                         />
-                                                        {/* {selectData.Registration_details && (
-                                                            <div className="file-details">
-                                                                File Name: {selectData.Registration_details.name}
-                                                            </div>
-                                                        )} */}
-                                                        {/* {errors.Registration_details && <div className="invalid-feedback">{errors.Registration_details}</div>} */}
                                                     </div>
-                                                </div>
 
-                                                <div className={`row ml-2 ${isFormEnabled ? '' : 'disabled'}`}>
+                                                    <div className={`col-md-6 ${isFormEnabled ? '' : 'disabled'}`}>
+                                                        <Grid item xs={6} md={6} className={isFormEnabled ? '' : 'disabled'}>
+                                                            <FormControl variant="outlined" disabled={!isFormEnabled}>
+                                                                <label htmlFor="select" className={`visually-hidden forminputs2 ${isFormEnabled ? '' : 'disabled'}`}>
+                                                                    Vitals<span className="text-danger">*</span>
+                                                                </label>
+                                                                <Select
+                                                                    id="outlined-select"
+                                                                    name="screening_vitals"
+                                                                    multiple
+                                                                    value={selectedVitals}
+                                                                    onChange={handleChange}
+                                                                    renderValue={(selected) => (
+                                                                        <div style={{
+                                                                            overflow: 'hidden',
+                                                                            textOverflow: 'ellipsis',
+                                                                            whiteSpace: 'nowrap'
+                                                                        }}>
+                                                                            {selected.map((value) => {
+                                                                                const vital = screeningVitals.find(v => v.sc_list_pk_id === value);
+                                                                                return vital ? vital.screening_list : '';
+                                                                            }).join(', ')}
+                                                                        </div>
+                                                                    )}
+                                                                    size="small"
+                                                                    className='inputfiledssouce'
+                                                                    MenuProps={{
+                                                                        PaperProps: {
+                                                                            style: {
+                                                                                maxHeight: 150,
+                                                                            },
+                                                                        },
+                                                                    }}
+                                                                    style={{ width: '260px' }}
+                                                                >
+                                                                    {screeningVitals.map((vital) => (
+                                                                        <MenuItem key={vital.sc_list_pk_id} value={vital.sc_list_pk_id} style={{ padding: '0px 0px' }}>
+                                                                            <Checkbox
+                                                                                checked={selectedVitals.indexOf(vital.sc_list_pk_id) > -1}
+                                                                                disabled={!isFormEnabled}
+                                                                                style={{ marginRight: '8px' }}
+                                                                            />
+                                                                            <span>{vital.screening_list}</span>
+                                                                        </MenuItem>
+                                                                    ))}
+                                                                </Select>
+                                                            </FormControl>
+                                                        </Grid>
+                                                    </div>
+
+                                                    {selectedVitalId === 5 && (
+                                                        <div className={`col-md-6 ${isFormEnabled ? '' : 'disabled'}`}>
+                                                            <FormControl fullWidth variant="outlined" disabled={!isFormEnabled}>
+                                                                <label htmlFor="text" className={`visually-hidden forminputs2 ${isFormEnabled ? '' : 'disabled'}`} id="newcal">
+                                                                    Sub Vitals<span className="text-danger">*</span>
+                                                                </label>
+                                                                <Select
+                                                                    className='inputfiledssouce'
+                                                                    id="outlined-select"
+                                                                    name="sub_screening_vitals"
+                                                                    size="small"
+                                                                    multiple
+                                                                    value={selectedSubVitals}
+                                                                    onChange={handleChange}
+                                                                    renderValue={(selected) => (
+                                                                        <div style={{
+                                                                            overflow: 'hidden',
+                                                                            textOverflow: 'ellipsis',
+                                                                            whiteSpace: 'nowrap'
+                                                                        }}>
+                                                                            {selected.map((value) => {
+                                                                                const subVital = subScreening.find(v => v.sc_sub_list_pk_id === value);
+                                                                                return subVital ? subVital.sub_list : '';
+                                                                            }).join(', ')}
+                                                                        </div>
+                                                                    )}
+                                                                    MenuProps={{
+                                                                        PaperProps: {
+                                                                            style: {
+                                                                                maxHeight: 150,
+                                                                            },
+                                                                        },
+                                                                    }}
+                                                                    style={{ width: '260px' }}
+                                                                >
+                                                                    {subScreening.map((subVital) => (
+                                                                        <MenuItem key={subVital.sc_sub_list_pk_id} value={subVital.sc_sub_list_pk_id} style={{ padding: '0px 0px' }}>
+                                                                            <Checkbox
+                                                                                checked={selectedSubVitals.indexOf(subVital.sc_sub_list_pk_id) > -1}
+                                                                                disabled={!isFormEnabled}
+                                                                                style={{ marginRight: '8px' }}
+                                                                            />
+                                                                            <span>{subVital.sub_list}</span>
+                                                                        </MenuItem>
+                                                                    ))}
+                                                                </Select>
+                                                            </FormControl>
+                                                        </div>
+                                                    )}
+
+                                                    {/* <div className={`col-md-6 ${isFormEnabled ? '' : 'disabled'}`}>
+                                                        <label htmlFor="select" className={`visually-hidden forminputs1 ${isFormEnabled ? '' : 'disabled'}`}>
+                                                            Vitals<span className="text-danger">*</span>
+                                                        </label>
+                                                        <Select
+                                                            className={`form-control inputfiledssouce`}
+                                                            id="outlined-select"
+                                                            name="screening_vitals"
+                                                            multiple
+                                                            value={selectedVitals}
+                                                            onChange={handleChange}
+                                                            renderValue={(selected) => (
+                                                                <div>
+                                                                    {selected.map((value) => {
+                                                                        const vital = screeningVitals.find(v => v.sc_list_pk_id === value);
+                                                                        return vital ? vital.screening_list : '';
+                                                                    }).join(', ')}
+                                                                </div>
+                                                            )}
+                                                            size="small"
+                                                            MenuProps={{
+                                                                PaperProps: {
+                                                                    style: {
+                                                                        maxHeight: 150,
+                                                                    },
+                                                                },
+                                                            }}
+                                                        >
+                                                            {screeningVitals.map((vital) => (
+                                                                <MenuItem key={vital.sc_list_pk_id} value={vital.sc_list_pk_id} style={{ padding: '0px 0px' }}>
+                                                                    <Checkbox
+                                                                        checked={selectedVitals.indexOf(vital.sc_list_pk_id) > -1}
+                                                                        disabled={!isFormEnabled}
+                                                                        style={{ marginRight: '8px' }}
+                                                                    />
+                                                                    <span>{vital.screening_list}</span>
+                                                                </MenuItem>
+                                                            ))}
+                                                        </Select>
+                                                    </div>
+
+                                                    {selectedVitalId === 5 && (
+                                                        <div className={`col-md-6 ${isFormEnabled ? '' : 'disabled'}`}>
+                                                            <label htmlFor="select" className={`visually-hidden forminputs1 ${isFormEnabled ? '' : 'disabled'}`}>
+                                                                Sub Vitals<span className="text-danger">*</span>
+                                                            </label>
+                                                            <Select
+                                                                className={`form-control inputfiledssouce`}
+                                                                id="outlined-select"
+                                                                name="sub_screening_vitals"
+                                                                multiple
+                                                                value={selectedSubVitals}
+                                                                onChange={handleChange}
+                                                                renderValue={(selected) => (
+                                                                    <div>
+                                                                        {selected.map((value) => {
+                                                                            const subVital = subScreening.find(v => v.sc_sub_list_pk_id === value);
+                                                                            return subVital ? subVital.sub_list : '';
+                                                                        }).join(', ')}
+                                                                    </div>
+                                                                )}
+                                                                size="small"
+                                                                MenuProps={{
+                                                                    PaperProps: {
+                                                                        style: {
+                                                                            maxHeight: 150,
+                                                                        },
+                                                                    },
+                                                                }}
+                                                            >
+                                                                {subScreening.map((subVital) => (
+                                                                    <MenuItem key={subVital.sc_sub_list_pk_id} value={subVital.sc_sub_list_pk_id} style={{ padding: '0px 0px' }}>
+                                                                        <Checkbox
+                                                                            checked={selectedSubVitals.indexOf(subVital.sc_sub_list_pk_id) > -1}
+                                                                            disabled={!isFormEnabled}
+                                                                            style={{ marginRight: '8px' }}
+                                                                        />
+                                                                        <span>{subVital.sub_list}</span>
+                                                                    </MenuItem>
+                                                                ))}
+                                                            </Select>
+                                                        </div>
+                                                    )} */}
+                                                    {/* </div> */}
+
+                                                    {/* <div className={`row ml-2 ${isFormEnabled ? '' : 'disabled'}`}> */}
                                                     <div className="col-md-6">
-                                                        <label htmlFor="select" className="visually-hidden forminputs3" id="newcal">
+                                                        <label htmlFor="select" className="visually-hidden forminputs1" id="newcal">
                                                             State<span className="text-danger">*</span>
                                                         </label>
                                                         <select
@@ -1162,7 +1420,7 @@ const AddSource = () => {
                                                     </div>
 
                                                     <div className="col-md-6">
-                                                        <label htmlFor="select" className="visually-hidden forminputs3" id="newcal">
+                                                        <label htmlFor="select" className="visually-hidden forminputs1" id="newcal">
                                                             District<span className="text-danger">*</span>
                                                         </label>
                                                         <select
@@ -1177,8 +1435,8 @@ const AddSource = () => {
                                                         </select>
                                                     </div>
 
-                                                    <div className="col-md-6 input4">
-                                                        <label htmlFor="select" className="visually-hidden forminputs3" id="newcal">
+                                                    <div className="col-md-6">
+                                                        <label htmlFor="select" className="visually-hidden forminputs1" id="newcal">
                                                             Tehsil<span className="text-danger">*</span>
                                                         </label>
                                                         <select
@@ -1211,7 +1469,7 @@ const AddSource = () => {
                                                         {errors.source_pincode && <div className="invalid-feedback">{errors.source_pincode}</div>}
                                                     </div>
 
-                                                    <div className='col-md-12'>
+                                                    <div className='col-md-6'>
                                                         <label for="address" className="visually-hidden forminputs4" id="newcal">
                                                             Address<span className="text-danger">*</span>
                                                         </label>
@@ -1353,6 +1611,7 @@ const AddSource = () => {
                                                                     const serialNumber = index + 1 + page * rowsPerPage; // Updated calculation for serial number
                                                                     return (
                                                                         <tr
+                                                                            style={{ height: '3.5em' }}
                                                                             key={info.source_pk_id}
                                                                             className={`card cardbody ${selectedRow === info.source_pk_id ? 'selected' : ''
                                                                                 }`}
@@ -1387,8 +1646,8 @@ const AddSource = () => {
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
+            </div >
+        </div >
     )
 }
 

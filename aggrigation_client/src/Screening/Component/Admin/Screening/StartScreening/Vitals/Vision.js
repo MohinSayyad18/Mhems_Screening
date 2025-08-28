@@ -1,36 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import './Vision.css'
 
-const Vision = ({ pkid, citizensPkId, onMoveToMedical, fetchVital, nextVitalName, selectedName }) => {
+const Vision = ({ pkid, citizensPkId, fetchVital, selectedName, onAcceptClick }) => {
 
-
-  //__________________________Vital START
-  console.log(nextVitalName, 'nextVitalnextVital.....');
-  console.log(selectedName, 'selectedNameselectedName');
-  const [nextVitalName7, setNextVitalName7] = useState('');
+  //_________________________________START
+  console.log(selectedName, 'Present name');
+  console.log(fetchVital, 'Overall GET API');
+  const [nextName, setNextName] = useState('');
 
   useEffect(() => {
-    if (fetchVital && Array.isArray(fetchVital)) {
-      // Find the index of the current nextEmergencyVital
-      // const currentPartIndex = fetchVital.findIndex(vital => vital.screening_list === nextVitalName);
+    if (fetchVital && selectedName) {
+      const currentIndex = fetchVital.findIndex(item => item.screening_list === selectedName);
 
-      const currentPartIndex = fetchVital.findIndex(vital =>
-        vital.screening_list === nextVitalName || vital.screening_list === selectedName
-      );
+      console.log('Current Indexxxx:', currentIndex);
 
-      // If the current part name is found, get the next vital
-      if (currentPartIndex !== -1 && currentPartIndex + 1 < fetchVital.length) {
-        const nextVitalName = fetchVital[currentPartIndex + 1];
-        setNextVitalName7(nextVitalName.screening_list); // Update the state with the next vital name
+      if (currentIndex !== -1 && currentIndex < fetchVital.length - 1) {
+        const nextItem = fetchVital[currentIndex + 1];
+        const nextName = nextItem.screening_list;
+        setNextName(nextName);
+        console.log('Next Name Setttt:', nextName);
       } else {
-        setNextVitalName7(''); // Clear the state if no next vital is available or current part name is not found
+        setNextName('');
+        console.log('No next item or selectedName not found');
       }
-    } else {
-      setNextVitalName7(''); // Clear the state if fetchVital is not valid
     }
-  }, [fetchVital, nextVitalName]);
-  //__________________________Vital END
-
+  }, [selectedName, fetchVital]);
+  //_________________________________END
 
   const Port = process.env.REACT_APP_API_KEY;
   const accessToken = localStorage.getItem('token');
@@ -140,7 +135,7 @@ const Vision = ({ pkid, citizensPkId, onMoveToMedical, fetchVital, nextVitalName
       console.error('Error sending data:', error.message);
     }
     // onMoveToMedical('medical');
-    onMoveToMedical(nextVitalName7);
+    onAcceptClick(nextName);
   };
 
   const fetchDataById = async (pkid) => {

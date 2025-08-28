@@ -160,7 +160,7 @@ const Childview = (props) => {
                                                     value={citizendata.parents_mobile} />
                                             </div>
 
-                                            <div className='col-md-6 mb-3'>
+                                            {/* <div className='col-md-6 mb-3'>
                                                 <label for="Gender" class="visually-hidden inputfiledss">Siblings Count</label>
                                                 <select
                                                     class='form-control inputtype'
@@ -170,7 +170,7 @@ const Childview = (props) => {
                                                 >
                                                     <option value="">{citizendata.sibling_count}</option>
                                                 </select>
-                                            </div>
+                                            </div> */}
 
                                         </div>
                                     </div>
@@ -295,7 +295,7 @@ const Childview = (props) => {
                                             </div>
 
                                             <div className='col-md-6'>
-                                                <label for="Gender" class="visually-hidden inputfiledss">Tehsil</label>
+                                                <label for="Gender" class="visually-hidden inputfiledss">Block</label>
                                                 <select
                                                     class='form-control inputtype'
                                                     name='tehsil'
@@ -309,7 +309,7 @@ const Childview = (props) => {
                                             </div>
 
                                             <div className='col-md-6'>
-                                                <label htmlFor="source_name" className="visually-hidden inputfiledss">Source Name</label>
+                                                <label htmlFor="source_name" className="visually-hidden inputfiledss">Institution Name</label>
                                                 <select
                                                     className='form-control inputtype'
                                                     name='source_name'

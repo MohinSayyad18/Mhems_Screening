@@ -1,7 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const Birthdefect = ({ pkid, onAcceptClick, citizensPkId }) => {
+const Birthdefect = ({ pkid, onAcceptClick, citizensPkId, selectedTab, subVitalList }) => {
+
+    //_________________________________START
+    console.log(selectedTab, 'Present name');
+    console.log(subVitalList, 'Overall GET API');
+    const [nextName, setNextName] = useState('');
+
+    useEffect(() => {
+        if (subVitalList && selectedTab) {
+            const currentIndex = subVitalList.findIndex(item => item.screening_list === selectedTab);
+
+            console.log('Current Index:', currentIndex);
+
+            if (currentIndex !== -1 && currentIndex < subVitalList.length - 1) {
+                const nextItem = subVitalList[currentIndex + 1];
+                const nextName = nextItem.screening_list;
+                setNextName(nextName);
+                console.log('Next Name Set:', nextName);
+            } else {
+                setNextName('');
+                console.log('No next item or selectedTab not found');
+            }
+        }
+    }, [selectedTab, subVitalList]);
+    //_________________________________END
+
     const Port = process.env.REACT_APP_API_KEY;
     const accessToken = localStorage.getItem('token');
     const userID = localStorage.getItem('userID');
@@ -95,7 +120,7 @@ const Birthdefect = ({ pkid, onAcceptClick, citizensPkId }) => {
         const postData = {
             birth_defects: formData.selectedNames,
         };
-    
+
         try {
             const response = await axios.put(`${Port}/Screening/birth_defect/${basicScreeningPkId}/`, postData, {
                 headers: {
@@ -103,13 +128,13 @@ const Birthdefect = ({ pkid, onAcceptClick, citizensPkId }) => {
                     'Content-Type': 'application/json',
                 },
             });
-    
+
             if (window.confirm('Submit Birth Defect Form') && response.status === 200) {
                 const responseData = response.data;
                 const basic_screening_pk_id = responseData.basic_screening_pk_id;
                 console.log('Form Submitted Successfully');
                 console.log('Childhood disease:', basic_screening_pk_id);
-                onAcceptClick('Childhood disease', basicScreeningPkId);
+                onAcceptClick(nextName, basicScreeningPkId);
             } else if (response.status === 400) {
                 console.error('Bad Request:', response.data);
             } else {

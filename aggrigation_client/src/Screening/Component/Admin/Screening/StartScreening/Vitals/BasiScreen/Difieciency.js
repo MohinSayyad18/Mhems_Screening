@@ -1,7 +1,31 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 
-const Difieciency = ({ pkid, onAcceptClick, citizensPkId }) => {
+const Difieciency = ({ pkid, onAcceptClick, citizensPkId, selectedTab, subVitalList }) => {
+
+    //_________________________________START
+    console.log(selectedTab, 'Present name');
+    console.log(subVitalList, 'Overall GET API');
+    const [nextName, setNextName] = useState('');
+
+    useEffect(() => {
+        if (subVitalList && selectedTab) {
+            const currentIndex = subVitalList.findIndex(item => item.screening_list === selectedTab);
+
+            console.log('Current Index:', currentIndex);
+
+            if (currentIndex !== -1 && currentIndex < subVitalList.length - 1) {
+                const nextItem = subVitalList[currentIndex + 1];
+                const nextName = nextItem.screening_list;
+                setNextName(nextName);
+                console.log('Next Name Set:', nextName);
+            } else {
+                setNextName('');
+                console.log('No next item or selectedTab not found');
+            }
+        }
+    }, [selectedTab, subVitalList]);
+    //_________________________________END
 
     const [deficiencies, setDeficiencies] = useState([])
     // console.log('Difieciency', basicScreeningPkId);
@@ -50,7 +74,7 @@ const Difieciency = ({ pkid, onAcceptClick, citizensPkId }) => {
         setFormData({
             ...formData,
             checkboxes: updatedCheckboxes,
-            selectedNames: selectedNames, // Add this line to store selected names in formData
+            selectedNames: selectedNames, 
         });
     };
 
@@ -121,7 +145,7 @@ const Difieciency = ({ pkid, onAcceptClick, citizensPkId }) => {
                 console.log('Deficiency Form Submitted Successfully');
 
                 console.log('Skin Condition', basicScreeningPkId);
-                onAcceptClick('Skin Condition', basicScreeningPkId);
+                onAcceptClick(nextName, basicScreeningPkId);
             } else if (response.status === 400) {
                 console.error('Bad Request:', response.data);
             } else {

@@ -8,33 +8,33 @@ import blueheartline from '../../../../../Images/blueheartline.png'
 import redheart from '../../../../../Images/RedHeart.png'
 import { Modal, Button } from 'react-bootstrap';
 import EditIcon from '@mui/icons-material/Edit';
+import { IconButton, CircularProgress } from "@mui/material";
+import NotStartedIcon from '@mui/icons-material/NotStarted';
+const Vital = ({ year, pkid, citizensPkId, gender, selectedId, fetchVital, selectedName, onAcceptClick }) => {
 
-const Vital = ({ year, pkid, onMoveToVital, citizensPkId, gender, selectedId, fetchVital, nextbmiVital1, selectedName }) => {
-
-    console.log(nextbmiVital1, 'fetching the Vital name from the previous Componenet');
-    console.log(selectedName, 'fetching the Vital name from the previous Componenet');
-    const [nextVitalName3, setNextVitalName3] = useState('');
+    //_________________________________START
+    console.log(selectedName, 'Present name');
+    console.log(fetchVital, 'Overall GET API');
+    const [nextName, setNextName] = useState('');
 
     useEffect(() => {
-        if (fetchVital && Array.isArray(fetchVital)) {
-            // Find the index of the current nextbmiVital1
-            // const currentPartIndex = fetchVital.findIndex(vital => vital.screening_list === nextbmiVital1);
+        if (fetchVital && selectedName) {
+            const currentIndex = fetchVital.findIndex(item => item.screening_list === selectedName);
 
-            const currentPartIndex = fetchVital.findIndex(vital =>
-                vital.screening_list === nextbmiVital1 || vital.screening_list === selectedName
-            );
+            console.log('Current Indexxxx:', currentIndex);
 
-            // If the current part name is found, get the next vital
-            if (currentPartIndex !== -1 && currentPartIndex + 1 < fetchVital.length) {
-                const nextVital = fetchVital[currentPartIndex + 1];
-                setNextVitalName3(nextVital.screening_list); // Update the state with the next vital name
+            if (currentIndex !== -1 && currentIndex < fetchVital.length - 1) {
+                const nextItem = fetchVital[currentIndex + 1];
+                const nextName = nextItem.screening_list;
+                setNextName(nextName);
+                console.log('Next Name Setttt:', nextName);
             } else {
-                setNextVitalName3(''); // Clear the state if no next vital is available or current part name is not found
+                setNextName('');
+                console.log('No next item or selectedName not found');
             }
-        } else {
-            setNextVitalName3(''); // Clear the state if fetchVital is not valid
         }
-    }, [fetchVital, nextbmiVital1]);
+    }, [selectedName, fetchVital]);
+    //_________________________________END
 
     const userID = localStorage.getItem('userID');
     console.log(selectedId, 'selected id fetching..............');
@@ -69,6 +69,8 @@ const Vital = ({ year, pkid, onMoveToVital, citizensPkId, gender, selectedId, fe
     const [showErrorSats, setShowErrorSats] = useState(false);
     /////// temp 
     const [temp, setTemp] = useState(null);
+    console.log(temp, 'temptemptemptemptemp');
+
     const [tempResponse, setTempResponse] = useState('');
     const [showErrorTemp, setShowErrorTemp] = useState(false);
     /////// hb 
@@ -222,7 +224,7 @@ const Vital = ({ year, pkid, onMoveToVital, citizensPkId, gender, selectedId, fe
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${accessToken}`, // Include the authorization header
+                            'Authorization': `Bearer ${accessToken}`,
                         },
                     });
 
@@ -393,23 +395,126 @@ const Vital = ({ year, pkid, onMoveToVital, citizensPkId, gender, selectedId, fe
     };
 
     // Temp
+    const [loading, setLoading] = useState(false);
+
+    // const fetchDataTemp = async (paramValue) => {
+    //     setLoading(true);
+    //     try {
+    //         const response = await fetch(`${Port}/Screening/device_data/?type=${paramValue}`);
+    //         if (!response.ok) {
+    //             throw new Error("Network response was not ok");
+    //         }
+    //         const data = await response.json();
+    //         const tempValue = Math.floor(data.temperature);
+    //         const sys = Math.floor(data.systolicPressure);
+    //         const SPO2 = Math.floor(data.spo2);
+    //         const pulse = Math.floor(data.heartRate);
+    //         setTemp(tempValue)
+    //         setSys(sys)
+    //         setSats(SPO2)
+    //         setPulseValue(pulse)
+    //     } catch (error) {
+    //         setTemp("Error fetching data");
+    //     }
+    //     setLoading(false);
+    // };
+
+    const fetchDatapulse = async (paramValue) => {
+        setLoading(true);
+        try {
+            const response = await fetch(`${Port}/Screening/device_data/?type=${paramValue}`);
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            const data = await response.json();
+            const pulse = Math.floor(data.heartRate);
+            setPulseValue(pulse)
+        } catch (error) {
+            setTemp("Error fetching data");
+        }
+        setLoading(false);
+    };
+
+    const fetchDataTemp = async (paramValue) => {
+        setLoading(true);
+        try {
+            const response = await fetch(`${Port}/Screening/device_data/?type=${paramValue}`);
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            const data = await response.json();
+            const temp = Math.floor(data.temperature);
+            setTemp(temp)
+        } catch (error) {
+            setTemp("Error fetching data");
+        }
+        setLoading(false);
+    };
+
+    const fetchDatadys = async (paramValue) => {
+        setLoading(true);
+        try {
+            const response = await fetch(`${Port}/Screening/device_data/?type=${paramValue}`);
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            const data = await response.json();
+            const dys = Math.floor(data.diastolicPressure);
+            setDys(dys)
+        } catch (error) {
+            setTemp("Error fetching data");
+        }
+        setLoading(false);
+    };
+
+    const fetchDatasys = async (paramValue) => {
+        setLoading(true);
+        try {
+            const response = await fetch(`${Port}/Screening/device_data/?type=${paramValue}`);
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            const data = await response.json();
+            const sys = Math.floor(data.systolicPressure);
+            setSys(sys)
+        } catch (error) {
+            setTemp("Error fetching data");
+        }
+        setLoading(false);
+    };
+
+    const fetchDataspo2 = async (paramValue) => {
+        setLoading(true);
+        try {
+            const response = await fetch(`${Port}/Screening/device_data/?type=${paramValue}`);
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            const data = await response.json();
+            const SPO2 = Math.floor(data.spo2);
+            setSats(SPO2)
+        } catch (error) {
+            setTemp("Error fetching data");
+        }
+        setLoading(false);
+    };
+
     const handleTempInputChange = (event) => {
         const inputValue = event.target.value;
 
         if (inputValue !== '') {
             if (inputValue <= 170) {
                 setTemp(inputValue);
-                setShowErrorTemp(false); // Clear error when the input is valid
-                // validateTemp(inputValue);
+                setShowErrorTemp(false);
             } else {
                 setShowErrorTemp(true);
-                setTemp(''); // Clear the input field
-                setTempResponse(''); // Clear the response when the input is cleared
+                setTemp('');
+                setTempResponse('');
             }
         } else {
-            setTemp(''); // Clear the input field
-            setShowErrorTemp(false); // Clear error when the input is cleared
-            setTempResponse(''); // Clear the response when the input is cleared
+            setTemp('');
+            setShowErrorTemp(false);
+            setTempResponse('');
         }
     };
 
@@ -490,14 +595,14 @@ const Vital = ({ year, pkid, onMoveToVital, citizensPkId, gender, selectedId, fe
                 .then((response) => {
                     if (response.status === 201) {
                         setShowVitalForm(true);
-                        onMoveToVital(nextVitalName3);
+                        onAcceptClick(nextName);
                         return response.json();
                     } else if (response.status === 400) {
                         alert('Fill the * marked Field');
                     } else if (response.status === 500) {
                         alert('Error');
                     } else if (response.status === 200) {
-                        onMoveToVital(nextVitalName3);
+                        onAcceptClick(nextName);
                     }
                 })
                 .then((data) => {
@@ -602,10 +707,15 @@ const Vital = ({ year, pkid, onMoveToVital, citizensPkId, gender, selectedId, fe
                                                 onChange={handlePulseInputChange}
                                             />
                                         </div>
-                                        <div className="col-md-12">
+                                        <div className="col-md-6">
                                             <div className='card reporfromcard1'>
                                                 <h6 className='pulseResponse'>{pulseResponse}</h6>
                                             </div>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <IconButton onClick={() => fetchDatapulse("SPO2")} disabled={loading}>
+                                                <NotStartedIcon sx={{ fontSize: 32, fontWeight: "bold", color: "black" }} />
+                                            </IconButton>
                                         </div>
                                     </div>
                                 </div>
@@ -627,10 +737,15 @@ const Vital = ({ year, pkid, onMoveToVital, citizensPkId, gender, selectedId, fe
                                                 onChange={handleSysInputChange}
                                             />
                                         </div>
-                                        <div className="col-md-12">
+                                        <div className="col-md-6">
                                             <div className='card reporfromcard2'>
                                                 <h6 className='pulseResponse'>{sysResponse}</h6>
                                             </div>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <IconButton onClick={() => fetchDatasys("BP")} disabled={loading}>
+                                                <NotStartedIcon sx={{ fontSize: 32, fontWeight: "bold", color: "black" }} />
+                                            </IconButton>
                                         </div>
                                     </div>
                                 </div>
@@ -651,10 +766,15 @@ const Vital = ({ year, pkid, onMoveToVital, citizensPkId, gender, selectedId, fe
                                                 onChange={handleDysInputChange}
                                             />
                                         </div>
-                                        <div className="col-md-12">
+                                        <div className="col-md-6">
                                             <div className='card reporfromcard3'>
                                                 <h6 className='pulseResponse'>{dysResponse}</h6>
                                             </div>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <IconButton onClick={() => fetchDatadys("BP")} disabled={loading}>
+                                                <NotStartedIcon sx={{ fontSize: 32, fontWeight: "bold", color: "black" }} />
+                                            </IconButton>
                                         </div>
                                     </div>
                                 </div>
@@ -701,10 +821,15 @@ const Vital = ({ year, pkid, onMoveToVital, citizensPkId, gender, selectedId, fe
                                                 onChange={handleSatsInputChange}
                                             />
                                         </div>
-                                        <div className="col-md-12">
+                                        <div className="col-md-6">
                                             <div className='card reporfromcard5'>
                                                 <h6 className='pulseResponse'>{satsResponse}</h6>
                                             </div>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <IconButton onClick={() => fetchDataspo2("SPO2")} disabled={loading}>
+                                                <NotStartedIcon sx={{ fontSize: 32, fontWeight: "bold", color: "black" }} />
+                                            </IconButton>
                                         </div>
                                     </div>
                                 </div>
@@ -721,14 +846,19 @@ const Vital = ({ year, pkid, onMoveToVital, citizensPkId, gender, selectedId, fe
                                         <div className="col-md-9 vitalsubheading">Temperature</div>
                                         <div className="col-md-12">
                                             <input className='form-control fromcontrolinputfield'
-                                                value={temp || null}
+                                                value={temp || ''}
                                                 onChange={handleTempInputChange}
                                             />
                                         </div>
-                                        <div className="col-md-12">
-                                            <div className='card reporfromcard6'>
-                                                <h6 className='pulseResponse'>{tempResponse}</h6>
+                                        <div className="col-md-6">
+                                            <div className="card reporfromcard6">
+                                                <h6 className="pulseResponse">{tempResponse}</h6>
                                             </div>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <IconButton onClick={() => fetchDataTemp("TEMPERATURE")} disabled={loading}>
+                                                <NotStartedIcon sx={{ fontSize: 32, fontWeight: "bold", color: "black" }} />
+                                            </IconButton>
                                         </div>
                                     </div>
                                 </div>

@@ -14,7 +14,6 @@ import BmiVital from '../Vitals/BmiVital';
 import Vital from '../Vitals/Vital';
 import { Link, useLocation } from 'react-router-dom'
 import BasicScreen from '../Vitals/BasicScreen';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import MonitorWeightIcon from '@mui/icons-material/MonitorWeight';
 import axios from 'axios';
 import MedicalInfo from '../Vitals/MedicalInfo';
@@ -22,6 +21,7 @@ import InvestigationInfo from '../Vitals/InvestigationInfo';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import Pft from '../Vitals/Pft';
 import Psychological from '../Vitals/Psychological';
+import Other from '../Vitals/Other';
 
 const Body = () => {
 
@@ -31,7 +31,6 @@ const Body = () => {
   console.log(accessToken);
   const SourceUrlId = localStorage.getItem('loginSource');
   const SourceNameUrlId = localStorage.getItem('SourceNameFetched');
-
   console.log('fetched SOurce', SourceUrlId);
   console.log('fetched SOurce Name', SourceNameUrlId);
   const Port = process.env.REACT_APP_API_KEY;
@@ -39,7 +38,7 @@ const Body = () => {
   const location = useLocation();
   const { citizensPkId, pkid, year, dob, gender, citizenId, ScreeningCount, citizenidddddddd, scheduleID, sourceID } = location.state;
   const [selectedId, setSelectedId] = useState(null);
-
+  const [selectedGender, setSelectedGender] = useState(gender);
   console.log(gender, 'genderrrrrrrrrrrrrrrrrrrrrrrrrrrr');
   console.log(scheduleID, 'scheduleID');
   console.log(citizenidddddddd, 'new citizen id');
@@ -103,8 +102,6 @@ const Body = () => {
     setOpenedPart(form);
   };
 
-  const [selectedGender, setSelectedGender] = useState(gender);
-
   const getBodyImage = () => {
     if (selectedGender === 1) {
       return maleImage;
@@ -137,87 +134,97 @@ const Body = () => {
   };
 
   const [openedPart, setOpenedPart] = useState('Basic Information');
-  const handleAcceptChild = (nextVitalName) => {
-    console.log("nextVitalName from previous Componenet1:", nextVitalName);
-    setOpenedPart(nextVitalName);
-    setEmergencyInfo(nextVitalName);
+
+  const handleAcceptClick = (nextName) => {
+    if (nextName) {
+      console.log('Handling accept click with:', nextName);
+      setOpenedPart(nextName);
+    } else {
+      console.log('Next Vital not found. Staying on the same page.');
+    }
   };
 
-  const [emergencyInfo, setEmergencyInfo] = useState('');
-  const handleGoToBmi = (nextVitalName1) => {
-    console.log("nextVitalName from previous Componenet2:", nextVitalName1);
-    setOpenedPart(nextVitalName1);
-    setBmiVital(nextVitalName1);
-  };
+  // const handleAcceptChild = (nextVitalName) => {
+  //   console.log("nextVitalName from previous Componenet1:", nextVitalName);
+  //   setOpenedPart(nextVitalName);
+  //   setEmergencyInfo(nextVitalName);
+  // };
 
-  const [bmiVital, setBmiVital] = useState('');
-  const handleMoveToVital = (nextVitalName2) => {
-    console.log("nextVitalName from previous Componenet3:", nextVitalName2);
-    setOpenedPart(nextVitalName2);
-    setVital(nextVitalName2);
-  };
+  // const [emergencyInfo, setEmergencyInfo] = useState('');
+  // const handleGoToBmi = (nextVitalName1) => {
+  //   console.log("nextVitalName from previous Componenet2:", nextVitalName1);
+  //   setOpenedPart(nextVitalName1);
+  //   setBmiVital(nextVitalName1);
+  // };
 
-  const [vital, setVital] = useState('');
-  const handleMoveToBasicScreen = (nextVitalName3) => {
-    console.log("nextVitalName from previous Componenet4:", nextVitalName3);
-    setOpenedPart(nextVitalName3);
-    setBasicScreen(nextVitalName3);
-  };
+  // const [bmiVital, setBmiVital] = useState('');
+  // const handleMoveToVital = (nextVitalName2) => {
+  //   console.log("nextVitalName from previous Componenet3:", nextVitalName2);
+  //   setOpenedPart(nextVitalName2);
+  //   setVital(nextVitalName2);
+  // };
 
-  const [basicScreen, setBasicScreen] = useState('');
-  const handleMoveToAuditory = (nextVitalName4) => {
-    console.log("nextVitalName from previous Componenet5:", nextVitalName4);
-    setOpenedPart(nextVitalName4);
-    // setVital(nextVitalName3);
-  };
+  // const [vital, setVital] = useState('');
+  // const handleMoveToBasicScreen = (nextVitalName3) => {
+  //   console.log("nextVitalName from previous Componenet4:", nextVitalName3);
+  //   setOpenedPart(nextVitalName3);
+  //   setBasicScreen(nextVitalName3);
+  // };
 
-  const [dental, setDental] = useState('');
-  const handleMoveToDental = (nextVitalName5) => {
-    console.log("nextVitalName from previous Componenet6:", nextVitalName5);
-    setOpenedPart(nextVitalName5);
-    setVision(nextVitalName5);
-  };
+  // const [basicScreen, setBasicScreen] = useState('');
+  // const handleMoveToAuditory = (nextVitalName4) => {
+  //   console.log("nextVitalName from previous Componenet5:", nextVitalName4);
+  //   setOpenedPart(nextVitalName4);
+  //   setDental(nextVitalName4);
+  // };
 
-  const [vision, setVision] = useState('');
-  const handleMoveToVision = (nextVitalName6) => {
-    console.log("showing Next after Componenet7:", nextVitalName6);
-    setOpenedPart(nextVitalName6);
-    setMedical(nextVitalName6);
-  };
+  // const [dental, setDental] = useState('');
+  // const handleMoveToDental = (nextVitalName5) => {
+  //   console.log("nextVitalName from previous Componenet6:", nextVitalName5);
+  //   setOpenedPart(nextVitalName5);
+  //   setVision(nextVitalName5);
+  // };
 
-  const [medical, setMedical] = useState('');
-  const handleGoToMedical = (nextVitalName7) => {
-    console.log("showing Next after Componenet8:", nextVitalName7);
-    setOpenedPart(nextVitalName7);
-    setInvestigation(nextVitalName7);
-  };
+  // const [vision, setVision] = useState('');
+  // const handleMoveToVision = (nextVitalName6) => {
+  //   console.log("showing Next after Componenet7:", nextVitalName6);
+  //   setOpenedPart(nextVitalName6);
+  //   setMedical(nextVitalName6);
+  // };
 
-  const [investigation, setInvestigation] = useState('');
-  const handleGoToInvestigation = (nextVitalName8) => {
-    console.log("fetching COmponenet after investigation:", nextVitalName8);
-    setOpenedPart(nextVitalName8);
-    setPft(nextVitalName8);
-  };
+  // const [medical, setMedical] = useState('');
+  // const handleGoToMedical = (nextVitalName7) => {
+  //   console.log("showing Next after Componenet8:", nextVitalName7);
+  //   setOpenedPart(nextVitalName7);
+  //   setInvestigation(nextVitalName7);
+  // };
 
-  const [pft, setPft] = useState('');
-  const handleMoveToPft = (nextVitalName9) => {
-    console.log("showing Next after Componenet9:", nextVitalName9);
-    setOpenedPart(nextVitalName9);
-    setPsycho(nextVitalName9);
-  };
+  // const [investigation, setInvestigation] = useState('');
+  // const handleGoToInvestigation = (nextVitalName8) => {
+  //   console.log("fetching COmponenet after investigation:", nextVitalName8);
+  //   setOpenedPart(nextVitalName8);
+  //   setPft(nextVitalName8);
+  // };
 
-  const [psycho, setPsycho] = useState('');
-  const handleMoveToPsycho = (nextVitalName10) => {
-    console.log("showing Next after Componenet10:", nextVitalName10);
-    setOpenedPart(nextVitalName10);
-    setImmu(nextVitalName10)
-  };
+  // const [pft, setPft] = useState('');
+  // const handleMoveToPft = (nextVitalName9) => {
+  //   console.log("showing Next after Componenet9:", nextVitalName9);
+  //   setOpenedPart(nextVitalName9);
+  //   setPsycho(nextVitalName9);
+  // };
 
-  const [immu, setImmu] = useState('');
-  const handleMoveToImmunisation = (nextVitalName11) => {
-    console.log("showing Next after Componenet11:", nextVitalName11);
-    setOpenedPart(nextVitalName11);
-  };
+  // const [psycho, setPsycho] = useState('');
+  // const handleMoveToPsycho = (nextVitalName10) => {
+  //   console.log("showing Next after Componenet10:", nextVitalName10);
+  //   setOpenedPart(nextVitalName10);
+  //   setImmu(nextVitalName10)
+  // };
+
+  // const [immu, setImmu] = useState('');
+  // const handleMoveToImmunisation = (nextVitalName11) => {
+  //   console.log("showing Next after Componenet11:", nextVitalName11);
+  //   setOpenedPart(nextVitalName11);
+  // };
 
   //////////////// weight 
   const [isClicked, setIsClicked] = useState(false);
@@ -379,7 +386,7 @@ const Body = () => {
                     {isPopupVisible && (
                       <div className="card cardshiftment popup-content">
                         <div className="row">
-                          <div className="col">
+                          {/* <div className="col">
                             {Array.isArray(fetchVital) && fetchVital.map((item) => (
                               <div key={item.screening_vitals} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <h6
@@ -398,10 +405,47 @@ const Body = () => {
                                 >
                                   {item.screening_list}
                                 </h6>
-                                {/* <CheckCircleIcon style={{ fontSize: '20px', color: 'green' }} /> */}
+                                <CheckCircleIcon style={{ fontSize: '20px', color: 'green' }} />
                               </div>
                             ))}
+                          </div> */}
+                          <div className="col">
+                            {Array.isArray(fetchVital) && fetchVital.length > 0 ? (
+                              fetchVital.map((item) => (
+                                <div
+                                  key={item.screening_vitals}
+                                  style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                  }}
+                                >
+                                  <h6
+                                    style={{
+                                      fontSize: '13px',
+                                      margin: '0.2em 0em 0.4em 0.3em',
+                                      fontFamily: 'Roboto',
+                                      fontWeight: 'bold',
+                                      cursor: 'pointer',
+                                    }}
+                                    onClick={() => {
+                                      setOpenedPart(item.screening_list);  // Set the opened part based on the fetched value
+                                      setSelectedId(item.screening_vitals); // Store the selected ID
+                                      setSelectedName(item.screening_list); // Store the name of the clicked item
+                                    }}
+                                  >
+                                    {item.screening_list}
+                                  </h6>
+                                  {/* <CheckCircleIcon style={{ fontSize: '20px', color: 'green' }} /> */}
+                                </div>
+                              ))
+                            ) : (
+                              <p style={{ fontFamily: 'Roboto', fontSize: '13px', fontWeight: 'bold', color: 'gray', margin: '0.5em 0' }}>
+                                No vitals found
+                              </p>
+                            )}
                           </div>
+
                         </div>
                       </div>
                     )}
@@ -412,10 +456,10 @@ const Body = () => {
               <div className="col-md-8 backdesign">
                 {openedPart === 'Basic Information' && (
                   <Childvital citizensPkId={citizensPkId}
-                    onAccept={handleAcceptChild} pkid={pkid}
-                    citizenidddddddd={citizenidddddddd} sourceID={sourceID}
+                    pkid={pkid} citizenidddddddd={citizenidddddddd} sourceID={sourceID}
                     selectedId={selectedId} fetchVital={fetchVital}
-                    currentRenderingVital={openedPart}
+                    selectedName={openedPart}
+                    onAcceptClick={handleAcceptClick}
                   />
                 )}
 
@@ -426,11 +470,9 @@ const Body = () => {
                     citizenidddddddd={citizenidddddddd}
                     sourceID={sourceID}
                     selectedId={selectedId}
-
-                    selectedName={selectedName}
-                    onGoToBmi={handleGoToBmi}
+                    selectedName={openedPart}
                     fetchVital={fetchVital}
-                    nextEmergencyVital={emergencyInfo}
+                    onAcceptClick={handleAcceptClick}
                   />
                 )}
 
@@ -439,21 +481,18 @@ const Body = () => {
                     citizenidddddddd={citizenidddddddd} citizensPkId={citizensPkId}
                     pkid={pkid} calculatedHeight={calculatedHeight}
                     enteredWeight={inputValue} gender={gender} scheduleID={scheduleID}
-
-                    selectedName={selectedName}
-                    onMoveToVital={handleMoveToVital}
+                    selectedName={openedPart}
                     fetchVital={fetchVital}
-                    nextbmiVital={bmiVital}
+                    onAcceptClick={handleAcceptClick}
                   />
                 )}
 
                 {openedPart === 'Vital' &&
                   <Vital citizensPkId={citizensPkId} pkid={pkid} year={year}
                     gender={gender} selectedId={selectedId}
-                    onMoveToVital={handleMoveToBasicScreen}
-                    selectedName={selectedName}
+                    selectedName={openedPart}
                     fetchVital={fetchVital}
-                    nextbmiVital1={vital}
+                    onAcceptClick={handleAcceptClick}
                   />
                 }
 
@@ -462,10 +501,9 @@ const Body = () => {
                     pkid={pkid} citizensPkId={citizensPkId} gender={gender}
                     scheduleID={scheduleID} citizenidddddddd={citizenidddddddd}
                     selectedId={selectedId}
-                    selectedName={selectedName}
-                    onMoveToAuditory={handleMoveToAuditory}
+                    selectedName={openedPart}
                     fetchVital={fetchVital}
-                    nextVitalName={basicScreen}
+                    onAcceptClick={handleAcceptClick}
                   />
                 }
 
@@ -473,80 +511,78 @@ const Body = () => {
                   <Auditory
                     pkid={pkid} citizensPkId={citizensPkId}
                     lastview={preCheckbox} recall={fetchData1}
-
-                    selectedName={selectedName}
-                    onMoveToDental={handleMoveToDental}
+                    selectedName={openedPart}
                     fetchVital={fetchVital}
-                    nextVitalName={dental}
+                    onAcceptClick={handleAcceptClick}
                   />
                 }
 
                 {openedPart === 'Dental Check Up' &&
                   <Dental
                     pkid={pkid} citizensPkId={citizensPkId}
-                    selectedName={selectedName}
-                    onMoveTovision={handleMoveToVision}
+                    selectedName={openedPart}
                     fetchVital={fetchVital}
-                    nextVitalName={vision}
+                    scheduleID={scheduleID}
+                    citizenId={citizenId}
+                    onAcceptClick={handleAcceptClick}
                   />
                 }
 
                 {openedPart === 'Vision' &&
                   <Vision
                     pkid={pkid} citizensPkId={citizensPkId}
-                    selectedName={selectedName}
-                    onMoveToMedical={handleGoToMedical}
+                    selectedName={openedPart}
                     fetchVital={fetchVital}
-                    nextVitalName={medical}
+                    onAcceptClick={handleAcceptClick}
                   />
                 }
-
 
                 {/* Roshni Code */}
                 {openedPart === 'Medical History' &&
                   <MedicalInfo
                     citizensPkId={citizensPkId} pkid={pkid} citizenidddddddd={citizenidddddddd}
                     sourceID={sourceID} selectedId={selectedId}
-                    selectedName={selectedName}
-                    onMoveToInvestigation={handleGoToInvestigation}
                     fetchVital={fetchVital}
-                    nextVitalName={investigation}
+                    selectedName={openedPart}
+                    onAcceptClick={handleAcceptClick}
                   />}
 
                 {openedPart === 'Investigation' &&
                   <InvestigationInfo
                     pkid={pkid} citizensPkId={citizensPkId}
-                    selectedName={selectedName}
-                    onMoveToVital={handleMoveToPft}
+                    selectedName={openedPart}
                     fetchVital={fetchVital}
-                    nextVitalName={pft}
+                    onAcceptClick={handleAcceptClick}
                   />
                 }
 
                 {openedPart === 'Pulmonary Function Tests' &&
                   <Pft
                     pkid={pkid} citizensPkId={citizensPkId}
-                    onMoveToVital={handleMoveToPsycho}
                     fetchVital={fetchVital}
-                    nextVitalName={psycho}
-                    selectedName={selectedName}
+                    selectedName={openedPart}
+                    onAcceptClick={handleAcceptClick}
                   />
                 }
 
                 {openedPart === 'Psychological Screening' &&
                   <Psychological
                     toggleFormVisibility={setOpenedPart} pkid={pkid} citizensPkId={citizensPkId}
-                    selectedName={selectedName}
-                    onMoveToVital={handleMoveToImmunisation}
+                    selectedName={openedPart}
                     fetchVital={fetchVital}
-                    nextVitalName={immu}
-
+                    onAcceptClick={handleAcceptClick}
                   />
                 }
 
-                {openedPart === 'Immunisation ' &&
+                {openedPart === 'Immunisation' &&
                   <Immunisation pkid={pkid} citizensPkId={citizensPkId} dob={dob}
                     fetchVital={fetchVital} selectedName={selectedName}
+                    onAcceptClick={handleAcceptClick}
+                  />}
+                {openedPart === 'Other' &&
+                  <Other pkid={pkid} citizensPkId={citizensPkId} dob={dob}
+                    fetchVital={fetchVital} selectedName={selectedName}
+                    onAcceptClick={handleAcceptClick}
                   />}
               </div>
             </div>

@@ -1,30 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const MedicalInfo = ({ citizensPkId, pkid, onMoveToInvestigation, nextVitalName, fetchVital }) => {
+const MedicalInfo = ({ citizensPkId, pkid, fetchVital, selectedName, onAcceptClick }) => {
 
-    //__________________________Vital START
-    console.log(nextVitalName, 'medical fetching current componenet.....');
-    // console.log(nextEmergencyVital, 'fetching the vital Name from the previous Componenet');
-    const [nextVitalName7, setNextVitalName7] = useState('');
+    //_________________________________START
+    console.log(selectedName, 'Present name');
+    console.log(fetchVital, 'Overall GET API');
+    const [nextName, setNextName] = useState('');
 
     useEffect(() => {
-        if (fetchVital && Array.isArray(fetchVital)) {
-            // Find the index of the current nextEmergencyVital
-            const currentPartIndex = fetchVital.findIndex(vital => vital.screening_list === nextVitalName);
+        if (fetchVital && selectedName) {
+            const currentIndex = fetchVital.findIndex(item => item.screening_list === selectedName);
 
-            // If the current part name is found, get the next vital
-            if (currentPartIndex !== -1 && currentPartIndex + 1 < fetchVital.length) {
-                const nextVitalName = fetchVital[currentPartIndex + 1];
-                setNextVitalName7(nextVitalName.screening_list); // Update the state with the next vital name
+            console.log('Current Indexxxx:', currentIndex);
+
+            if (currentIndex !== -1 && currentIndex < fetchVital.length - 1) {
+                const nextItem = fetchVital[currentIndex + 1];
+                const nextName = nextItem.screening_list;
+                setNextName(nextName);
+                console.log('Next Name Setttt:', nextName);
             } else {
-                setNextVitalName7(''); // Clear the state if no next vital is available or current part name is not found
+                setNextName('');
+                console.log('No next item or selectedName not found');
             }
-        } else {
-            setNextVitalName7(''); // Clear the state if fetchVital is not valid
         }
-    }, [fetchVital, nextVitalName]);
-    //__________________________Vital END
+    }, [selectedName, fetchVital]);
+    //_________________________________END
 
     const userID = localStorage.getItem('userID');
     const accessToken = localStorage.getItem('token');
@@ -243,7 +244,7 @@ const MedicalInfo = ({ citizensPkId, pkid, onMoveToInvestigation, nextVitalName,
                 const responseData = response.data;
                 console.log('Form Submitted Successfully');
                 // onMoveToInvestigation('investigation');
-                onMoveToInvestigation(nextVitalName7);
+                onAcceptClick(nextName);
             } else if (response.status === 400) {
                 console.error('Bad Request:', response.data);
             } else {

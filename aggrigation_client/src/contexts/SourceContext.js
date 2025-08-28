@@ -1,4 +1,3 @@
-// SourceContext.js
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 
@@ -7,6 +6,18 @@ const SourceContext = createContext();
 export const useSourceContext = () => useContext(SourceContext);
 
 export const SourceProvider = ({ children }) => {
+
+    const [scheduleIdd, setScheduleIdd] = useState('');
+    const [pkIddd, setPkIddd] = useState(null);
+    const [citizenIddd, setCitizenIddd] = useState('');
+    localStorage.setItem('scheduleIdd', scheduleIdd);
+    localStorage.setItem('pkIddd', pkIddd);
+    localStorage.setItem('citizenIddd', citizenIddd);
+    
+    /// State District Tehsil
+    const State = localStorage.getItem('StateLogin');
+    const District = localStorage.getItem('DistrictLogin');
+    const Tehsil = localStorage.getItem('TehsilLogin');
 
     const Port = process.env.REACT_APP_API_KEY;
     const accessToken = localStorage.getItem('token');
@@ -17,16 +28,16 @@ export const SourceProvider = ({ children }) => {
     const SourceNameUrlId = localStorage.getItem('SourceNameFetched');
 
     const [selectedAge, setSelectedAge] = useState('')
-    const [selectedSource, setSelectedSource] = useState('');
+    const [selectedSource, setSelectedSource] = useState(SourceUrlId || '');
     const [selectedScheduleType, setSelectedScheduleType] = useState('')
     const [selectedDisease, setSelectedDisease] = useState('')
 
     const [sourceState, setSourceState] = useState([]);
-    const [selectedState, setSelectedState] = useState('');
+    const [selectedState, setSelectedState] = useState(State || '');
     const [district, setDistrict] = useState([]);
-    const [selectedDistrict, setSelectedDistrict] = useState('');
+    const [selectedDistrict, setSelectedDistrict] = useState(District || '');
     const [tehsil, setTehsil] = useState([]);
-    const [selectedTehsil, setSelectedTehsil] = useState('');
+    const [selectedTehsil, setSelectedTehsil] = useState(Tehsil || '');
     const [SourceName, setSourceName] = useState([]);
     const [selectedName, setSelectedName] = useState('');
 
@@ -166,7 +177,8 @@ export const SourceProvider = ({ children }) => {
                 selectedAge, setSelectedAge,
                 gender, setGender,
                 selectedScheduleType, setSelectedScheduleType,
-                selectedDisease, setSelectedDisease
+                selectedDisease, setSelectedDisease,
+                scheduleIdd, setScheduleIdd, pkIddd, setPkIddd, citizenIddd, setCitizenIddd 
             }}>
             {children}
         </SourceContext.Provider>

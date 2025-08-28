@@ -1,43 +1,40 @@
 import React, { useState, useEffect } from 'react'
 import './ChildVital.css'
 
-const Childvital = ({ citizensPkId, onAccept, pkid, sourceID, fetchVital, currentRenderingVital }) => {
+const Childvital = ({ citizensPkId, pkid, sourceID, fetchVital, selectedName, onAcceptClick }) => {
 
+    const SourceUrlId = localStorage.getItem('loginSource');
+    const SourceNameUrlId = localStorage.getItem('SourceNameFetched');
+    const source = localStorage.getItem('source');
     const Port = process.env.REACT_APP_API_KEY;
     const userID = localStorage.getItem('userID');
     const accessToken = localStorage.getItem('token');
     const [department, setDepartment] = useState([]);
     const [selectedDepartment, setSelectedDepartment] = useState('');
     const [designation, setDesignation] = useState([]);
-    const [nextVitalName, setNextVitalName] = useState('');
-
-    //////// Vitals
-    console.log(currentRenderingVital, 'Current Present Vital Name....');
+    //_________________________________START
+    console.log(selectedName, 'Present name');
+    console.log(fetchVital, 'Overall GET API');
+    const [nextName, setNextName] = useState('');
 
     useEffect(() => {
-        if (fetchVital && Array.isArray(fetchVital)) {
-            // Find the index of the current currentRenderingVital
-            const currentPartIndex = fetchVital.findIndex(vital => vital.screening_list === currentRenderingVital);
+        if (fetchVital && selectedName) {
+            const currentIndex = fetchVital.findIndex(item => item.screening_list === selectedName);
 
-            // If the current part name is found, get the next vital
-            if (currentPartIndex !== -1 && currentPartIndex + 1 < fetchVital.length) {
-                const nextVital = fetchVital[currentPartIndex + 1];
-                setNextVitalName(nextVital.screening_list); // Update the state with the next vital name
+            console.log('Current Index:', currentIndex);
+
+            if (currentIndex !== -1 && currentIndex < fetchVital.length - 1) {
+                const nextItem = fetchVital[currentIndex + 1];
+                const nextName = nextItem.screening_list;
+                setNextName(nextName);
+                console.log('Next Name Set:', nextName);
             } else {
-                setNextVitalName(''); // Clear the state if no next vital is available or current part name is not found
+                setNextName('');
+                console.log('No next item or selectedName not found');
             }
-        } else {
-            setNextVitalName(''); // Clear the state if fetchVital is not valid
         }
-    }, [fetchVital, currentRenderingVital]);
-
-    //// access the source from local storage
-    const SourceUrlId = localStorage.getItem('loginSource');
-
-    //// access the source name from local storage
-    const SourceNameUrlId = localStorage.getItem('SourceNameFetched');
-    //// access the source from local storage
-    const source = localStorage.getItem('source');
+    }, [selectedName, fetchVital]);
+    //__________________________________END
 
     const handleDepartmentChange = (e) => {
         setSelectedDepartment(e.target.value);
@@ -184,7 +181,7 @@ const Childvital = ({ citizensPkId, onAccept, pkid, sourceID, fetchVital, curren
                 const updatedChildData = { ...childData };
                 setChildData(updatedChildData);
                 console.log(updatedChildData, 'Updated Child Data');
-                onAccept(nextVitalName); 
+                onAcceptClick(nextName);
             } else if (response.status === 400) {
                 alert('Bad request. Please check your data and try again.');
             } else if (response.status === 500) {

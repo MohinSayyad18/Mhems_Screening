@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Chart from 'react-apexcharts';
 import './Dashboard.css';
 
-const Vision = ({ selectedSource, selctedType, selectedClassType }) => {
+const Vision = ({ selectedSource, selctedType, selectedClassType, selectedScreenID }) => {
     const Port = process.env.REACT_APP_API_KEY;
     const accessToken = localStorage.getItem('token');
 
@@ -59,6 +59,10 @@ const Vision = ({ selectedSource, selctedType, selectedClassType }) => {
                 apiUrl += `source_name_id=${SourceNameUrlId}&`;
             }
 
+            if (selectedScreenID) {
+                apiUrl += `schedule_id=${selectedScreenID}&`;
+            }
+
             // Remove the last '&' if it exists
             if (apiUrl.endsWith('&')) {
                 apiUrl = apiUrl.slice(0, -1);
@@ -96,10 +100,10 @@ const Vision = ({ selectedSource, selctedType, selectedClassType }) => {
     };
 
     useEffect(() => {
-        if (selectedSource || selctedType || selectedClassType) {
+        if (selectedSource || selctedType || selectedClassType || selectedScreenID) {
             fetchData();
         }
-    }, [selectedSource, selctedType, selectedClassType]);
+    }, [selectedSource, selctedType, selectedClassType, selectedScreenID]);
 
     return (
         <div className="donut-container">

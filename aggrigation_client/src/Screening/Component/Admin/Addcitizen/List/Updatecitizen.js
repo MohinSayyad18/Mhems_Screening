@@ -95,59 +95,9 @@ const Updatecitizen = () => {
 
     };
 
-    // useEffect(() => {
-    //     axios.get(`${Port}/Screening/add_citizen_get/${id}/`)
-    //         .then((response) => {
-    //             console.log('API response:', response.data);
-    //             setData1(response.data)
-    //             setSelectedAge1({
-    //                 gender: response.data.gender || '',
-    //                 source: response.data.source || '',
-    //                 type: response.data.type || '',
-    //                 disease: response.data.disease,
-
-    //                 age: {
-    //                     id: response.data.age || '',
-    //                     name: response.data.age_name || '',
-    //                 },
-    //                 gender: {
-    //                     id: response.data.gender || '',
-    //                     name: response.data.gender_name || '',
-    //                 },
-    //                 source: {
-    //                     id: response.data.source || '',
-    //                     name: response.data.source_id_name || '',
-    //                 },
-    //                 type: {
-    //                     id: response.data.type || '',
-    //                     name: response.data.type_name || '',
-    //                 },
-    //                 disease: {
-    //                     id: response.data.disease || '',
-    //                     name: response.data.disease_name || '',
-    //                 },
-    //             });
-
-    //             axios.get(`${Port}/Screening/source_and_pass_state_Get/${response.data.source}`)
-    //                 .then((anotherResponse) => {
-    //                     console.log('Another API response:', anotherResponse.data);
-    //                     setSourceStateNav(anotherResponse.data);
-    //                 })
-    //                 .catch((anotherError) => {
-    //                     console.error('Error in the second API call:', anotherError);
-    //                 });
-    //         },
-
-    //         )
-    //         .catch((error) => {
-    //             console.error('Error:', error);
-
-    //         });
-    // }, [])
-
     useEffect(() => {
         let apiUrl;
-        if (sourceId === 'School') {
+        if (sourceId === 'School' || sourceId === 'Community') {
             apiUrl = `${Port}/Screening/add_citizen_get/${id}/`;
         } else if (sourceId === 'Corporate') {
             apiUrl = `${Port}/Screening/add_employee_get/${id}/`;
@@ -326,7 +276,7 @@ const Updatecitizen = () => {
                                     <h5 className='namecitizen ml-1'>Update Citizen</h5>
                                 </div>
 
-                                <div className="row mb-3 dropdownall">
+                                {/* <div className="row mb-3 dropdownall">
                                     <Box>
                                         <div class="container text-center">
                                             <div class="row headerupdatecitizen">
@@ -544,7 +494,7 @@ const Updatecitizen = () => {
                                             </div>
                                         </div>
                                     </Box>
-                                </div>
+                                </div> */}
                             </div>
                         </div>
                     </div>
@@ -564,7 +514,14 @@ const Updatecitizen = () => {
             </div> */}
 
             <div className='container'>
-                {sourceId === 'School' && (
+                {/* {sourceId === 'School' && (
+                    <Childupdate
+                        data={data1}
+                        main={selectedAge1}
+                        state={sourceStateNav}
+                    />
+                )} */}
+                {sourceId === 'Community' && (
                     <Childupdate
                         data={data1}
                         main={selectedAge1}

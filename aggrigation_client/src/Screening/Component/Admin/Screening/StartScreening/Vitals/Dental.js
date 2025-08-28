@@ -1,34 +1,78 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react';
 import './Dental.css'
-import EditIcon from '@mui/icons-material/Edit';
+import Webcam from 'react-webcam';
+import { Button, Slider } from '@mui/material';
+import CameraAltIcon from '@mui/icons-material/CameraAlt';
+import FileUploadIcon from '@mui/icons-material/FileUpload';
+import { Modal, Box, IconButton } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import { useSourceContext } from '../../../../../../contexts/SourceContext';
+import DentalAssessment from './AI/DentalAssesment';
+import { useNavigate } from "react-router-dom";
+import Cookies from 'js-cookie';
 
-const Dental = ({ pkid, citizensPkId, onMoveTovision, nextVitalName, fetchVital, selectedName }) => {
+const Dental = ({ scheduleID, pkid, citizensPkId, citizenId, onMoveTovision, fetchVital, selectedName, onAcceptClick }) => {
 
-  //__________________________Vital START
-  console.log(nextVitalName, 'dental fetching current componenet.....');
-  console.log(selectedName, 'selectedNameselectedName....');
-  const [nextVitalName6, setNextVitalName6] = useState('');
+  //// QR Generate Update
+  const [openModal, setOpenModal] = useState(false);
+  const [qrCodeImage, setQrCodeImage] = useState(null);
+  const { setScheduleIdd, setPkIddd, setCitizenIddd } = useSourceContext();
+
+  const handleOpen = async () => {
+    try {
+      const response = await fetch(`${Port}/Screening/QRCode/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          citizens_pk_id: pkid,
+          citizen_id: citizenId,
+          schedule_id: scheduleID,
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setQrCodeImage(data.qr_code_image);
+        setOpenModal(true);
+        setScheduleIdd(scheduleID);
+        setPkIddd(pkid);
+        setCitizenIddd(citizenId);
+
+        const assessmentUrl = `${Port}/screening/dental_assesment?schedule_id=${encodeURIComponent(data.schedule_id)}&citizen_id=${encodeURIComponent(data.citizen_id)}&citizen_pk_id=${encodeURIComponent(data.citizens_pk_id)}`;
+        Cookies.set('scheduleIdd', scheduleID, { expires: 1, path: assessmentUrl });
+      } else {
+        console.error('Error:', response.status);
+      }
+    } catch (error) {
+      console.error('API error:', error);
+    }
+  };
+  const handleClose = () => setOpenModal(false);
+
+  console.log(selectedName, 'Present name');
+  console.log(fetchVital, 'Overall GET API');
+  const [nextName, setNextName] = useState('');
 
   useEffect(() => {
-    if (fetchVital && Array.isArray(fetchVital)) {
-      // Find the index of the current nextEmergencyVital
-      // const currentPartIndex = fetchVital.findIndex(vital => vital.screening_list === nextVitalName);
-      const currentPartIndex = fetchVital.findIndex(vital =>
-        vital.screening_list === nextVitalName || vital.screening_list === selectedName
-      );
+    if (fetchVital && selectedName) {
+      const currentIndex = fetchVital.findIndex(item => item.screening_list === selectedName);
 
-      // If the current part name is found, get the next vital
-      if (currentPartIndex !== -1 && currentPartIndex + 1 < fetchVital.length) {
-        const nextVitalName = fetchVital[currentPartIndex + 1];
-        setNextVitalName6(nextVitalName.screening_list); // Update the state with the next vital name
+      console.log('Current Indexxxx:', currentIndex);
+
+      if (currentIndex !== -1 && currentIndex < fetchVital.length - 1) {
+        const nextItem = fetchVital[currentIndex + 1];
+        const nextName = nextItem.screening_list;
+        setNextName(nextName);
+        console.log('Next Name Setttt:', nextName);
       } else {
-        setNextVitalName6(''); // Clear the state if no next vital is available or current part name is not found
+        setNextName('');
+        console.log('No next item or selectedName not found');
       }
-    } else {
-      setNextVitalName6(''); // Clear the state if fetchVital is not valid
     }
-  }, [fetchVital, nextVitalName]);
-  //__________________________Vital END
+  }, [selectedName, fetchVital]);
+  //_________________________________END___________________________________
 
   const userGroup = localStorage.getItem('usergrp');
   const accessToken = localStorage.getItem('token');
@@ -246,12 +290,12 @@ const Dental = ({ pkid, citizensPkId, onMoveTovision, nextVitalName, fetchVital,
         const data = await response.json();
         console.log('Server Response:', data);
         // onMoveToVital('dentalsection');
-        onMoveTovision(nextVitalName6);
+        onAcceptClick(nextName);
       } else if (response.status === 400) {
         console.error('Bad Request:', response.data.error);
       } else if (response.status === 500) {
         // onMoveToVital('dentalsection');
-        onMoveTovision(nextVitalName6);
+        onAcceptClick(nextName);
       }
       else {
         console.error('Unhandled Status Code:', response.status);
@@ -328,22 +372,67 @@ const Dental = ({ pkid, citizensPkId, onMoveTovision, nextVitalName, fetchVital,
     fetchDataById(pkid);
   }, [pkid]);
 
-  const [editMode, setEditMode] = useState(false); // State to track edit mode
+  const [editMode, setEditMode] = useState(false);
 
   const handleEditClick = () => {
-    setEditMode(!editMode); // Toggle edit mode
+    setEditMode(!editMode);
   };
 
   return (
     <div>
-      <div className="row">
+      <div className="card dentalcard">
         <div className="col-md-12">
-          <div className="card dentalcard">
-            <h5 className="dentaltitle">Dental Check Up</h5>
-            {/* <EditIcon onClick={handleEditClick} className="editvitalheader" /> Edit icon from Material-UI */}
+          <div className="row">
+            <div className="col-md-4">
+              <h5 className="dentaltitle">Dental Check Up</h5>
+            </div>
+            <div className="col-md-5 ml-auto">
+              <div className="dental-screening-wrapper">
+                <button className="btn btn mt-1"
+                  style={{ backgroundColor: 'white', fontFamily: 'Roboto', marginLeft: '7em' }} onClick={handleOpen}
+                >
+                  Start Dental Screening
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
+
+      <Modal
+        open={openModal}
+        onClose={handleClose}
+        aria-labelledby="dental-screening-modal"
+        aria-describedby="dental-screening-modal-description"
+      >
+        <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'background.paper', boxShadow: 24, p: 4, width: 400, position: 'relative' }}>
+          <IconButton
+            edge="end"
+            color="inherit"
+            onClick={handleClose}
+            sx={{ position: 'absolute', top: 8, right: 10 }}
+          >
+            <CloseIcon />
+          </IconButton>
+          <h4 id="dental-screening-modal">Scan QR Code</h4>
+          {qrCodeImage ? (
+            <img
+              src={`${Port}${qrCodeImage}`}
+              alt="QR Code"
+              style={{ width: '100%', height: 'auto', marginTop: '16px' }}
+            />
+          ) : (
+            <p>Loading QR code...</p>
+          )}
+        </Box>
+      </Modal>
+
+      {/* <DentalAssessment/> */}
+
+      {/* <div style={{ display: 'none' }}> */}
+      {/* <DentalAssessment scheduleIdd={scheduleIdd} pkiddd={pkIddd} citizenIddd={citizenIddd} /> */}
+      {/* </div> */}
+
       <form onSubmit={handleSubmit}>
         {
           ['UG-DOCTOR', 'UG-EXPERT', 'UG-SUPERADMIN', 'UG-ADMIN', 'CO-HR'].includes(userGroup) && (
@@ -1028,7 +1117,6 @@ const Dental = ({ pkid, citizensPkId, onMoveTovision, nextVitalName, fetchVital,
           )
         }
 
-
         <div className="row datapaddding">
           <>
             {/* <div className="col-md-6"> */}
@@ -1059,6 +1147,72 @@ const Dental = ({ pkid, citizensPkId, onMoveTovision, nextVitalName, fetchVital,
             readOnly
           />
         </div>
+
+        {/* <div className="col-md-12">
+          <label className="Visually-hidden labelpsychological">Dental</label>
+
+          <div className="row">
+            <div className="col-md-4">
+              <Webcam
+                audio={false}
+                ref={webcamRef}
+                screenshotFormat="image/jpeg"
+                style={{
+                  width: '100%',
+                  transform: `scale(${zoom})`,
+                  transformOrigin: 'center center',
+                }}
+              />
+            </div>
+
+            <div className="col-md-2">
+              <div className="row">
+                <Button variant="contained" onClick={capture} sx={{ marginBottom: '10px' }}>
+                  <CameraAltIcon onClick={capture} />
+                </Button>
+              </div>
+
+              <div className="row">
+                <Button variant="contained" component="label">
+                  <FileUploadIcon />
+                  <input
+                    type="file"
+                    hidden
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                  />
+                </Button>
+              </div>
+            </div>
+
+            <div className="col-md-4">
+              {imageSrc && (
+                <img src={imageSrc} alt="Captured" style={{ width: '100%' }} />
+              )}
+              <Button variant="contained" color="primary" style={{ marginTop: '10px' }} onClick={handleSubmitImage}
+              >
+                Submit
+              </Button>
+            </div>
+
+          </div>
+
+          <div className="row">
+            {loading ? (
+              <div className="row">Loading...</div>
+            ) : (
+              <div className="row">
+                <h6>Analysis:</h6>
+                <br />
+                {responseText.English.split(' ').map((word, index) => (
+                  <span key={index} style={{ display: 'inline-block', margin: '3px',marginTop:'20px' }}>
+                    {word}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </div> */}
 
         <div className="row">
           <button type='submit' className='btn btn-sm dentalbutton'>Accept</button>

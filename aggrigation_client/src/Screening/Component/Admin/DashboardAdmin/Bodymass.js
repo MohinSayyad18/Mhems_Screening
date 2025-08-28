@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
 
-const Bodymass = ({ selectedSource, selctedType, selectedClassType }) => {
+const Bodymass = ({ selectedSource, selctedType, selectedClassType, selectedScreenID }) => {
 
     const Port = process.env.REACT_APP_API_KEY;
     const [bmi, setBmi] = useState([])
@@ -14,7 +13,7 @@ const Bodymass = ({ selectedSource, selctedType, selectedClassType }) => {
 
     const fetchData = async () => {
         try {
-            let url = `${Port}/Screening/NEW_bmi_count/?`;
+            let url = `${Port}/Screening/Bmi_count/?`;
 
             if (selectedSource) {
                 url += `source_id=${selectedSource}&`;
@@ -25,7 +24,7 @@ const Bodymass = ({ selectedSource, selctedType, selectedClassType }) => {
             }
 
             if (selectedClassType) {
-                url += `class_id=${selectedClassType}&`;
+                url += `Class_id=${selectedClassType}&`;
             }
 
             if (SourceNameUrlId) {
@@ -47,9 +46,9 @@ const Bodymass = ({ selectedSource, selctedType, selectedClassType }) => {
             console.error('Error Fetching Data:', error);
         }
     };
-    
+
     useEffect(() => {
-        if (selectedSource || selctedType || selectedClassType) {
+        if (selectedSource || selctedType || selectedClassType || selectedScreenID) {
             fetchData();
         }
     }, [selectedSource, selctedType, selectedClassType]);

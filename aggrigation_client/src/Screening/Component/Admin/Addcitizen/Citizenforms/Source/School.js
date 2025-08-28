@@ -3,9 +3,43 @@ import './School.css'
 import axios from 'axios'
 import { Modal, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import MenuItem from '@mui/material/MenuItem';
 
 const School = (props) => {
+
+    /// State District Tehsil
+    const State = localStorage.getItem('StateLogin');
+    const District = localStorage.getItem('DistrictLogin');
+    const Tehsil = localStorage.getItem('TehsilLogin');
+
     const Port = process.env.REACT_APP_API_KEY;
+    const [GenderNav, setGenderNav] = useState([]);
+    const [selectedGender, setSelectedGender] = useState('');
+    const [genderError, setGenderError] = useState('');
+
+    const handleGenderChange = (e) => {
+        setSelectedGender(e.target.value);
+        setGenderError('');
+    };
+
+    useEffect(() => {
+        const fetchGenderDropdown = async () => {
+            try {
+                const response = await axios.get(`${Port}/Screening/Gender_GET/`, {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                })
+                setGenderNav(response.data)
+                console.log(GenderNav)
+            }
+            catch (error) {
+                console.log('Error while fetching data', error)
+            }
+        }
+        fetchGenderDropdown()
+    }, []);
 
     const userID = localStorage.getItem('userID');
     console.log(userID);
@@ -14,7 +48,6 @@ const School = (props) => {
     const navigate = useNavigate();
     const [bmiBgColor, setBmiBgColor] = useState('');
     const selectedAge = props.age;
-    const selectedGender = props.gender;
     const selectedSource = props.source;
     const selectedDisease = props.disease;
     const selectedTypeValue = props.type;
@@ -26,13 +59,20 @@ const School = (props) => {
     const [sourceDistrict, setSourceDistrict] = useState([]);
     const [sourceTehsil, setSourceTehsil] = useState([]);
     const [sourceName, setSourceName] = useState([]);
+    const [location, setLocation] = useState([]);
+
     const [classList, setClassList] = useState([]); //// class API
     const [divisionList, setDivisionList] = useState([]); //
 
-    const [selectedState, setSelectedState] = useState('');
-    const [selectedDistrict, setSelectedDistrict] = useState('');
-    const [selectedTehsil, setSelectedTehsil] = useState('');
+    const [selectedState, setSelectedState] = useState(State || '');
+    console.log(selectedState, 'selectedStateselectedStateselectedStateselectedState');
+
+    const [selectedDistrict, setSelectedDistrict] = useState(District || '');
+    console.log(selectedDistrict, 'selectedDistrictselectedDistrict');
+
+    const [selectedTehsil, setSelectedTehsil] = useState(Tehsil || '');
     const [selectedSourceName, setSelectedSourceName] = useState('');
+    const [selectedLocation, setSelectedLocation] = useState('');
     const [selectedClass, setSelectedClass] = useState('');
     const [selectedDivision, setSelectedDivision] = useState('');
     const [responseMessage, setResponseMessage] = useState('');
@@ -46,7 +86,7 @@ const School = (props) => {
     const [errors, setErrors] = useState({
         name: "",
         blood_groups: "",
-        aadhar_id: "",
+        // aadhar_id: "",
         dob: '',
         year: '',
         months: '',
@@ -60,7 +100,7 @@ const School = (props) => {
         parents_mobile: "",
 
         state: "",
-        pincode: "",
+        // pincode: "",
         address: "",
     });
 
@@ -71,9 +111,9 @@ const School = (props) => {
             newErrors.name = 'Name is required';
         }
 
-        if (!selectData.aadhar_id) {
-            newErrors.aadhar_id = 'Adhar Id is required';
-        }
+        // if (!selectData.aadhar_id) {
+        //     newErrors.aadhar_id = 'Adhar Id is required';
+        // }
 
         if (!selectData.father_name) {
             newErrors.father_name = 'Father Name is required';
@@ -96,9 +136,9 @@ const School = (props) => {
             newErrors.weight = 'Weight must below 400Kg';
         }
 
-        if (!selectData.pincode) {
-            newErrors.pincode = 'Pincode is required';
-        }
+        // if (!selectData.pincode) {
+        //     newErrors.pincode = 'Pincode is required';
+        // }
 
         if (!selectData.state) {
             newErrors.state = 'state is required';
@@ -189,6 +229,9 @@ const School = (props) => {
         else if (name === 'source_names') {
             setSelectedSourceName(value)
         }
+        else if (name === 'location') {
+            setSelectedLocation(value)
+        }
         else if (name === 'Class') {
             setSelectedClass(value)
         }
@@ -222,7 +265,7 @@ const School = (props) => {
         {
             name: "",
             blood_groups: "",
-            aadhar_id: "",
+            aadhar_id: "123456789012",
 
             height: "",
             weight: "",
@@ -241,7 +284,7 @@ const School = (props) => {
             parents_mobile: "",
             sibling_count: "",
 
-            pincode: "",
+            pincode: "123456",
             address: "",
             added_by: userID
         }
@@ -306,6 +349,7 @@ const School = (props) => {
                 district: selectedDistrict,
                 tehsil: selectedTehsil,
                 source_name: selectedSourceName,
+                location: selectedLocation,
                 type: selectedTypeValue,
                 dob: dob,
                 days: age.days,
@@ -542,12 +586,36 @@ const School = (props) => {
                     setSourceName(data);
                     console.log(data);
                 } catch (error) {
-                    console.error("Error fetching source Name against tehsil data:", error);
+                    console.error("Error fetching Institution Name against tehsil data:", error);
                 }
             }
         };
         fetchSourceNameOptions();
     }, [selectedTehsil]);
+
+    //// Location against selected SourceName
+    useEffect(() => {
+        const fetchLocation = async () => {
+            if (selectedSourceName) {
+                try {
+                    // const accessToken = localStorage.getItem('token');
+ 
+                    const res = await fetch(`${Port}/Screening/location_get_api/?wrd_inst=${selectedSourceName}`, {
+                        headers: {
+                            // 'Authorization': `Bearer ${accessToken}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    const data = await res.json();
+                    setLocation(data);
+                    console.log(data,'llllllll');
+                } catch (error) {
+                    console.error("Error fetching Location:", error);
+                }
+            }
+        };
+        fetchLocation();
+    }, [selectedSourceName]);
 
     /////// Class GET API 
     useEffect(() => {
@@ -779,7 +847,9 @@ const School = (props) => {
 
                                         <div className='row contentincard'>
                                             <div className='col-md-6 mb-3'>
-                                                <label htmlFor="aadhar_id" className="visually-hidden citizenlabel">Aadhar ID Number<span className="text-danger">*</span></label>
+                                                <label htmlFor="aadhar_id" className="visually-hidden citizenlabel">Aadhar ID Number
+                                                    {/* <span className="text-danger">*</span> */}
+                                                </label>
                                                 <input
                                                     type="number"
                                                     id="aadhar_id"
@@ -798,7 +868,29 @@ const School = (props) => {
                                                         }
                                                     }}
                                                 />
-                                                {errors.aadhar_id && <div className="invalid-feedback">{errors.aadhar_id}</div>}
+                                                {/* {errors.aadhar_id && <div className="invalid-feedback">{errors.aadhar_id}</div>} */}
+                                            </div>
+
+                                            <div className="col-md-4">
+                                                <label className="visually-hidden citizenlabel">
+                                                    Gender<span className="text-danger">*</span>
+                                                </label>
+                                                <select
+                                                    className={`form-control ${errors.blood_groups && 'is-invalid'}`}
+                                                    name="blood_groups"
+                                                    value={selectedGender}
+                                                    onChange={handleGenderChange}
+                                                >
+                                                    <option value="">Select Gender</option>
+                                                    {GenderNav.map(drop => (
+                                                        <option key={drop.gender_pk_id} value={drop.gender_pk_id}>
+                                                            {drop.gender}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                {errors.blood_groups && (
+                                                    <div className="invalid-feedback">{errors.blood_groups}</div>
+                                                )}
                                             </div>
 
                                             {selectedTypeValue === 1 && (
@@ -929,7 +1021,7 @@ const School = (props) => {
                                                 {errors.parents_mobile && <div className="invalid-feedback">{errors.parents_mobile}</div>}
                                             </div>
 
-                                            <div className='col-md-6 mb-3'>
+                                            {/* <div className='col-md-6 mb-3'>
                                                 <label for="Gender" class="visually-hidden citizenlabel">Siblings Count</label>
                                                 <select
                                                     class='form-control'
@@ -945,7 +1037,7 @@ const School = (props) => {
                                                     <option>3</option>
                                                     <option>4</option>
                                                 </select>
-                                            </div>
+                                            </div> */}
                                         </div>
                                     </div>
                                 </div>
@@ -1145,6 +1237,7 @@ const School = (props) => {
                                                     className='form-control'
                                                     name='district'
                                                     id='outlined-select'
+                                                    value={selectedDistrict}
                                                     onChange={handleChange}
                                                 >
                                                     <option value="">Select a district</option>
@@ -1160,11 +1253,12 @@ const School = (props) => {
                                             </div>
 
                                             <div className='col-md-6'>
-                                                <label htmlFor="Gender" className="visually-hidden citizenlabel">Tehsil<span className="text-danger">*</span></label>
+                                                <label htmlFor="Gender" className="visually-hidden citizenlabel">Block<span className="text-danger">*</span></label>
                                                 <select
                                                     className='form-control'
                                                     name='tehsil'
                                                     id='outlined-select'
+                                                    value={selectedTehsil}
                                                     onChange={handleChange}
                                                 >
                                                     <option value="">Select</option>
@@ -1180,7 +1274,7 @@ const School = (props) => {
                                             </div>
 
                                             <div className='col-md-6'>
-                                                <label className="visually-hidden citizenlabel">Source Name<span className="text-danger">*</span></label>
+                                                <label className="visually-hidden citizenlabel">Institution Name<span className="text-danger">*</span></label>
                                                 <select
                                                     className='form-control'
                                                     name='source_names'
@@ -1196,8 +1290,26 @@ const School = (props) => {
                                                 </select>
                                             </div>
 
-                                            <div className='col-md-4'>
-                                                <label htmlFor="Pincode" className="visually-hidden citizenlabel">Pincode<span className="text-danger">*</span></label>
+                                            <div className='col-md-6 mb-3'>
+                                                <label className="visually-hidden citizenlabel">Location<span className="text-danger">*</span></label>
+                                                <select
+                                                    className='form-control'
+                                                    name='location'
+                                                    id='outlined-select'
+                                                    onChange={handleChange}
+                                                >
+                                                    <option value="">Select</option>
+                                                    {location.map((source) => (
+                                                        <option key={source.ward_id} value={source.ward_id}>
+                                                            {source.ward_name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+
+                                            {/* <div className='col-md-4'>
+                                                <label htmlFor="Pincode" className="visually-hidden citizenlabel">Pincode
+                                                </label>
                                                 <input
                                                     type="number"
                                                     className={`form-control ${errors.pincode ? 'is-invalid' : ''}`}
@@ -1207,14 +1319,13 @@ const School = (props) => {
                                                     onChange={handleChange}
                                                     value={selectData.pincode}
                                                     onInput={(e) => {
-                                                        let inputValue = e.target.value.replace(/[^0-9]/g, ''); // Remove non-numeric characters
+                                                        let inputValue = e.target.value.replace(/[^0-9]/g, '');
                                                         if (inputValue.length > 6) {
                                                             inputValue = inputValue.slice(0, 6);
                                                         }
                                                         e.target.value = inputValue;
                                                     }}
                                                 />
-                                                {errors.pincode && <div className="invalid-feedback">{errors.pincode}</div>}
                                             </div>
 
                                             <div className='col-md-8 mb-3'>
@@ -1227,7 +1338,7 @@ const School = (props) => {
                                                     value={selectData.address}
                                                 />
                                                 {errors.address && <div className="invalid-feedback">{errors.address}</div>}
-                                            </div>
+                                            </div> */}
                                         </div>
                                     </div>
                                 </div>

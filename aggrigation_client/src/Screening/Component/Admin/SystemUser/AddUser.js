@@ -65,17 +65,32 @@ const AddUser = () => {
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
 
   ///////////////////// Navbar
+  /// State District Tehsil
+  const State = localStorage.getItem('StateLogin');
+  const District = localStorage.getItem('DistrictLogin');
+  const Tehsil = localStorage.getItem('TehsilLogin');
+
+  const userID = localStorage.getItem('userID');
+
+  //// access the source from local storage
+  const SourceUrlId = localStorage.getItem('loginSource');
+
+  //// access the source name from local storage
+  const SourceNameUrlId = localStorage.getItem('SourceNameFetched');
+  // console.log(userID);
+
+
   const [sourceOptionNav, setSourceOptionNav] = useState([]);
-  const [selectedSourceeNav, setSelectedSourceeNav] = useState('');
+  const [selectedSourceeNav, setSelectedSourceeNav] = useState(SourceUrlId || '');
 
   const [stateOptionsNav, setStateOptionsNav] = useState([]);
-  const [selectedStateNav, setSelectedStateNav] = useState('')
+  const [selectedStateNav, setSelectedStateNav] = useState(State || '')
 
   const [districtOptionsNav, setDistrictOptionsNav] = useState([]);
-  const [selectedDistrictNav, setSelectedDistrictNav] = useState('')
+  const [selectedDistrictNav, setSelectedDistrictNav] = useState(District || '')
 
   const [talukaOptionsNav, setTalukaOptionsNav] = useState([])
-  const [selectedTalukaNav, setSelectedTalukaNav] = useState('')
+  const [selectedTalukaNav, setSelectedTalukaNav] = useState(Tehsil || '')
 
   const [sourceNameOptionsNav, setSourceNameNav] = useState([])
   const [selectedNameNav, setSelectedNameNav] = useState('')
@@ -107,15 +122,6 @@ const AddUser = () => {
   const [existModel, setExistModel] = useState(false); ////////////// ExistFields
   const [formEnabled, setFormEnabled] = useState(false); ////////// disabled
   const [loading, setLoading] = useState(true)
-
-  const userID = localStorage.getItem('userID');
-
-  //// access the source from local storage
-  const SourceUrlId = localStorage.getItem('loginSource');
-
-  //// access the source name from local storage
-  const SourceNameUrlId = localStorage.getItem('SourceNameFetched');
-  // console.log(userID);
 
   ////////////// navbar useState 
   useEffect(() => {
@@ -173,7 +179,7 @@ const AddUser = () => {
   //// Soure Taluka against selected source district
   useEffect(() => {
     if (selectedDistrictNav) {
-      axios.get(`${Port}/Screening/district_and_pass_taluka_Get/${selectedSourceeNav}/${selectedDistrictNav}`,
+      axios.get(`${Port}/Screening/district_and_pass_taluka_Get/${selectedSourceeNav}/${selectedDistrictNav}/`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`
@@ -191,7 +197,7 @@ const AddUser = () => {
   //// Soure Name against selected source Taluka
   useEffect(() => {
     if (selectedTalukaNav) {
-      axios.get(`${Port}/Screening/taluka_and_pass_SourceName_Get/${selectedTalukaNav}`,
+      axios.get(`${Port}/Screening/taluka_and_pass_SourceName_Get/?SNid=${selectedTalukaNav}`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`

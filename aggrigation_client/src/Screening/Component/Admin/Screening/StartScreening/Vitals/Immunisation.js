@@ -3,32 +3,31 @@ import './Immunisation.css';
 import axios from 'axios';
 import { Modal, Button } from 'react-bootstrap';
 
-const Immunisation = ({ pkid, citizensPkId, dob, onMoveToVital, fetchVital, nextVitalName, selectedName }) => {
+const Immunisation = ({ pkid, citizensPkId, dob, fetchVital, selectedName, onAcceptClick }) => {
 
-  //__________________________Vital START
-  console.log(nextVitalName, 'dental fetching current componenet.....');
-  console.log(selectedName, 'selectedNameselectedName....');
-  const [nextVitalName11, setNextVitalName11] = useState('');
+  //_________________________________START
+  console.log(selectedName, 'Present name');
+  console.log(fetchVital, 'Overall GET API');
+  const [nextName, setNextName] = useState('');
 
   useEffect(() => {
-    if (fetchVital && Array.isArray(fetchVital)) {
-      // Find the index of the current nextEmergencyVital
-      // const currentPartIndex = fetchVital.findIndex(vital => vital.screening_list === nextVitalName);
-      const currentPartIndex = fetchVital.findIndex(vital =>
-        vital.screening_list === nextVitalName || vital.screening_list === selectedName
-      );
-      // If the current part name is found, get the next vital
-      if (currentPartIndex !== -1 && currentPartIndex + 1 < fetchVital.length) {
-        const nextVitalName = fetchVital[currentPartIndex + 1];
-        setNextVitalName11(nextVitalName.screening_list); // Update the state with the next vital name
+    if (fetchVital && selectedName) {
+      const currentIndex = fetchVital.findIndex(item => item.screening_list === selectedName);
+
+      console.log('Current Indexxxx:', currentIndex);
+
+      if (currentIndex !== -1 && currentIndex < fetchVital.length - 1) {
+        const nextItem = fetchVital[currentIndex + 1];
+        const nextName = nextItem.screening_list;
+        setNextName(nextName);
+        console.log('Next Name Setttt:', nextName);
       } else {
-        setNextVitalName11(''); // Clear the state if no next vital is available or current part name is not found
+        setNextName('');
+        console.log('No next item or selectedName not found');
       }
-    } else {
-      setNextVitalName11(''); // Clear the state if fetchVital is not valid
     }
-  }, [fetchVital, nextVitalName]);
-  //__________________________Vital END
+  }, [selectedName, fetchVital]);
+  //_________________________________END
 
 
   const [data, setData] = useState([]);
@@ -166,10 +165,8 @@ const Immunisation = ({ pkid, citizensPkId, dob, onMoveToVital, fetchVital, next
 
       if (response.status === 201) {
         const responseData = response.data;
-
-        // alert('Immunisation Form Submitted Successfully');
         console.log('Data posted successfully:', responseData);
-        onMoveToVital(nextVitalName11);
+        onAcceptClick(nextName);
       } else {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }

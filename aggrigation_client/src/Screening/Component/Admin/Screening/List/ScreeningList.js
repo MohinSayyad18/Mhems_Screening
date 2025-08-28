@@ -4,7 +4,7 @@ import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import './ScreeningList.css';
 import SearchIcon from '@mui/icons-material/Search';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 import axios from 'axios'
 import TablePagination from '@mui/material/TablePagination';
@@ -18,37 +18,29 @@ const ScreeningList = () => {
   const Port = process.env.REACT_APP_API_KEY;
   const userID = localStorage.getItem('userID');
 
-  //// access the source from local storage
   const SourceUrlId = localStorage.getItem('loginSource');
-
-  //// access the source name from local storage
   const SourceNameUrlId = localStorage.getItem('SourceNameFetched');
 
   console.log(userID);
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
-  const [sourceNav, setSourceNav] = useState([]); // State for source options
-  const [selectedSource, setSelectedSource] = useState(SourceUrlId); // State to store selected source
-  const [sourceType, setSourceType] = useState([]); // State for source state options
+  const [sourceNav, setSourceNav] = useState([]);
+  const [selectedSource, setSelectedSource] = useState(SourceUrlId);
+  const [sourceType, setSourceType] = useState([]);
   const [selectedType, setSelectedType] = useState(3);
-  const [sourceClass, setSourceClass] = useState([]); // State for source district options
+  const [sourceClass, setSourceClass] = useState([]);
   const [selectedClass, setSelectedClass] = useState('')
   const [selectedCount, setSelectedCount] = useState('');
-
-  const [cardData, setCardData] = useState([]); // Your data state
+  const [open, setOpen] = useState(false);
+  const [cardData, setCardData] = useState([]);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(6); // Set the desired number of cards per page
+  const [rowsPerPage, setRowsPerPage] = useState(6);
   const [loading, setLoading] = useState(true)
+  const handleClose = () => setOpen(false);
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
 
-  const [open, setOpen] = useState(false);
-
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-
-  console.log(selectedSource, selectedType, selectedClass, selectedCount);
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
@@ -163,26 +155,22 @@ const ScreeningList = () => {
   const handleSearch = async () => {
     try {
       let apiUrl = `${Port}/Screening/start_screening_info/?`;
-
-      // Add source and source_name parameters to the URL
       apiUrl += `source=${SourceUrlId}&source_name=${SourceNameUrlId}&`;
-
-      // Construct the URL based on selected filters
       if (selectedSource) {
-        apiUrl += `source_id=${selectedSource}&`;
+        apiUrl += `source_id=${selectedSource}`;
       }
-      if (selectedType) {
-        apiUrl += `type_id=${selectedType}&`;
-      }
-      if (selectedClass) {
-        apiUrl += `class_id=${selectedClass}&`;
-      }
-      if (selectedCount) {
-        apiUrl += `schedule_count=${selectedCount}&`;
-      }
-      if (selectedDepartment) {
-        apiUrl += `department_id=${selectedDepartment}&`;
-      }
+      // if (selectedType) {
+      //   apiUrl += `type_id=${selectedType}&`;
+      // }
+      // if (selectedClass) {
+      //   apiUrl += `class_id=${selectedClass}&`;
+      // }
+      // if (selectedCount) {
+      //   apiUrl += `schedule_count=${selectedCount}&`;
+      // }
+      // if (selectedDepartment) {
+      //   apiUrl += `department_id=${selectedDepartment}&`;
+      // }
 
       setLoading(true);
 
@@ -197,7 +185,6 @@ const ScreeningList = () => {
 
       response.data.forEach(item => {
         console.log(item.citizen_info.source, 'source fetched from response');
-        //// set in the locaStorage
         localStorage.setItem('source', item.citizen_info.source);
       });
 
@@ -211,7 +198,7 @@ const ScreeningList = () => {
   };
 
   useEffect(() => {
-    handleSearch(); // Fetch data with default selected options when component mounts
+    handleSearch();
   }, [selectedSource, selectedType, selectedClass, selectedCount]);
 
   const [department, setDepartmenet] = useState([]);
@@ -238,6 +225,7 @@ const ScreeningList = () => {
     <div>
       <div class="content-wrapper">
         <div class="content-header">
+          {/*
           <div class="container-fluid">
             <div className="card screenlistcard">
               <div class="row">
@@ -263,7 +251,7 @@ const ScreeningList = () => {
                               InputLabelProps={{
                                 style: {
                                   fontWeight: '100',
-                                  fontSize: '14px', // Set the desired font size for the label
+                                  fontSize: '14px', 
                                   paddingLeft: 0,
                                 },
                               }}
@@ -299,7 +287,7 @@ const ScreeningList = () => {
                           InputLabelProps={{
                             style: {
                               fontWeight: '100',
-                              fontSize: '14px', // Set the desired font size for the label
+                              fontSize: '14px', 
                             },
                           }}
                           SelectProps={{
@@ -371,7 +359,7 @@ const ScreeningList = () => {
                               InputLabelProps={{
                                 style: {
                                   fontWeight: '100',
-                                  fontSize: '14px', // Set the desired font size for the label
+                                  fontSize: '14px',
                                 },
                               }}
                               SelectProps={{
@@ -446,9 +434,9 @@ const ScreeningList = () => {
               </div>
             </div>
           </div>
+*/}
         </div>
       </div>
-
       <div class="content-wrapper">
         <div class="content-header">
           <div class="container-fluid">

@@ -17,7 +17,7 @@ const CorporateEmployee = ({ selectedSource, selctedType, selectedClassType }) =
         const fetchData = async () => {
             try {
                 const endpoint = selectedClassType
-                ? `${Port}/Screening/NEW_citizens_count/?source_id=${selectedSource}&type_id=${selctedType}&class_id=${selectedClassType}&source_name_id=${SourceNameUrlId}`
+                ? `${Port}/Screening/NEW_citizens_count/?source_id=${selectedSource}&type_id=${selctedType}&Class_id=${selectedClassType}&source_name_id=${SourceNameUrlId}`
                 : `${Port}/Screening/NEW_citizens_count/?source_id=${selectedSource}&type_id=${selctedType}&source_name_id=${SourceNameUrlId}`;
 
                 const response = await fetch(endpoint, {

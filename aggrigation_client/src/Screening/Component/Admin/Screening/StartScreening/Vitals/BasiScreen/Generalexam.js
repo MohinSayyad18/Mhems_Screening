@@ -6,7 +6,31 @@ import torso from '../../../../../../Images/Torso.png'
 import axios from 'axios'
 import './Generalexam.css'
 
-const Generalexam = ({ pkid, onAcceptClick, citizensPkId, citizenidddddddd }) => {
+const Generalexam = ({ pkid, onAcceptClick, citizensPkId, citizenidddddddd, selectedTab, subVitalList }) => {
+
+    //_________________________________START
+    console.log(selectedTab, 'Present name');
+    console.log(subVitalList, 'Overall GET API');
+    const [nextName, setNextName] = useState('');
+
+    useEffect(() => {
+        if (subVitalList && selectedTab) {
+            const currentIndex = subVitalList.findIndex(item => item.screening_list === selectedTab);
+
+            console.log('Current Index:', currentIndex);
+
+            if (currentIndex !== -1 && currentIndex < subVitalList.length - 1) {
+                const nextItem = subVitalList[currentIndex + 1];
+                const nextName = nextItem.screening_list;
+                setNextName(nextName);
+                console.log('Next Name Set:', nextName);
+            } else {
+                setNextName('');
+                console.log('No next item or selectedTab not found');
+            }
+        }
+    }, [selectedTab, subVitalList]);
+    //__________________________________END
 
     const userID = localStorage.getItem('userID');
     console.log(userID);
@@ -15,7 +39,6 @@ const Generalexam = ({ pkid, onAcceptClick, citizensPkId, citizenidddddddd }) =>
 
     //// access the source from local storage
     const source = localStorage.getItem('source');
-
     const Port = process.env.REACT_APP_API_KEY;
     const [headData, setHeadData] = useState([]);
     const [hairData, setHairData] = useState([]);
@@ -127,7 +150,7 @@ const Generalexam = ({ pkid, onAcceptClick, citizensPkId, citizenidddddddd }) =>
 
         e.preventDefault();
         const isConfirmed = window.confirm('Submit Basic Screen Form');
-        if (!isConfirmed) return; // If user cancels, do nothing
+        if (!isConfirmed) return;
         const confirmationStatus = isConfirmed ? 'True' : 'False';
 
         const formData = {
@@ -158,8 +181,7 @@ const Generalexam = ({ pkid, onAcceptClick, citizensPkId, citizenidddddddd }) =>
                 if (basicScreeningPkId) {
                     localStorage.setItem('basicScreeningId', basicScreeningPkId);
                     console.log('basicScreeningId:', basicScreeningPkId);
-                    console.log('Calling onAcceptClick with ID:', basicScreeningPkId);
-                    onAcceptClick('Systemic Exam', basicScreeningPkId);
+                    onAcceptClick(nextName, basicScreeningPkId);
                 } else {
                     console.error('Basic Screening ID not found in response data');
                     // Optionally, handle this case as appropriate
@@ -174,57 +196,6 @@ const Generalexam = ({ pkid, onAcceptClick, citizensPkId, citizenidddddddd }) =>
 
 
     };
-
-    // const handleSubmit = async (e) => {
-    //     const isConfirmed = window.confirm('Submit Basic Screen Form');
-    //     const confirmationStatus = isConfirmed ? 'True' : 'False';
-    //     e.preventDefault();
-
-    //     const formData = {
-    //         ...generalExam,
-    //         form_submit: confirmationStatus,
-    //         added_by : userID
-    //     };
-
-    //     console.log('Form Data:', formData);
-
-    //     try {
-    //         const response = await fetch(`${Port}/Screening/citizen_basic_screening_info_post/${pkid}`, {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //             },
-    //             body: JSON.stringify(formData),
-    //         });
-
-    //         const data = await response.json();
-    //         console.log('Server Response:', data);
-
-    //         if (response.status === 201 || response.status === 200) {
-    //             const basicScreeningPkId = extractBasicScreeningPkId(data);
-
-    //             if (basicScreeningPkId !== undefined && basicScreeningPkId !== null) {
-    //                 localStorage.setItem('basicScreeningId', basicScreeningPkId);
-    //                 console.log('basicScreeningId:', basicScreeningPkId);
-
-    //                 console.log('Calling onAcceptClick with ID:', basicScreeningPkId);
-    //                 // onAcceptClick('Treatment', basicScreeningPkId);
-    //                 onAcceptClick('Systemic Exam', basicScreeningPkId);
-    //             } else {
-    //                 const basicScreeningPkId = extractBasicScreeningPkId(data);
-    //                 if (basicScreeningPkId !== undefined && basicScreeningPkId !== null) {
-    //                     console.log('basicScreeningId:', basicScreeningPkId);
-    //                 }
-    //             }
-    //         } else if (response.status === 400) {
-    //             console.log('Mismatched Data');
-    //         } else {
-    //             console.error('Error:', response.status);
-    //         }
-    //     } catch (error) {
-    //         console.error('Error sending data:', error.message);
-    //     }
-    // };
 
     const extractBasicScreeningPkId = (data) => {
         return data.updated_data ? data.updated_data.basic_screening_pk_id : undefined;

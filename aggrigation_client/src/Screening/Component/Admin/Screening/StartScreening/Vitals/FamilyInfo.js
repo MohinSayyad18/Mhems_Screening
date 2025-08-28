@@ -1,31 +1,32 @@
 import React, { useState, useEffect } from 'react'
 import './FamilyInfo.css'
 
-const FamilyInfo = ({ citizensPkId, onGoToBmi, pkid, nextEmergencyVital, fetchVital, selectedName }) => {
+const FamilyInfo = ({ citizensPkId, pkid, fetchVital, selectedName, onAcceptClick }) => {
 
-    console.log(nextEmergencyVital, 'fetching the vital Name from the previous Componenet');
-    console.log(selectedName, 'fetching the vital Name from the previous Componenet');
-    const [nextVitalName1, setNextVitalName1] = useState('');
+    //_________________________________START
+    console.log(selectedName, 'Present name');
+    console.log(fetchVital, 'Overall GET API');
+    const [nextName, setNextName] = useState('');
 
     useEffect(() => {
-        if (fetchVital && Array.isArray(fetchVital)) {
-            // Find the index of the current nextEmergencyVital
-            // const currentPartIndex = fetchVital.findIndex(vital => vital.screening_list === nextEmergencyVital);
-            const currentPartIndex = fetchVital.findIndex(vital =>
-                vital.screening_list === nextEmergencyVital || vital.screening_list === selectedName
-            );
+        if (fetchVital && selectedName) {
+            const currentIndex = fetchVital.findIndex(item => item.screening_list === selectedName);
 
-            // If the current part name is found, get the next vital
-            if (currentPartIndex !== -1 && currentPartIndex + 1 < fetchVital.length) {
-                const nextVital = fetchVital[currentPartIndex + 1];
-                setNextVitalName1(nextVital.screening_list); // Update the state with the next vital name
+            console.log('Current Indexxxx:', currentIndex);
+
+            if (currentIndex !== -1 && currentIndex < fetchVital.length - 1) {
+                const nextItem = fetchVital[currentIndex + 1];
+                const nextName = nextItem.screening_list;
+                setNextName(nextName);
+                console.log('Next Name Setttt:', nextName);
             } else {
-                setNextVitalName1(''); // Clear the state if no next vital is available or current part name is not found
+                setNextName('');
+                console.log('No next item or selectedName not found');
             }
-        } else {
-            setNextVitalName1(''); // Clear the state if fetchVital is not valid
         }
-    }, [fetchVital, nextEmergencyVital]);
+    }, [selectedName, fetchVital]);
+    //_________________________________END
+
 
     const userID = localStorage.getItem('userID');
     console.log(userID);
@@ -131,7 +132,12 @@ const FamilyInfo = ({ citizensPkId, onGoToBmi, pkid, nextEmergencyVital, fetchVi
                 const updatedfamilyData = { ...familyData, };
                 setFamilyData(updatedfamilyData);
                 console.log(updatedfamilyData, 'Data updated successfully');
-                onGoToBmi(nextVitalName1);
+                // onAcceptClick(nextName);
+                if (nextName) {
+                    onAcceptClick(nextName);
+                } else {
+                    console.log('Next Vital not found. Staying on the same page.');
+                }
             } else if (response.status === 400) {
                 alert('Bad request. Please check your data and try again.');
             } else if (response.status === 500) {

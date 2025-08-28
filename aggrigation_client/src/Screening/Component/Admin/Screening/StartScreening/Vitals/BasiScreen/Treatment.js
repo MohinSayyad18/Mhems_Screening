@@ -1,7 +1,31 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 
-const Treatment = ({ pkid, onAcceptClick, citizensPkId, scheduleID, citizenidddddddd }) => {
+const Treatment = ({ pkid, onAcceptClick, citizensPkId, scheduleID, citizenidddddddd, selectedTab, subVitalList }) => {
+
+    //_________________________________START
+    console.log(selectedTab, 'Present name');
+    console.log(subVitalList, 'Overall GET API');
+    const [nextName, setNextName] = useState('');
+
+    useEffect(() => {
+        if (subVitalList && selectedTab) {
+            const currentIndex = subVitalList.findIndex(item => item.screening_list === selectedTab);
+
+            console.log('Current Index:', currentIndex);
+
+            if (currentIndex !== -1 && currentIndex < subVitalList.length - 1) {
+                const nextItem = subVitalList[currentIndex + 1];
+                const nextName = nextItem.screening_list;
+                setNextName(nextName);
+                console.log('Next Name Set:', nextName);
+            } else {
+                setNextName('');
+                console.log('No next item or selectedTab not found');
+            }
+        }
+    }, [selectedTab, subVitalList]);
+    //_________________________________END
 
     const Port = process.env.REACT_APP_API_KEY;
 
@@ -112,7 +136,7 @@ const Treatment = ({ pkid, onAcceptClick, citizensPkId, scheduleID, citizenidddd
                 console.log('Female Child Screening:', basicScreeningPkId);
                 // Call onAcceptClick with the updated id
                 // onAcceptClick('Female Child Screening', basicScreeningPkId);
-                onAcceptClick('Bad Habit', basicScreeningPkId);
+                onAcceptClick(nextName, basicScreeningPkId);
 
                 alert('Treatment form Submitted successfully');
             } else if (response.status === 400) {

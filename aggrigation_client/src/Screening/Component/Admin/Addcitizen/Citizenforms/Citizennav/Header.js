@@ -17,12 +17,12 @@ const Header = () => {
     console.log(userID);
     const Port = process.env.REACT_APP_API_KEY;
     const accessToken = localStorage.getItem('token');
-    
-     //// access the source from local storage
-     const SourceUrlId = localStorage.getItem('loginSource');
 
-     //// access the source name from local storage
-     const SourceNameUrlId = localStorage.getItem('SourceNameFetched');
+    //// access the source from local storage
+    const SourceUrlId = localStorage.getItem('loginSource');
+
+    //// access the source name from local storage
+    const SourceNameUrlId = localStorage.getItem('SourceNameFetched');
 
     //////////// Selected dropdown usestate /////////////////
     //////////// Age
@@ -49,7 +49,7 @@ const Header = () => {
 
     //////////// source
     const { setSelectedSource } = useSourceContext();
-    const [selectedSource, setSelectedSourceLocal] = useState('');
+    const [selectedSource, setSelectedSourceLocal] = useState(SourceUrlId || '');
     const [sourceError, setSourceError] = useState('');
 
     const handleSourceChange = (event) => {
@@ -92,36 +92,33 @@ const Header = () => {
 
     //////////////////// Render form based on selected value //////////////////
     const handlesubmit = () => {
-        if (selectedAge === 1 && selectedScheduleType === 2) {
-            setScreeningForError('Select the Valid Age');
-            return; // Stop further validation
-        }
-        if (selectedAge === 1 && selectedSource === 5) {
-            setScreeningForError('Select the Valid Age as per Source');
-            return; // Stop further validation
-        }
+        // if (selectedAge === 1 && selectedScheduleType === 2) {
+        //     setScreeningForError('Select the Valid Age');
+        //     return; // Stop further validation
+        // }
+        // if (selectedAge === 1 && selectedSource === 5) {
+        //     setScreeningForError('Select the Valid Age as per Source');
+        //     return; // Stop further validation
+        // }
 
         const errors = {
             age: !selectedAge ? 'Age is required' : '',
             gender: !selectedGender ? 'Gender is required' : '',
             source: !selectedSource ? 'Source is required' : '',
-            screeningFor: !selectedScheduleType ? 'Type is required' : '',
+            // screeningFor: !selectedScheduleType ? 'Type is required' : '',
         };
 
         // Set errors for other fields
         setAgeError(errors.age);
         setGenderError(errors.gender);
         setSourceError(errors.source);
-        setScreeningForError(errors.screeningFor);
+        // setScreeningForError(errors.screeningFor);
 
-        // Continue with the rest of your validation logic...
-
-        if (!errors.age && !errors.gender && !errors.source && !errors.screeningFor) {
-            // Reset errors for valid fields
+        if (!errors.age && !errors.gender && !errors.source) {
             setAgeError('');
             setGenderError('');
             setSourceError('');
-            setScreeningForError('');
+            // setScreeningForError('');
 
             const formMappings = {
                 '1_1_1_1': 'school',
@@ -133,6 +130,13 @@ const Header = () => {
                 '2_2_1_2': 'school',
                 '2_2_1_1': 'school',
 
+                '9_1_6': 'school',
+                '9_2_6': 'school',
+                '9_3_6': 'school',
+                '9_1_2': 'school',
+                '2_1_1': 'school',
+                '2_2_1': 'school',
+
                 '5_1_5_3': 'corporate',
                 '5_2_5_3': 'corporate',
                 '6_1_5_3': 'corporate',
@@ -141,13 +145,13 @@ const Header = () => {
                 '7_2_5_3': 'corporate',
                 '8_1_5_3': 'corporate',
                 '8_2_5_3': 'corporate',
-                
+
                 '2_2_4': 'corporate',
                 '60 To 120_OTHER_School_cancer': 'Form4',
                 default: 'AnotherForm',
             };
 
-            const key = `${selectedAge}_${selectedGender}_${selectedSource}_${selectedScheduleType}`;
+            const key = `${selectedAge}_${selectedGender}_${selectedSource}`;
             const currentForm = formMappings[key] || formMappings.default;
 
             if (currentForm === 'AnotherForm') {
@@ -278,10 +282,10 @@ const Header = () => {
                                         <ArrowBackIosIcon className='sign' />
                                     </Link>
                                 </div>
-                                <h5 className='namecitizen'>Add New Citizen</h5>
+                                <h5 className='namecitizen mt-2'>Add New Citizen</h5>
                             </div>
 
-                            <div className="row ">
+                            {/* <div className="row ">
                                 <Box>
                                     <div class="container text-center">
                                         <div class="row headercitizen">
@@ -370,7 +374,7 @@ const Header = () => {
                                                     select
                                                     className="addcitizenheaderdropdown"
                                                     value={selectedSource}
-                                                    onChange={handleSourceChange} 
+                                                    onChange={handleSourceChange}
                                                     size="small"
                                                     error={!!sourceError}
                                                     helperText={sourceError}
@@ -487,7 +491,7 @@ const Header = () => {
                                         </div>
                                     </div>
                                 </Box>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                 </div>
@@ -508,7 +512,7 @@ const Header = () => {
             </Modal>
 
             <div className='container'>
-                {currentForm === 'school' && <School
+                {/* {currentForm === 'school' && <School
                     age={selectedAge}
                     gender={selectedGender}
                     source={selectedSource}
@@ -520,7 +524,14 @@ const Header = () => {
                     gender={selectedGender}
                     source={selectedSource}
                     disease={selectedDisease}
-                    type={selectedScheduleType} />}
+                    type={selectedScheduleType} />} */}
+                <School
+                    // age={selectedAge}
+                    gender={selectedGender}
+                    source={selectedSource}
+                // disease={selectedDisease}
+                // type={selectedScheduleType} 
+                />
             </div>
         </div>
     )

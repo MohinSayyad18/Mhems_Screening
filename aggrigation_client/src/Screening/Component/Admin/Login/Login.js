@@ -135,6 +135,14 @@ const Login = ({ onLogin, isLoggedIn }) => {
           localStorage.setItem('refresh', json.token.refresh);
           localStorage.setItem('usergrp', json.token.user_group);
 
+
+          //State District Tehsil LocalStorage SetUp
+          localStorage.setItem('StateLogin', json.token?.colleague?.clg_source?.clg_state_id)
+          console.log('StateLogin', json.token?.colleague?.clg_source?.clg_state_id)
+
+          localStorage.setItem('DistrictLogin', json.token?.colleague?.clg_source?.clg_district_id)
+          localStorage.setItem('TehsilLogin', json.token?.colleague?.clg_source?.clg_tahsil_id)
+
           // fetch source
           localStorage.setItem('loginSource', json.token?.colleague?.clg_source?.source_id)
           console.log('login source getting.....', json.token?.colleague?.clg_source?.source_id);
@@ -178,7 +186,7 @@ const Login = ({ onLogin, isLoggedIn }) => {
             <h4 className='d-flex justify-content-center mb-4 login_head'>Login</h4>
             <form onSubmit={formik.handleSubmit}>
               <div class="mb-3">
-                <label class="form-label loginlable">User Name</label>
+                <label class="form-label loginlable" style={{ fontFamily: 'Roboto', fontSize: '16px' }}>User Name</label>
                 <input type="text" class="form-control"
                   className={`form-control ${formik.touched.clg_ref_id && formik.errors.clg_ref_id ? 'is-invalid' : ''}`}
                   id="exampleInputEmail1"
@@ -189,13 +197,14 @@ const Login = ({ onLogin, isLoggedIn }) => {
                   value={formik.values.clg_ref_id}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
+                  style={{ marginTop: '-0.4em' }}
                 />
                 {formik.touched.clg_ref_id && formik.errors.clg_ref_id && (
                   <div className='invalid-feedback'>{formik.errors.clg_ref_id}</div>
                 )}
               </div>
               <div class="mb-3">
-                <label class="form-label">Password</label>
+                <label class="form-label" style={{ fontFamily: 'Roboto', fontSize: '16px' }}>Password</label>
                 <input
                   type='password'
                   className={`form-control loginlable ${formik.touched.password && formik.errors.password ? 'is-invalid' : ''}`}
@@ -205,6 +214,7 @@ const Login = ({ onLogin, isLoggedIn }) => {
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   required
+                  style={{ marginTop: '-0.4em' }}
                 />
                 {formik.touched.password && formik.errors.password && (
                   <div className='invalid-feedback'>{formik.errors.password}</div>

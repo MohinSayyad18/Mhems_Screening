@@ -1,105 +1,68 @@
 import React, { useState, useEffect } from 'react';
 import Chart from 'react-apexcharts';
 
-const Age = ({ selectedSource, selctedType, selectedClassType }) => {
+const Age = ({ selectedSource, selctedType, selectedClassType, selectedScreenID }) => {
+    
     const [data, setData] = useState([]);
     const Port = process.env.REACT_APP_API_KEY;
     const accessToken = localStorage.getItem('token');
-
     const source = localStorage.getItem('loginSource');
-
-    console.log(source, 'fetched source in the Age Dashboard');
-
-    //// access the source name from local storage
     const SourceNameUrlId = localStorage.getItem('SourceNameFetched');
 
-    // useEffect(() => {
-    //     const fetchData = async () => {
-    //         if (selectedSource && selctedType && selectedClassType) {
-    //             try {
-    //                 const res = await fetch(`${Port}/Screening/NEW_age_count/?source_id=${selectedSource}&type_id=${selctedType}&class_id=${selectedClassType}&source_name_id=${SourceNameUrlId}`,
-    //                     {
-    //                         headers: {
-    //                             Authorization: `Bearer ${accessToken}`
-    //                         }
-    //                     });
-    //                 console.log(res, 'jndjkjiddddddddddddddddddddddddddddddddddddddddddddddddddddddd');
-    //                 const apiData = await res.json();
-    //                 setData(apiData);
-    //                 console.log(apiData);
-    //             } catch (error) {
-    //                 console.error("Error Data:", error);
-    //             }
-    //         }
-    //         else if (selectedSource && selctedType) {
-    //             try {
-    //                 const res = await fetch(`${Port}/Screening/NEW_age_count/?source_id=${selectedSource}&type_id=${selctedType}&source_name_id=${SourceNameUrlId}`,
-    //                     {
-    //                         headers: {
-    //                             Authorization: `Bearer ${accessToken}`
-    //                         }
-    //                     });
-    //                 const apiData = await res.json();
-    //                 setData(apiData);
-    //                 console.log(apiData);
-    //             } catch (error) {
-    //                 console.error("Error Data:", error);
-    //             }
-    //         }
-    //     };
-    //     fetchData();
-    // }, [selectedSource, selctedType, selectedClassType]);
-
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                let apiUrl = `${Port}/Screening/NEW_age_count/?`;
+        if (selectedSource || selctedType || selectedClassType || selectedScreenID) {
+            const fetchData = async () => {
+                try {
+                    let apiUrl = `${Port}/Screening/age_count/?`;
 
-                if (selectedSource) {
-                    apiUrl += `source_id=${selectedSource}&`;
-                }
-
-                if (selctedType) {
-                    apiUrl += `type_id=${selctedType}&`;
-                }
-
-                if (selectedClassType) {
-                    apiUrl += `class_id=${selectedClassType}&`;
-                }
-
-                if (SourceNameUrlId) {
-                    apiUrl += `source_name_id=${SourceNameUrlId}`;
-                }
-
-                // Remove the last '&' if it exists
-                if (apiUrl.endsWith('&')) {
-                    apiUrl = apiUrl.slice(0, -1);
-                }
-
-                const response = await fetch(apiUrl, {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`
+                    if (selectedSource) {
+                        apiUrl += `source_id=${selectedSource}&`;
                     }
-                });
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
+                    if (selctedType) {
+                        apiUrl += `type_id=${selctedType}&`;
+                    }
+
+                    if (selectedClassType) {
+                        apiUrl += `class_id=${selectedClassType}&`;
+                    }
+
+                    if (SourceNameUrlId) {
+                        apiUrl += `source_name_id=${SourceNameUrlId}&`;
+                    }
+
+                    if (selectedScreenID) {
+                        apiUrl += `schedule_id=${selectedScreenID}`;
+                    }
+
+                    if (apiUrl.endsWith('&')) {
+                        apiUrl = apiUrl.slice(0, -1);
+                    }
+
+                    const response = await fetch(apiUrl, {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+
+                    const apiData = await response.json();
+                    setData(apiData);
+                } catch (error) {
+                    console.error("Error fetching data:", error);
                 }
+            };
 
-                const apiData = await response.json();
-                setData(apiData);
-                console.log(apiData);
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            }
-        };
+            fetchData();
+        }
+    }, [selectedSource, selctedType, selectedClassType, selectedScreenID, Port, SourceNameUrlId, accessToken]);
 
-        fetchData();
-    }, [selectedSource, selctedType, selectedClassType, Port, SourceNameUrlId, accessToken]);
-
-    const xAxisCategories = source === '1' ?
-        ['5-7', '7-9', '9-11', '11-13', '13-15', '15-17'] :
-        ['18-30', '31-50', '51-59', '60+'];
+    const xAxisCategories = source === '1'
+        ? ['5-7', '7-9', '9-11', '11-13', '13-15', '15-17']
+        : ['18-30', '31-50', '51-59', '60+'];
 
     const options = {
         chart: {
@@ -128,7 +91,7 @@ const Age = ({ selectedSource, selctedType, selectedClassType }) => {
             show: false,
         },
         tooltip: {
-            enabled: false, // Disable the tooltip
+            enabled: false,
         },
     };
 

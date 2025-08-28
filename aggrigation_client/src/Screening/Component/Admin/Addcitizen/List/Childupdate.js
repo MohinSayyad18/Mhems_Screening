@@ -571,7 +571,7 @@ const Childupdate = (props) => {
                                                     }} />
                                             </div>
 
-                                            <div className='col-md-6 mb-3'>
+                                            {/* <div className='col-md-6 mb-3'>
                                                 <label for="Gender" class="visually-hidden inputfiledss">Siblings Count</label>
                                                 <select
                                                     class='form-control inputtype'
@@ -588,7 +588,7 @@ const Childupdate = (props) => {
                                                     <option>3</option>
                                                     <option>4</option>
                                                 </select>
-                                            </div>
+                                            </div> */}
                                         </div>
                                     </div>
                                 </div>
@@ -770,7 +770,7 @@ const Childupdate = (props) => {
                                             </div>
 
                                             <div className='col-md-6'>
-                                                <label for="Gender" class="visually-hidden inputfiledss">Tehsil</label>
+                                                <label for="Gender" class="visually-hidden inputfiledss">Block</label>
                                                 <select
                                                     class='form-control inputtype'
                                                     name='tehsil'
@@ -778,7 +778,7 @@ const Childupdate = (props) => {
                                                     value={citizendata.tehsil}
                                                     onChange={(e) => setCitizendata({ ...citizendata, tehsil: e.target.value })}
                                                 >
-                                                    <option value=''>Select Tehsil</option>
+                                                    <option value=''>Select Block</option>
                                                     {tehsil.map((Tehsil) => (
                                                         <option key={Tehsil.source_taluka} value={Tehsil.source_taluka}
                                                         >
@@ -789,7 +789,7 @@ const Childupdate = (props) => {
                                             </div>
 
                                             <div className='col-md-6'>
-                                                <label htmlFor="source_name" className="visually-hidden inputfiledss">Source Name</label>
+                                                <label htmlFor="source_name" className="visually-hidden inputfiledss">Institution Name</label>
                                                 <select
                                                     className='form-control inputtype'
                                                     name='source_name'
@@ -797,7 +797,7 @@ const Childupdate = (props) => {
                                                     value={citizendata.source_name}
                                                     onChange={(e) => setCitizendata({ ...citizendata, source_name: e.target.value })}
                                                 >
-                                                    <option value="">Select Source_Name</option>
+                                                    <option value="">Select Institution</option>
                                                     {sourceName.map((source) => (
                                                         <option key={source.source_pk_id} value={source.source_pk_id}
                                                         >

@@ -1,7 +1,31 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 
-const Diagnosis = ({ pkid, Diagnosis, onAcceptClick, citizensPkId, onMoveToImmunisation }) => {
+const Diagnosis = ({ pkid, Diagnosis, onAcceptClick, citizensPkId, onMoveToImmunisation, selectedTab, subVitalList }) => {
+
+    //_________________________________START
+    console.log(selectedTab, 'Present name');
+    console.log(subVitalList, 'Overall GET API');
+    const [nextName, setNextName] = useState('');
+
+    useEffect(() => {
+        if (subVitalList && selectedTab) {
+            const currentIndex = subVitalList.findIndex(item => item.screening_list === selectedTab);
+
+            console.log('Current Index:', currentIndex);
+
+            if (currentIndex !== -1 && currentIndex < subVitalList.length - 1) {
+                const nextItem = subVitalList[currentIndex + 1];
+                const nextName = nextItem.screening_list;
+                setNextName(nextName);
+                console.log('Next Name Set:', nextName);
+            } else {
+                setNextName('');
+                console.log('No next item or selectedTab not found');
+            }
+        }
+    }, [selectedTab, subVitalList]);
+    //_________________________________END
 
     const [diagnosis, setDiagnosis] = useState([])
     const Port = process.env.REACT_APP_API_KEY;
@@ -100,10 +124,10 @@ const Diagnosis = ({ pkid, Diagnosis, onAcceptClick, citizensPkId, onMoveToImmun
         const postData = {
             diagnosis: formData.selectedNames,
         };
-    
+
         try {
             const accessToken = localStorage.getItem('token');
-    
+
             const response = await axios.put(
                 `${Port}/Screening/diagnosis/${basicScreeningPkId}/`,
                 postData,
@@ -114,10 +138,10 @@ const Diagnosis = ({ pkid, Diagnosis, onAcceptClick, citizensPkId, onMoveToImmun
                     },
                 }
             );
-    
+
             if (window.confirm('Submit Diagnosis Form') && response.status === 200) {
                 console.log('Submission successful!');
-                onAcceptClick('Treatment', basicScreeningPkId);
+                onAcceptClick(nextName, basicScreeningPkId);
             } else if (response.status === 400) {
                 console.error('Bad Request:', response.data);
             } else {

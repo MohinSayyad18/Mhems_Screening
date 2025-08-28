@@ -3,7 +3,7 @@ import Chart from 'react-apexcharts';
 import './Dashboard.css';
 import axios from 'axios';
 
-const Gender = ({ selectedSource, selctedType, selectedClassType }) => {
+const Gender = ({ selectedSource, selctedType, selectedClassType, selectedScreenID }) => {
   const Port = process.env.REACT_APP_API_KEY;
   const accessToken = localStorage.getItem('token');
   const source = localStorage.getItem('loginSource');
@@ -38,7 +38,7 @@ const Gender = ({ selectedSource, selctedType, selectedClassType }) => {
   ///// Gender API
   const fetchData = async () => {
     try {
-      let apiUrl = `${Port}/Screening/NEW_gender_count/?`;
+      let apiUrl = `${Port}/Screening/gender_count/?`;
 
       if (selectedSource) {
         apiUrl += `source_id=${selectedSource}&`;
@@ -49,11 +49,15 @@ const Gender = ({ selectedSource, selctedType, selectedClassType }) => {
       }
 
       if (selectedClassType) {
-        apiUrl += `class_id=${selectedClassType}&`;
+        apiUrl += `Class_id=${selectedClassType}&`;
       }
 
       if (SourceNameUrlId) {
         apiUrl += `source_name_id=${SourceNameUrlId}&`;
+      }
+      
+      if (selectedScreenID) {
+        apiUrl += `schedule_id=${selectedScreenID}&`;
       }
 
       // Remove the last '&' if it exists
@@ -73,7 +77,7 @@ const Gender = ({ selectedSource, selctedType, selectedClassType }) => {
 
       const data = await response.json();
 
-      const series = [data.boys_count, data.girls_count];
+      const series = [data.Male, data.Female];
 
       setChartData((prevChartData) => ({
         ...prevChartData,
@@ -85,10 +89,10 @@ const Gender = ({ selectedSource, selctedType, selectedClassType }) => {
   };
 
   useEffect(() => {
-    if (selectedSource || selctedType || selectedClassType) {
+    if (selectedSource || selctedType || selectedClassType || selectedScreenID) {
       fetchData();
     }
-  }, [selectedSource, selctedType, selectedClassType]);
+  }, [selectedSource, selctedType, selectedClassType || selectedScreenID]);
 
   return (
     <div>

@@ -1,35 +1,30 @@
 import React, { useState, useEffect } from 'react'
 import './BmiVital.css'
 
-const BmiVital = ({ height, weight, citizensPkId, onMoveToVital, pkid, calculatedHeight, enteredWeight, scheduleID, nextbmiVital, fetchVital, selectedName }) => {
-    //_________________________VITAL FETCHING START
-
-    console.log(nextbmiVital, 'fetching the vital Name from the previous Componenet');
-    console.log(selectedName, 'fetching the vital Name from the previous Componenet');
-    // const [nextVitalName1, setNextVitalName1] = useState('');
-    const [nextVitalName1, setNextVitalName1] = useState('');
+const BmiVital = ({ onAcceptClick, pkid, calculatedHeight, enteredWeight, scheduleID, fetchVital, selectedName }) => {
+    //_________________________________START
+    console.log(selectedName, 'Present name');
+    console.log(fetchVital, 'Overall GET API');
+    const [nextName, setNextName] = useState('');
 
     useEffect(() => {
-        if (fetchVital && Array.isArray(fetchVital)) {
-            // Find the index of the current nextbmiVital
-            // const currentPartIndex = fetchVital.findIndex(vital => vital.screening_list === nextbmiVital);
-            const currentPartIndex = fetchVital.findIndex(vital =>
-                vital.screening_list === nextbmiVital || vital.screening_list === selectedName
-            );
+        if (fetchVital && selectedName) {
+            const currentIndex = fetchVital.findIndex(item => item.screening_list === selectedName);
 
-            // If the current part name is found, get the next vital
-            if (currentPartIndex !== -1 && currentPartIndex + 1 < fetchVital.length) {
-                const nextVital = fetchVital[currentPartIndex + 1];
-                setNextVitalName1(nextVital.screening_list); // Update the state with the next vital name
+            console.log('Current Index:', currentIndex);
+
+            if (currentIndex !== -1 && currentIndex < fetchVital.length - 1) {
+                const nextItem = fetchVital[currentIndex + 1];
+                const nextName = nextItem.screening_list;
+                setNextName(nextName);
+                console.log('Next Name Set:', nextName);
             } else {
-                setNextVitalName1(''); // Clear the state if no next vital is available or current part name is not found
+                setNextName('');
+                console.log('No next item or selectedName not found');
             }
-        } else {
-            setNextVitalName1(''); // Clear the state if fetchVital is not valid
         }
-    }, [fetchVital, nextbmiVital]);
-
-    //_________________________VITAL FETCHING END
+    }, [selectedName, fetchVital]);
+    //__________________________________END
     const Port = process.env.REACT_APP_API_KEY;
     const accessToken = localStorage.getItem('token');
     const userID = localStorage.getItem('userID');
@@ -168,7 +163,7 @@ const BmiVital = ({ height, weight, citizensPkId, onMoveToVital, pkid, calculate
                 const updatedBmiData = await response.json();
                 setBmiData(updatedBmiData);  // Update the state with the new data
                 console.log(updatedBmiData, 'Data updated successfully');
-                onMoveToVital(nextVitalName1);
+                onAcceptClick(nextName);
             } else if (response.status === 400) {
                 alert('Bad request. Please check your data and try again.');
             } else if (response.status === 500) {
@@ -274,28 +269,55 @@ const BmiVital = ({ height, weight, citizensPkId, onMoveToVital, pkid, calculate
 
     useEffect(() => {
         const calculateAge = () => {
-            const selectedDOB = new Date(bmiData.citizen_info.dob);
-            const currentDate = new Date();
+            if (bmiData && bmiData.citizen_info && bmiData.citizen_info.dob) {
+                const selectedDOB = new Date(bmiData.citizen_info.dob);
+                const currentDate = new Date();
 
-            const ageInMilliseconds = currentDate - selectedDOB;
-            const ageInYears = Math.floor(ageInMilliseconds / (365.25 * 24 * 60 * 60 * 1000));
-            const ageInMonths = Math.floor((ageInMilliseconds % (365.25 * 24 * 60 * 60 * 1000)) / (30.44 * 24 * 60 * 60 * 1000));
-            const ageInDays = Math.floor((ageInMilliseconds % (30.44 * 24 * 60 * 60 * 1000)) / (24 * 60 * 60 * 1000));
+                const ageInMilliseconds = currentDate - selectedDOB;
+                const ageInYears = Math.floor(ageInMilliseconds / (365.25 * 24 * 60 * 60 * 1000));
+                const ageInMonths = Math.floor((ageInMilliseconds % (365.25 * 24 * 60 * 60 * 1000)) / (30.44 * 24 * 60 * 60 * 1000));
+                const ageInDays = Math.floor((ageInMilliseconds % (30.44 * 24 * 60 * 60 * 1000)) / (24 * 60 * 60 * 1000));
 
-            // Update the state with the calculated values
-            setBmiData((prevBmiData) => ({
-                ...prevBmiData,
-                citizen_info: {
-                    ...prevBmiData.citizen_info,
-                    year: ageInYears.toString(),
-                    months: ageInMonths.toString(),
-                    days: ageInDays.toString(),
-                },
-            }));
+                // Update the state with the calculated values
+                setBmiData((prevBmiData) => ({
+                    ...prevBmiData,
+                    citizen_info: {
+                        ...prevBmiData.citizen_info,
+                        year: ageInYears.toString(),
+                        months: ageInMonths.toString(),
+                        days: ageInDays.toString(),
+                    },
+                }));
+            }
         };
 
         calculateAge();
     }, [bmiData.citizen_info.dob]);
+
+    // useEffect(() => {
+    //     const calculateAge = () => {
+    //         const selectedDOB = new Date(bmiData.citizen_info.dob);
+    //         const currentDate = new Date();
+
+    //         const ageInMilliseconds = currentDate - selectedDOB;
+    //         const ageInYears = Math.floor(ageInMilliseconds / (365.25 * 24 * 60 * 60 * 1000));
+    //         const ageInMonths = Math.floor((ageInMilliseconds % (365.25 * 24 * 60 * 60 * 1000)) / (30.44 * 24 * 60 * 60 * 1000));
+    //         const ageInDays = Math.floor((ageInMilliseconds % (30.44 * 24 * 60 * 60 * 1000)) / (24 * 60 * 60 * 1000));
+
+    //         // Update the state with the calculated values
+    //         setBmiData((prevBmiData) => ({
+    //             ...prevBmiData,
+    //             citizen_info: {
+    //                 ...prevBmiData.citizen_info,
+    //                 year: ageInYears.toString(),
+    //                 months: ageInMonths.toString(),
+    //                 days: ageInDays.toString(),
+    //             },
+    //         }));
+    //     };
+
+    //     calculateAge();
+    // }, [bmiData.citizen_info.dob]);
 
     useEffect(() => {
         const fetchData = async () => {

@@ -27,6 +27,11 @@ const Corporate = (props) => {
   const navigate = useNavigate();
   const accessToken = localStorage.getItem('token');
 
+  /// State District Tehsil
+  const State = localStorage.getItem('StateLogin');
+  const District = localStorage.getItem('DistrictLogin');
+  const Tehsil = localStorage.getItem('TehsilLogin');
+
   /////////// image capturing
   const webcamRef = useRef(null);
   const [imageSrc, setImageSrc] = useState(null);
@@ -78,7 +83,7 @@ const Corporate = (props) => {
 
   //////////// depeendency Mapping
   const { selectedState, setSelectedState } = useSourceContext();
-  const [selectedStateId, setSelectedStateId] = useState('');
+  const [selectedStateId, setSelectedStateId] = useState(State || '');
 
   const handleStateChange = (event) => {
     const stateId = event.target.value;
@@ -96,7 +101,7 @@ const Corporate = (props) => {
 
   ///// district
   const { selectedDistrict, setSelectedDistrict } = useSourceContext();
-  const [selectedDistrictId, setSelectedDistrictId] = useState('');
+  const [selectedDistrictId, setSelectedDistrictId] = useState(District || '');
 
   const handleDistrictChange = (event) => {
     const districtId = event.target.value;
@@ -114,7 +119,7 @@ const Corporate = (props) => {
 
   ///// tehsil
   const { selectedTehsil, setSelectedTehsil } = useSourceContext();
-  const [selectedTehsilId, setSelectedTehsilId] = useState('');
+  const [selectedTehsilId, setSelectedTehsilId] = useState(Tehsil || '');
 
   const handleTehsilChange = (event) => {
     const tehsilId = event.target.value;

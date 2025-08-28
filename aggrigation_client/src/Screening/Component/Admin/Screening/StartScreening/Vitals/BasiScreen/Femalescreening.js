@@ -1,7 +1,32 @@
 import React, { useState, useEffect } from 'react'
 import './Generalexam.css'
 
-const Femalescreening = ({ pkid }) => {
+const Femalescreening = ({ pkid, selectedTab, subVitalList, onAcceptClick }) => {
+
+    //_________________________________START
+    console.log(selectedTab, 'Present name');
+    console.log(subVitalList, 'Overall GET API');
+    const [nextName, setNextName] = useState('');
+
+    useEffect(() => {
+        if (subVitalList && selectedTab) {
+            const currentIndex = subVitalList.findIndex(item => item.screening_list === selectedTab);
+
+            console.log('Current Index:', currentIndex);
+
+            if (currentIndex !== -1 && currentIndex < subVitalList.length - 1) {
+                const nextItem = subVitalList[currentIndex + 1];
+                const nextName = nextItem.screening_list;
+                setNextName(nextName);
+                console.log('Next Name Set:', nextName);
+            } else {
+                setNextName('');
+                console.log('No next item or selectedTab not found');
+            }
+        }
+    }, [selectedTab, subVitalList]);
+    //_________________________________END
+
     const Port = process.env.REACT_APP_API_KEY;
     const basicScreeningPkId = localStorage.getItem('basicScreeningId');
     const accessToken = localStorage.getItem('token');
@@ -45,6 +70,7 @@ const Femalescreening = ({ pkid }) => {
                 const data = await response.json();
                 console.log('Server Response:', data);
                 alert('Female Child Screening form Submitted successfully');
+                onAcceptClick(nextName, basicScreeningPkId);
             } else if (response.status === 400) {
                 console.error('Bad Request:', response.statusText);
             } else {

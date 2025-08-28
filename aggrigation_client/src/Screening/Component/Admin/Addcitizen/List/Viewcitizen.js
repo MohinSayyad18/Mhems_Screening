@@ -37,7 +37,7 @@ const Viewcitizen = (props) => {
 
     useEffect(() => {
         let apiUrl = '';
-        if (sourceId === 'School') {
+        if (sourceId === 'School' || sourceId === 'Community') {
             apiUrl = `${Port}/Screening/add_citizen_get/${id}/`;
             console.log(apiUrl);
         } else if (sourceId === 'Corporate') {
@@ -94,7 +94,7 @@ const Viewcitizen = (props) => {
                                                         style: {
                                                             fontWeight: '100',
                                                             fontSize: '14px',
-                                                            color: 'white', // Set the font color to white
+                                                            color: 'white', 
                                                         },
                                                     }}
                                                 />
@@ -134,7 +134,7 @@ const Viewcitizen = (props) => {
                                                 </TextField>
                                             </div>
 
-                                            <div class="col">
+                                            {/* <div class="col">
                                                 <TextField
                                                     className="citizenlistdropdownfield"
                                                     value={data1.type_name}
@@ -149,9 +149,9 @@ const Viewcitizen = (props) => {
                                                     }}
                                                 >
                                                 </TextField>
-                                            </div>
+                                            </div> */}
 
-                                            <div class="col">
+                                            {/* <div class="col">
                                                 <TextField
                                                     className="citizenlistdropdownfield"
                                                     value={data1.disease_name}
@@ -166,7 +166,7 @@ const Viewcitizen = (props) => {
                                                     }}
                                                 >
                                                 </TextField>
-                                            </div>
+                                            </div> */}
                                         </div>
                                     </div>
                                 </Box>
@@ -177,7 +177,7 @@ const Viewcitizen = (props) => {
             </div>
 
             <div className='container'>
-                {sourceId === 'School' && (
+                {sourceId === 'Community' && (
                     <Childview data={data1} />
                 )}
                 {sourceId === 'Corporate' && (

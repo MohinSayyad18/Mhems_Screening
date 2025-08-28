@@ -1,30 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const Pft = ({ citizensPkId, pkid, nextVitalName, fetchVital, onMoveToVital}) => {
+const Pft = ({ citizensPkId, pkid, fetchVital, selectedName, onAcceptClick }) => {
 
-    //__________________________Vital START
-    console.log(nextVitalName, 'dental fetching current componenet.....');
-    // console.log(nextEmergencyVital, 'fetching the vital Name from the previous Componenet');
-    const [nextVitalName9, setNextVitalName9] = useState('');
+    //_________________________________START
+    console.log(selectedName, 'Present name');
+    console.log(fetchVital, 'Overall GET API');
+    const [nextName, setNextName] = useState('');
 
     useEffect(() => {
-        if (fetchVital && Array.isArray(fetchVital)) {
-            // Find the index of the current nextEmergencyVital
-            const currentPartIndex = fetchVital.findIndex(vital => vital.screening_list === nextVitalName);
+        if (fetchVital && selectedName) {
+            const currentIndex = fetchVital.findIndex(item => item.screening_list === selectedName);
 
-            // If the current part name is found, get the next vital
-            if (currentPartIndex !== -1 && currentPartIndex + 1 < fetchVital.length) {
-                const nextVitalName = fetchVital[currentPartIndex + 1];
-                setNextVitalName9(nextVitalName.screening_list); // Update the state with the next vital name
+            console.log('Current Indexxxx:', currentIndex);
+
+            if (currentIndex !== -1 && currentIndex < fetchVital.length - 1) {
+                const nextItem = fetchVital[currentIndex + 1];
+                const nextName = nextItem.screening_list;
+                setNextName(nextName);
+                console.log('Next Name Setttt:', nextName);
             } else {
-                setNextVitalName9(''); // Clear the state if no next vital is available or current part name is not found
+                setNextName('');
+                console.log('No next item or selectedName not found');
             }
-        } else {
-            setNextVitalName9(''); // Clear the state if fetchVital is not valid
         }
-    }, [fetchVital, nextVitalName]);
-    //__________________________Vital END
+    }, [selectedName, fetchVital]);
+    //_________________________________END
 
     console.log(pkid, 'pft pk id fetching......');
     const [pftReading, setPftReading] = useState('');
@@ -90,7 +91,7 @@ const Pft = ({ citizensPkId, pkid, nextVitalName, fetchVital, onMoveToVital}) =>
                 }
             });
             console.log('Response from POST API:', response.data);
-            onMoveToVital (nextVitalName9);
+            onAcceptClick(nextName);
         } catch (error) {
             console.error('Error submitting PFT data:', error);
         }

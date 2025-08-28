@@ -1,29 +1,31 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 
-const BadHabits = ({ pkid, onAcceptClick, citizensPkId, fetchVital, nextbasicVital }) => {
+const BadHabits = ({ pkid, onAcceptClick, citizensPkId, fetchVital, nextbasicVital, selectedTab, subVitalList }) => {
 
-    //_____________________Vital Start
-    console.log(nextbasicVital, 'fetching the Vital name from the previous Componenet');
-    const [nextVitalName4, setNextVitalName4] = useState('');
+    //_________________________________START
+    console.log(selectedTab, 'Present name');
+    console.log(subVitalList, 'Overall GET API');
+    const [nextName, setNextName] = useState('');
 
     useEffect(() => {
-        if (fetchVital && Array.isArray(fetchVital)) {
-            // Find the index of the current nextbasicVital
-            const currentPartIndex = fetchVital.findIndex(vital => vital.screening_list === nextbasicVital);
+        if (subVitalList && selectedTab) {
+            const currentIndex = subVitalList.findIndex(item => item.screening_list === selectedTab);
 
-            // If the current part name is found, get the next vital
-            if (currentPartIndex !== -1 && currentPartIndex + 1 < fetchVital.length) {
-                const nextVital = fetchVital[currentPartIndex + 1];
-                setNextVitalName4(nextVital.screening_list); // Update the state with the next vital name
+            console.log('Current Index:', currentIndex);
+
+            if (currentIndex !== -1 && currentIndex < subVitalList.length - 1) {
+                const nextItem = subVitalList[currentIndex + 1];
+                const nextName = nextItem.screening_list;
+                setNextName(nextName);
+                console.log('Next Name Set:', nextName);
             } else {
-                setNextVitalName4(''); // Clear the state if no next vital is available or current part name is not found
+                setNextName('');
+                console.log('No next item or selectedTab not found');
             }
-        } else {
-            setNextVitalName4(''); // Clear the state if fetchVital is not valid
         }
-    }, [fetchVital, nextbasicVital]);
-    //_____________________Vital End
+    }, [selectedTab, subVitalList]);
+    //_________________________________END
 
     const [checkBox, setCheckBox] = useState([])
     const Port = process.env.REACT_APP_API_KEY;
@@ -149,11 +151,10 @@ const BadHabits = ({ pkid, onAcceptClick, citizensPkId, fetchVital, nextbasicVit
                 console.log('CheckBox Form Submitted Successfully');
 
                 if (childGender === 2) {
-                    // onAcceptClick('Female Child Screening', basicScreeningPkId);
-                    onAcceptClick('Female Child Screening', basicScreeningPkId);
+                    onAcceptClick(nextName, basicScreeningPkId);
                 }
                 else {
-                    onAcceptClick(nextVitalName4);
+                    onAcceptClick(nextName);
                 }
             } else if (response.status === 400) {
                 console.error('Bad Request: 400');

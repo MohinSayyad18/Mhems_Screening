@@ -62,10 +62,17 @@ const ScheduleScreening = () => {
     const [screeningForNav, setScreeningForNav] = useState([]);
 
     //////////// DROPDOWN FILTER ////////////////
+
+    /// State District Tehsil
+    const State = localStorage.getItem('StateLogin');
+    const District = localStorage.getItem('DistrictLogin');
+    const Tehsil = localStorage.getItem('TehsilLogin');
+
     const [diseaseOption, setDiseaseOption] = useState([])
     //////////////// form state district tehsil and source name useState
     const [sourceOption, setSourceOption] = useState([]);
-    const [selectedSourcee, setSelectedSourcee] = useState('');
+    // const [selectedSourcee, setSelectedSourcee] = useState(SourceUrlId || '');
+    const [selectedSourcee, setSelectedSourcee] = useState('6');
 
     const [stateOptions, setStateOptions] = useState([]);
     const [selectedState, setSelectedState] = useState('')
@@ -89,28 +96,97 @@ const ScheduleScreening = () => {
     const [screeningFor, setScreeningFor] = useState([]);
     const [selectedScheduleType, setSelectedScheduleType] = useState('');
     const [selectedClass, setSelectedClass] = useState('');
-    const [screeningVitals, setScreeningVitals] = useState([]);
 
-    //_____________________________________VITALS API OF DROPDOWN_______________________________
+    //_____________________________________VITALS API OF DROPDOWN START_______________________________
+    const [screeningVitals, setScreeningVitals] = useState([]);
+    const [selectedVitals, setSelectedVitals] = useState([]);
+    const [subScreening, setSubScreening] = useState([]);
+
+    const [selectedSubVitals, setSelectedSubVitals] = useState([]);
+    const [selectedVitalId, setSelectedVitalId] = useState(null);
+
     useEffect(() => {
         const fetchScreeningVitals = async () => {
             try {
-                const response = await axios.get(`${Port}/Screening/GET_Screening_List/`, {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                });
+                const response = await axios.get(
+                    `${Port}/Screening/screening_vitals/?source=${SourceUrlId}&source_pk_id=${SourceNameUrlId}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    }
+                );
+
+                // Log the entire response object
+                console.log('API Response:', response);
+
+                // Log the response data specifically
+                console.log('Response Data:', response.data);
+
+                // const data = response.data;
+                // setScreeningVitals(data[0].screening_list);
+
+                //__________________CHECKBOX
                 const data = response.data;
-                setScreeningVitals(data);
+                const vitalsList = data[0].screening_list;
+
+                // Set both screeningVitals and selectedVitals
+                setScreeningVitals(vitalsList);
+                setSelectedVitals(vitalsList.map(vital => vital.sc_list_pk_id));
             } catch (error) {
                 console.error('Error fetching screening vitals:', error);
             }
         };
 
         fetchScreeningVitals();
-    }, []);
+    }, [SourceUrlId]);
 
-    const [selectedVitals, setSelectedVitals] = useState([]);
+    // Handling the change in selected vitals
+    useEffect(() => {
+        if (selectedVitals.includes(5)) {
+            const selectedVital = screeningVitals.find(vital => vital.sc_list_pk_id === 5);
+            if (selectedVital) {
+                setSelectedVitalId(selectedVital.sc_list_pk_id);
+            } else {
+                setSelectedVitalId(null);
+            }
+        } else {
+            setSelectedVitalId(null);
+        }
+    }, [selectedVitals, screeningVitals]);
+
+    useEffect(() => {
+        const fetchSubVitals = async () => {
+            if (selectedVitalId === 5) {
+                try {
+                    const response = await axios.get(`${Port}/Screening/screening_sub_vitals/?source=${SourceUrlId}&source_pk_id=${SourceNameUrlId}`, {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    });
+                    // const data = response.data[0]; // Assuming the response is an array with one object
+                    // console.log('Fetching Sub Vitals....', data);
+                    // setSubScreening(data.sub_list); // Set the sub_list to state
+                    const data = response.data[0]; // Assuming the response is an array with one object
+
+                    //____________________CHECKBOX 
+                    console.log('Fetching Sub Vitals....', data);
+
+                    // Set both subScreening and selectedSubVitals
+                    setSubScreening(data.sub_list);
+                    setSelectedSubVitals(data.sub_list.map(sub => sub.sc_sub_list_pk_id));
+                } catch (error) {
+                    console.error('Error fetching screening sub-vitals:', error);
+                }
+            } else {
+                setSubScreening([]); // Clear subScreening if selectedVitalId is not 5
+            }
+        };
+
+        fetchSubVitals();
+    }, [selectedVitalId]);
+
+    //_____________________________________VITALS API OF DROPDOWN END_______________________________
 
     ////// Form class and Division
     const [classList, setClassList] = useState([]); //// class API
@@ -120,6 +196,7 @@ const ScheduleScreening = () => {
     const [tableinfo, setTableInfo] = useState([]);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [selectedRow, setSelectedRow] = useState(null);
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
@@ -148,7 +225,8 @@ const ScheduleScreening = () => {
         schedule_type_id: '',
         schedule_class_id: '',
         schedule_disease_id: '',
-        screening_vitals: '' 
+        screening_vitals: '',
+        sub_screening_vitals: '',
     });
 
     const handleDelete = async () => {
@@ -288,57 +366,33 @@ const ScheduleScreening = () => {
         return true;
     };
 
-    ////// post Schedule form 
-    // const handleChange = (event) => {
-    //     const { name, value } = event.target;
-    //     console.log("Selected Values IDs: ", value);
-
-    //     setErrors((prevErrors) => ({
-    //         ...prevErrors,
-    //         [name]: '',
-    //     }));
-
-    //     setScheduleform((prevState) => ({
-    //         ...prevState,
-    //         [name]: value,
-    //     }));
-
-    //     if (name === 'source') {
-    //         setSelectedSourcee(value);
-    //     } else if (name === 'source_state') {
-    //         setSelectedState(value);
-    //     } else if (name === 'source_district') {
-    //         setSelectedDistrict(value);
-    //     } else if (name === 'source_taluka') {
-    //         setSelectedTaluka(value);
-    //     } else if (name === 'source_name') {
-    //         setSelectedName(value); // Use the correct state variable
-    //     } else if (name === 'Disease') {
-    //         setSelectedDisease(value);
-    //     } else if (name === 'type') {
-    //         setSelectedScheduleType(value);
-    //     } else if (name === 'Class') {
-    //         setSelectedClass(value);
-    //     }
-    //     else if (name === 'department') {
-    //         setSelectedDepartment(value);
-    //     }
-    // };
-
     const handleChange = (event) => {
         const { name, value } = event.target;
 
         if (name === 'screening_vitals') {
-            // Ensure value is an array
             setSelectedVitals(event.target.value);
-        } else {
-            // Handle other fields as before
+        }
+        // if (name === 'sub_screening_vitals') {
+        //     setSelectedSubVitals(event.target.value);
+        // }
+        if (name === 'sub_screening_vitals') {
+            const generalExaminationId = 1; // Replace with the actual ID for "General Examination"
+
+            // Ensure "General Examination" is always included
+            if (value.indexOf(generalExaminationId) === -1) {
+                // Add "General Examination" ID if it's not selected
+                setSelectedSubVitals([generalExaminationId, ...value]);
+            } else {
+                // Set the selected values directly if "General Examination" is already selected
+                setSelectedSubVitals(value);
+            }
+        }
+        else {
             setScheduleform(prevState => ({
                 ...prevState,
                 [name]: value,
             }));
 
-            // Set individual state variables if needed
             if (name === 'source') {
                 setSelectedSourcee(value);
             } else if (name === 'source_state') {
@@ -359,7 +413,6 @@ const ScheduleScreening = () => {
                 setSelectedDepartment(value);
             }
 
-            // Clear error for this field
             setErrors(prevErrors => ({
                 ...prevErrors,
                 [name]: '',
@@ -388,7 +441,6 @@ const ScheduleScreening = () => {
         setSelectedTaluka("");
         setSelectedScheduleType("");
     };
-    const [selectedRow, setSelectedRow] = useState(null);
 
     const handleTableRowClick = async (info) => {
         const scheduleId = info.schedule_screening_pk_id;
@@ -410,6 +462,7 @@ const ScheduleScreening = () => {
                     from_date: data.from_date,
                     to_date: data.to_date,
                     screening_vitals: data.screening_vitals,
+                    sub_screening_vitals: data.sub_screening_vitals,
                     screening_person_name: data.screening_person_name,
                     mobile_number: data.mobile_number,
 
@@ -448,6 +501,7 @@ const ScheduleScreening = () => {
                     schedule_screening_pk_id: data.schedule_screening_pk_id
                 }));
                 setSelectedVitals(data.screening_vitals);
+                setSelectedSubVitals(data.sub_screening_vitals || []);
                 // setSelectedSourcee(data.source); // Update the selected source state
             } catch (error) {
                 console.error('Error fetching detailed information:', error);
@@ -460,7 +514,7 @@ const ScheduleScreening = () => {
     const fetchTableData = async () => {
         try {
             const accessToken = localStorage.getItem('token'); // Retrieve access token
-            const response = await axios.get(`${Port}/Screening/add_schedule_screening_GET/?source=${SourceUrlId}&source_name=${SourceNameUrlId}`, {
+            const response = await axios.get(`${Port}/Screening/add_schedule_screening_GET/?source_id=${SourceUrlId}&source_name_id=${SourceNameUrlId}`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json'
@@ -498,11 +552,13 @@ const ScheduleScreening = () => {
                 modify_by: userID,
                 department: selectedDepartment,
                 screening_vitals: selectedVitals,
+                sub_screening_vitals: selectedSubVitals,
             };
 
             const formData1 = {
                 ...scheduleform,
                 screening_vitals: selectedVitals,
+                sub_screening_vitals: selectedSubVitals,
             };
 
             console.log('FormData:', formData);
@@ -782,62 +838,6 @@ const ScheduleScreening = () => {
         fetchDepartment()
     }, [])
 
-    const handleActive = async (type) => {
-        setActive(type);
-
-        if (type === 'today') {
-            try {
-                const response = await axios.get(`${Port}/Screening/filter-Schedule/?date_filter=${type}`, {
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`,
-                        'Content-Type': 'application/json'
-                    }
-                })
-                setTableInfo(response.data)
-                console.log(response.data);
-            }
-            catch (error) {
-                console.log('Error while fetching data', error)
-            }
-        }
-
-        if (type === 'month') {
-            try {
-                const response = await axios.get(`${Port}/Screening/filter-Schedule/?date_filter=${type}`, {
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`,
-                        'Content-Type': 'application/json'
-                    }
-                })
-                setTableInfo(response.data)
-                console.log(response.data);
-            }
-            catch (error) {
-                console.log('Error while fetching data', error)
-            }
-        }
-
-        if (type === 'date') {
-            try {
-                const response = await axios.get(`${Port}/Screening/filter-Schedule/?date_filter=${type}`, {
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`,
-                        'Content-Type': 'application/json'
-                    }
-                })
-                setTableInfo(response.data)
-                console.log(response.data);
-            }
-            catch (error) {
-                console.log('Error while fetching data', error)
-            }
-        }
-    };
-
-    useEffect(() => {
-        handleActive('date');
-    }, []);
-
     const handleSearch = async () => {
         let apiUrl = `${Port}/Screening/filter-Schedule/?`;
 
@@ -874,7 +874,7 @@ const ScheduleScreening = () => {
 
     return (
         <div>
-            <div class="content-wrapper backgroundschedule">
+            {/* <div class="content-wrapper backgroundschedule">
                 <div class="content-header">
                     <div class="container-fluid">
                         <div className="card Schedulecard">
@@ -1079,20 +1079,22 @@ const ScheduleScreening = () => {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> */}
 
-            <div class="content-wrapper formsection">
+            <div class="content-wrapper formsection mt-3">
                 <div class="content-header">
                     <div className="row pb-3">
                         <div className="col-md-5 scheduleform">
                             <div className={`card scheduleform`}>
                                 <div className="row">
-                                    <h6 className='title1'>
-                                        Schedule Screening
+                                    <h6 className='title1 p-1'
+                                     style={{backgroundColor:'#313774',color:'#fff',borderRadius:'5px'}}
+                                     >
+                                        Schedule Screening Details
                                     </h6>
-                                    <div class="elementschedule"></div>
+                                    {/* <div class="elementschedule"></div> */}
 
-                                    <div className="ml-auto mr-3">
+                                    {/* <div className="ml-auto mr-3">
                                         <DriveFileRenameOutlineOutlinedIcon
                                             className={`editiconschedule mr-2 ${updateSrc ? '' : 'disabled-icon'}`}
                                             onClick={() => {
@@ -1105,7 +1107,7 @@ const ScheduleScreening = () => {
                                                 handleDelete();
                                             }}
                                         />
-                                    </div>
+                                    </div> */}
                                 </div>
 
                                 <form onSubmit={handleSubmit}>
@@ -1135,10 +1137,8 @@ const ScheduleScreening = () => {
                                             />
                                             {errors.to_date && <div className="invalid-feedback">{errors.to_date}</div>}
                                         </div>
-                                    </div>
 
-                                    <div className={`row m-1`}>
-                                        <div className={`col-md-6 ${isFormEnabled ? '' : 'disabled'}`}>
+                                        {/* <div className={`col-md-6 ${isFormEnabled ? '' : 'disabled'}`}>
                                             <label htmlFor="select" className={`visually-hidden formlabel ${isFormEnabled ? '' : 'disabled'}`} id="newcal">
                                                 Source<span className="text-danger">*</span>
                                             </label>
@@ -1149,7 +1149,8 @@ const ScheduleScreening = () => {
                                                 id="outlined-select"
                                                 disabled={!isFormEnabled}
                                                 onChange={handleChange}
-                                                value={scheduleform.source}
+                                                // value={scheduleform.source}
+                                                value={selectedSourcee}
                                             >
                                                 <option value="">{scheduleform.schedule_source_id ? scheduleform.schedule_source_id : 'Select Source'}</option>
                                                 {sourceOption.map((source) => (
@@ -1159,7 +1160,7 @@ const ScheduleScreening = () => {
                                                 ))}
                                             </select>
                                             {errors.source && <div className="invalid-feedback">{errors.source}</div>}
-                                        </div>
+                                        </div> */}
 
                                         <div className={`col-md-6 ${isFormEnabled ? '' : 'disabled'}`}>
                                             <label htmlFor="select" className={`visually-hidden formlabel ${isFormEnabled ? '' : 'disabled'}`} id="newcal">
@@ -1172,7 +1173,8 @@ const ScheduleScreening = () => {
                                                 id="outlined-select"
                                                 disabled={!isFormEnabled}
                                                 onChange={handleChange}
-                                                value={scheduleform.source_state}
+                                                // value={scheduleform.source_state}
+                                                value={selectedState}
                                             >
                                                 <option value="">{scheduleform.schedule_state_id ? scheduleform.schedule_state_id : 'Select State'}</option>
                                                 {stateOptions.map((state) => (
@@ -1183,9 +1185,7 @@ const ScheduleScreening = () => {
                                             </select>
                                             {errors.source_state && <div className="invalid-feedback">{errors.source_state}</div>}
                                         </div>
-                                    </div>
 
-                                    <div className={`row m-1`}>
                                         <div className={`col-md-6 ${isFormEnabled ? '' : 'disabled'}`}>
                                             <label htmlFor="select" className={`visually-hidden formlabel ${isFormEnabled ? '' : 'disabled'}`} id="newcal">
                                                 Source District<span className="text-danger">*</span>
@@ -1197,7 +1197,8 @@ const ScheduleScreening = () => {
                                                 id='outlined-select'
                                                 disabled={!isFormEnabled}
                                                 onChange={handleChange}
-                                                value={scheduleform.source_district}
+                                                // value={scheduleform.source_district}
+                                                value={selectedDistrict}
                                             >
                                                 <option value="">{scheduleform.schedule_district_id ? scheduleform.schedule_district_id : 'Select District'}</option>
                                                 {districtOptions.map((district) => (
@@ -1211,7 +1212,7 @@ const ScheduleScreening = () => {
 
                                         <div className={`col-md-6 ${isFormEnabled ? '' : 'disabled'}`}>
                                             <label htmlFor="select" className={`visually-hidden formlabel ${isFormEnabled ? '' : 'disabled'}`} id="newcal">
-                                                Source Tehsil<span className="text-danger">*</span>
+                                                Source Block<span className="text-danger">*</span>
                                             </label>
                                             <select
                                                 as='select'
@@ -1220,9 +1221,10 @@ const ScheduleScreening = () => {
                                                 id='outlined-select'
                                                 disabled={!isFormEnabled}
                                                 onChange={handleChange}
-                                                value={scheduleform.source_taluka}
+                                                // value={scheduleform.source_taluka}
+                                                value={selectedTaluka}
                                             >
-                                                <option value="">{scheduleform.schedule_tehsil_id ? scheduleform.schedule_tehsil_id : 'Select Tehsil'}</option>
+                                                <option value="">{scheduleform.schedule_tehsil_id ? scheduleform.schedule_tehsil_id : 'Select Block'}</option>
                                                 {talukaOptions.map((taluka) => (
                                                     <option key={taluka.source_taluka} value={taluka.source_taluka}>
                                                         {taluka.tahsil_name}
@@ -1231,12 +1233,10 @@ const ScheduleScreening = () => {
                                             </select>
                                             {errors.source_taluka && <div className="invalid-feedback">{errors.source_taluka}</div>}
                                         </div>
-                                    </div>
 
-                                    <div className={`row m-1`}>
                                         <div className={`col-md-6 ${isFormEnabled ? '' : 'disabled'}`}>
                                             <label htmlFor="select" className={`visually-hidden formlabel ${isFormEnabled ? '' : 'disabled'}`} id="newcal">
-                                                Source Name<span className="text-danger">*</span>
+                                                Institution Name<span className="text-danger">*</span>
                                             </label>
                                             <select
                                                 as='select'
@@ -1247,7 +1247,7 @@ const ScheduleScreening = () => {
                                                 onChange={handleChange}
                                                 value={scheduleform.source_name}
                                             >
-                                                <option value="">{scheduleform.schedule_sourcename_id ? scheduleform.schedule_sourcename_id : 'Select Source Name'}</option>
+                                                <option value="">{scheduleform.schedule_sourcename_id ? scheduleform.schedule_sourcename_id : 'Select Institution Name'}</option>
                                                 {sourceNameOptions.map((source) => (
                                                     <option key={source.source_pk_id} value={source.source_pk_id}>
                                                         {source.source_names}
@@ -1257,7 +1257,7 @@ const ScheduleScreening = () => {
                                             {errors.source_name && <div className="invalid-feedback">{errors.source_name}</div>}
                                         </div>
 
-                                        <div className={`col-md-6 ${isFormEnabled ? '' : 'disabled'}`}>
+                                        {/* <div className={`col-md-6 ${isFormEnabled ? '' : 'disabled'}`}>
                                             <label htmlFor="select" className={`visually-hidden formlabel ${isFormEnabled ? '' : 'disabled'}`} id="newcal">
                                                 Disease
                                             </label>
@@ -1277,11 +1277,9 @@ const ScheduleScreening = () => {
                                                     </option>
                                                 ))}
                                             </select>
-                                        </div>
-                                    </div>
+                                        </div> */}
 
-                                    <div className={`row m-1`}>
-                                        <div className={`col-md-6 ${isFormEnabled ? '' : 'disabled'}`}>
+                                        {/* <div className={`col-md-6 ${isFormEnabled ? '' : 'disabled'}`}>
                                             <label htmlFor="text" className={`visually-hidden formlabel ${isFormEnabled ? '' : 'disabled'}`} id="newcal">
                                                 Screening Person Name<span className="text-danger">*</span>
                                             </label>
@@ -1296,6 +1294,117 @@ const ScheduleScreening = () => {
                                                 disabled={!isFormEnabled}
                                             />
                                             {errors.screening_person_name && <div className="invalid-feedback">{errors.screening_person_name}</div>}
+                                        </div> */}
+
+                                        <div className={`col-md-6 ${isFormEnabled ? '' : 'disabled'}`}>
+                                            <label htmlFor="select" className={`visually-hidden formlabel ${isFormEnabled ? '' : 'disabled'}`} id="newcal">
+                                                Location Name<span className="text-danger">*</span>
+                                            </label>
+                                            <select
+                                                as='select'
+                                                className={`form-control filedssss ${errors.source_name ? 'is-invalid' : ''}`}
+                                                name='source_name'
+                                                id='outlined-select'
+                                                disabled={!isFormEnabled}
+                                                onChange={handleChange}
+                                                value={scheduleform.source_name}
+                                            >
+                                                <option value="">{scheduleform.schedule_sourcename_id ? scheduleform.schedule_sourcename_id : 'Select Location Name'}</option>
+                                                {sourceNameOptions.map((source) => (
+                                                    <option key={source.source_pk_id} value={source.source_pk_id}>
+                                                        {source.source_names}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            {errors.source_name && <div className="invalid-feedback">{errors.source_name}</div>}
+                                        </div>
+                                         <div className={`col-md-6 ${isFormEnabled ? '' : 'disabled'}`}>
+                                            <label htmlFor="select" className={`visually-hidden formlabel ${isFormEnabled ? '' : 'disabled'}`} id="newcal">
+                                                Route<span className="text-danger">*</span>
+                                            </label>
+                                            <select
+                                                as='select'
+                                                className={`form-control filedssss ${errors.source_name ? 'is-invalid' : ''}`}
+                                                name='source_name'
+                                                id='outlined-select'
+                                                disabled={!isFormEnabled}
+                                                onChange={handleChange}
+                                                value={scheduleform.source_name}
+                                            >
+                                                <option value="">{scheduleform.schedule_sourcename_id ? scheduleform.schedule_sourcename_id : 'Select Route'}</option>
+                                                {sourceNameOptions.map((source) => (
+                                                    <option key={source.source_pk_id} value={source.source_pk_id}>
+                                                        {source.source_names}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            {errors.source_name && <div className="invalid-feedback">{errors.source_name}</div>}
+                                        </div>
+                                         <div className={`col-md-6 ${isFormEnabled ? '' : 'disabled'}`}>
+                                            <label htmlFor="select" className={`visually-hidden formlabel ${isFormEnabled ? '' : 'disabled'}`} id="newcal">
+                                                Ambulance No.<span className="text-danger">*</span>
+                                            </label>
+                                            <select
+                                                as='select'
+                                                className={`form-control filedssss ${errors.source_name ? 'is-invalid' : ''}`}
+                                                name='source_name'
+                                                id='outlined-select'
+                                                disabled={!isFormEnabled}
+                                                onChange={handleChange}
+                                                value={scheduleform.source_name}
+                                            >
+                                                <option value="">{scheduleform.schedule_sourcename_id ? scheduleform.schedule_sourcename_id : 'Select Ambulance No.'}</option>
+                                                {sourceNameOptions.map((source) => (
+                                                    <option key={source.source_pk_id} value={source.source_pk_id}>
+                                                        {source.source_names}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            {errors.source_name && <div className="invalid-feedback">{errors.source_name}</div>}
+                                        </div>
+                                         <div className={`col-md-6 ${isFormEnabled ? '' : 'disabled'}`}>
+                                            <label htmlFor="select" className={`visually-hidden formlabel ${isFormEnabled ? '' : 'disabled'}`} id="newcal">
+                                                Pilot Name<span className="text-danger">*</span>
+                                            </label>
+                                            <select
+                                                as='select'
+                                                className={`form-control filedssss ${errors.source_name ? 'is-invalid' : ''}`}
+                                                name='source_name'
+                                                id='outlined-select'
+                                                disabled={!isFormEnabled}
+                                                onChange={handleChange}
+                                                value={scheduleform.source_name}
+                                            >
+                                                <option value="">{scheduleform.schedule_sourcename_id ? scheduleform.schedule_sourcename_id : 'Select Pilot Name'}</option>
+                                                {sourceNameOptions.map((source) => (
+                                                    <option key={source.source_pk_id} value={source.source_pk_id}>
+                                                        {source.source_names}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            {errors.source_name && <div className="invalid-feedback">{errors.source_name}</div>}
+                                        </div>
+                                         <div className={`col-md-6 ${isFormEnabled ? '' : 'disabled'}`}>
+                                            <label htmlFor="select" className={`visually-hidden formlabel ${isFormEnabled ? '' : 'disabled'}`} id="newcal">
+                                                Doctor Name<span className="text-danger">*</span>
+                                            </label>
+                                            <select
+                                                as='select'
+                                                className={`form-control filedssss ${errors.source_name ? 'is-invalid' : ''}`}
+                                                name='source_name'
+                                                id='outlined-select'
+                                                disabled={!isFormEnabled}
+                                                onChange={handleChange}
+                                                value={scheduleform.source_name}
+                                            >
+                                                <option value="">{scheduleform.schedule_sourcename_id ? scheduleform.schedule_sourcename_id : 'Select Doctor Name'}</option>
+                                                {sourceNameOptions.map((source) => (
+                                                    <option key={source.source_pk_id} value={source.source_pk_id}>
+                                                        {source.source_names}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            {errors.source_name && <div className="invalid-feedback">{errors.source_name}</div>}
                                         </div>
 
                                         <div className={`col-md-6 ${isFormEnabled ? '' : 'disabled'}`}>
@@ -1316,10 +1425,8 @@ const ScheduleScreening = () => {
                                             />
                                             {errors.mobile_number && <div className="invalid-feedback">{errors.mobile_number}</div>}
                                         </div>
-                                    </div>
 
-                                    <div className={`row m-1`}>
-                                        <div className={`col-md-6 ${isFormEnabled ? '' : 'disabled'}`}>
+                                        {/* <div className={`col-md-6 ${isFormEnabled ? '' : 'disabled'}`}>
                                             <Grid item xs={6} md={6} className={isFormEnabled ? '' : 'disabled'}>
                                                 <FormControl fullWidth variant="outlined" disabled={!isFormEnabled}>
                                                     <label htmlFor="select" className={`visually-hidden formlabel ${isFormEnabled ? '' : 'disabled'}`}>
@@ -1361,9 +1468,52 @@ const ScheduleScreening = () => {
                                                     </Select>
                                                 </FormControl>
                                             </Grid>
-                                        </div>
+                                        </div> */}
 
-                                        <div className={`col-md-6 ${isFormEnabled ? '' : 'disabled'}`}>
+                                        {/* {selectedVitalId === 5 && (
+                                            <div className={`col-md-6 ${isFormEnabled ? '' : 'disabled'}`}>
+                                                <FormControl fullWidth variant="outlined" disabled={!isFormEnabled}>
+                                                    <label htmlFor="text" className={`visually-hidden formlabel ${isFormEnabled ? '' : 'disabled'}`} id="newcal">
+                                                        Sub Vitals<span className="text-danger">*</span>
+                                                    </label>
+                                                    <Select
+                                                        id="outlined-select"
+                                                        name="sub_screening_vitals"
+                                                        size="small"
+                                                        multiple
+                                                        value={selectedSubVitals}
+                                                        onChange={handleChange}
+                                                        renderValue={(selected) => {
+                                                            const selectedSubVitalsList = selected.map((value) => {
+                                                                const subVital = subScreening.find(v => v.sc_sub_list_pk_id === value);
+                                                                return subVital ? subVital.sub_list : '';
+                                                            });
+                                                            return <div>{selectedSubVitalsList.join(', ')}</div>;
+                                                        }}
+                                                        MenuProps={{
+                                                            PaperProps: {
+                                                                style: {
+                                                                    maxHeight: 150,
+                                                                },
+                                                            },
+                                                        }}
+                                                    >
+                                                        {subScreening.map((subVital) => (
+                                                            <MenuItem key={subVital.sc_sub_list_pk_id} value={subVital.sc_sub_list_pk_id} style={{ padding: '0px 0px' }}>
+                                                                <Checkbox
+                                                                    checked={selectedSubVitals.indexOf(subVital.sc_sub_list_pk_id) > -1}
+                                                                    disabled={!isFormEnabled}
+                                                                    style={{ marginRight: '8px' }}
+                                                                />
+                                                                <span>{subVital.sub_list}</span>
+                                                            </MenuItem>
+                                                        ))}
+                                                    </Select>
+                                                </FormControl>
+                                            </div>
+                                        )} */}
+
+                                        {/* <div className={`col-md-6 ${isFormEnabled ? '' : 'disabled'}`}>
                                             <label htmlFor="select" className={`visually-hidden formlabel ${isFormEnabled ? '' : 'disabled'}`}>
                                                 Screening For<span className="text-danger">*</span>
                                             </label>
@@ -1384,7 +1534,7 @@ const ScheduleScreening = () => {
                                                 ))}
                                             </select>
                                             {errors.type && <div className="invalid-feedback">{errors.type}</div>}
-                                        </div>
+                                        </div> */}
 
                                         {/* {selectedScheduleType === '1' && ( */}
                                         {selectedSourcee === '1' && selectedScheduleType === '1' && (scheduleform.schedule_class_id === '1' || (
@@ -1487,7 +1637,7 @@ const ScheduleScreening = () => {
 
                         <div className="col-md-7 scheduleform">
                             <div className="row">
-                                {canAddSchedule && <div className="col">
+                                {/* {canAddSchedule && <div className="col">
                                     <button className="button btn-sm scheduleadd"
                                         onClick={() => {
                                             handleClick();
@@ -1496,7 +1646,8 @@ const ScheduleScreening = () => {
                                     >
                                         + Add New Schedule
                                     </button>
-                                </div>}
+                                </div>
+                                } */}
 
                                 {/* <div className="col tabs">
                                     <div className="container text-center datefilterSchedule">
@@ -1522,13 +1673,15 @@ const ScheduleScreening = () => {
                                         </div>
                                     </div>
                                 </div> */}
+                                <div className="col-md-12 d-flex justify-content-end">
 
-                                <div className="col">
+                                <div className="pr-2">
                                     <input placeholder="Search" className="form-control searchable"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                     />
                                     <SearchIcon className="searchemoji" />
+                                </div>
                                 </div>
                             </div>
 
@@ -1566,7 +1719,7 @@ const ScheduleScreening = () => {
                                                         )
                                                         .slice(page * rowsPerPage, (page + 1) * rowsPerPage)
                                                         .map((info, index) => {
-                                                            const serialNumber = index + 1 + page * rowsPerPage; // Updated calculation for serial number
+                                                            const serialNumber = index + 1 + page * rowsPerPage;
                                                             return (
                                                                 <tr
                                                                     className={`card cardbodyschedule ${selectedRow === info.schedule_screening_pk_id ? 'selected' : ''

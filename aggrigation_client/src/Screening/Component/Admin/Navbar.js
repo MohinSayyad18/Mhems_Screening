@@ -7,6 +7,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import CallOutlinedIcon from '@mui/icons-material/CallOutlined';
+import LogoutIcon from '@mui/icons-material/Logout';
+import Swal from 'sweetalert2';
 
 const Navbar = ({ onLogout }) => {
     const history = useNavigate();
@@ -49,30 +51,67 @@ const Navbar = ({ onLogout }) => {
     // };
 
     const handleLogout = async () => {
-        try {
-            // Ask for confirmation before proceeding
-            const confirmed = window.confirm("Are you sure you want to Log out ?");
-            if (!confirmed) {
-                return; // If not confirmed, do nothing
-            }
+    try {
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: "You will be logged out from the system!",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#313774 ',   // Tailwind Blue-700
+            cancelButtonColor: '#93C5FD',   // Tailwind Blue-300
+            confirmButtonText: 'Yes, Logout',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true
+        });
 
-            const refresh = localStorage.getItem('refresh');
-            const userID = localStorage.getItem('userID');
-            const response = await axios.post(`${Port}/Screening/logout/`, { refresh, clg_id: userID });
-
-            if (response.status >= 200 && response.status < 300) {
-                console.log('Logout successful');
-                onLogout();
-                localStorage.removeItem('refresh');
-                setShowLogoutPopup(false);
-                history('/');
-            } else {
-                console.error('Logout failed:', response.statusText);
-            }
-        } catch (error) {
-            console.error('Logout error:', error.message);
+        if (!result.isConfirmed) {
+            return;
         }
-    };
+
+        const refresh = localStorage.getItem('refresh');
+        const userID = localStorage.getItem('userID');
+
+        const response = await axios.post(`${Port}/Screening/logout/`, {
+            refresh,
+            clg_id: userID
+        });
+
+        if (response.status >= 200 && response.status < 300) {
+            console.log('Logout successful');
+            onLogout();
+            localStorage.removeItem('refresh');
+            setShowLogoutPopup(false);
+
+            await Swal.fire({
+                icon: 'success',
+                title: 'Logged Out!',
+                text: 'You have been successfully logged out.',
+                confirmButtonColor: '#313774 ',
+                timer: 1500,
+                showConfirmButton: false
+            });
+
+            history('/');
+        } else {
+            console.error('Logout failed:', response.statusText);
+            Swal.fire({
+                title: 'Logout Failed',
+                text: 'Something went wrong. Please try again.',
+                icon: 'error',
+                confirmButtonColor: '#313774 '
+            });
+        }
+    } catch (error) {
+        console.error('Logout error:', error.message);
+        Swal.fire({
+            title: 'Error!',
+            text: error.message || 'Unexpected error occurred.',
+            icon: 'error',
+            confirmButtonColor: '#313774 '
+        });
+    }
+};
+
     ///////////////////// LOGO 
     const logoUrl = localStorage.getItem('logoooooooooooooooooooooooooooo');
     console.log(logoUrl, 'Logo Fetching in Navbar');
@@ -111,7 +150,7 @@ const Navbar = ({ onLogout }) => {
                     </li>
 
                     <Stack direction="row" className="userlogin" onClick={() => setShowLogoutPopup(!showLogoutPopup)}>
-                        <Avatar alt="User Avatar" src="/static/images/avatar/1.jpg">
+                        <Avatar alt="User Avatar" src="/static/images/avatar/1.jpg" style={{ backgroundColor: '#313774' }}>
                             {avatarLetter}
                         </Avatar>
                     </Stack>
@@ -125,14 +164,14 @@ const Navbar = ({ onLogout }) => {
                                 <div className='row'>
                                     <div className='col-md-2'>
                                         <Stack direction="row" spacing={2}>
-                                            <Avatar alt="User Avatar" src="/static/images/avatar/1.jpg">
+                                            <Avatar alt="User Avatar" src="/static/images/avatar/1.jpg" style={{ backgroundColor: '#313774', width: '30px', height: '30px' }}>
                                                 {avatarLetter}
                                             </Avatar>
                                         </Stack>
                                     </div>
 
                                     <div className='col-md-8'>
-                                        <h4 className="mailidddddddddd ml-4">{personName}</h4>
+                                        <p className="mailidddddddddd ml-4 mt-1" style={{ fontSize: '14px' }}>{personName}</p>
                                     </div>
 
                                     <div className='col-md-1'>
@@ -144,9 +183,9 @@ const Navbar = ({ onLogout }) => {
                                     </div>
                                 </div>
 
-                                <div className='row mt-2'>
+                                <div className='row'>
                                     <div className='col-md-2'>
-                                        <MailOutlineIcon className="mailcolor" />
+                                        <MailOutlineIcon className="mailcolor" style={{ color: '#313774', width: '30px', height: '30px' }} />
                                     </div>
 
                                     <div className='col-md-10 mt-2'>
@@ -156,14 +195,14 @@ const Navbar = ({ onLogout }) => {
                                                 className="form-control form-control-sm loginformcontrol"
                                             />
                                         ) : (
-                                            <h4 className="mailidddddddddd">{colleagueEmail}</h4>
+                                            <h4 className="mailidddddddddd" style={{ fontSize: '14px' }}>{colleagueEmail}</h4>
                                         )}
                                     </div>
                                 </div>
 
                                 <div className='row mt-1'>
                                     <div className='col-md-2'>
-                                        <CallOutlinedIcon className="mailcolor" />
+                                        <CallOutlinedIcon className="mailcolor" style={{ color: '#313774', width: '30px', height: '20px' }} />
                                     </div>
 
                                     <div className='col-md-10 mt-2'>
@@ -173,7 +212,7 @@ const Navbar = ({ onLogout }) => {
                                                 className="form-control form-control-sm loginformcontrol"
                                             />
                                         ) : (
-                                            <h4 className="mailidddddddddd">{phoneNumber}</h4>
+                                            <h4 className="mailidddddddddd" style={{ fontSize: '14px' }}>{phoneNumber}</h4>
                                         )}
                                     </div>
                                 </div>
@@ -196,13 +235,15 @@ const Navbar = ({ onLogout }) => {
                                         Save
                                     </button>
                                 ) : (
-                                    <button
-                                        className='btn btn-sm btnname'
-                                        style={{ color: '#B91D1D', fontSize: '18px', fontWeight: '550' }}
-                                        onClick={handleLogout}
-                                    >
-                                        Logout
-                                    </button>
+                                    <span className='d-flex align-items-center logout-container'>
+                                        <LogoutIcon className="logout-icon" />
+                                        <button
+                                            className='btn btn-sm logout-btn'
+                                            onClick={handleLogout}
+                                        >
+                                            Logout
+                                        </button>
+                                    </span>
                                 )}
                             </div>
                         </div>

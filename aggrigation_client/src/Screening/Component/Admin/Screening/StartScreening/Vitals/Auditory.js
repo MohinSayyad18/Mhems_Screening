@@ -4,28 +4,32 @@ import axios from 'axios';
 import ear from '../../../../../Images/Ear.png';
 import EditIcon from '@mui/icons-material/Edit';
 
-const Auditory = ({ pkid, citizensPkId, onMoveToDental, lastview, recall, nextEmergencyVital, fetchVital, selectedName }) => {
+const Auditory = ({ pkid, citizensPkId, lastview, recall, fetchVital, selectedName, onAcceptClick }) => {
 
-  console.log(selectedName, 'selectedNameselectedName.....');
-  // console.log(nextEmergencyVital, 'fetching the vital Name from the previous Componenet');
-  const [nextVitalName5, setNextVitalName5] = useState('');
+  //_________________________________START
+  console.log(selectedName, 'Present name');
+  console.log(fetchVital, 'Overall GET API');
+  const [nextName, setNextName] = useState('');
 
   useEffect(() => {
-    if (fetchVital && Array.isArray(fetchVital)) {
-      // Find the index of the current nextEmergencyVital
-      const currentPartIndex = fetchVital.findIndex(vital => vital.screening_list === selectedName);
+    if (fetchVital && selectedName) {
+      const currentIndex = fetchVital.findIndex(item => item.screening_list === selectedName);
 
-      // If the current part name is found, get the next vital
-      if (currentPartIndex !== -1 && currentPartIndex + 1 < fetchVital.length) {
-        const nextVital = fetchVital[currentPartIndex + 1];
-        setNextVitalName5(nextVital.screening_list); // Update the state with the next vital name
+      console.log('Current Indexxxx:', currentIndex);
+
+      if (currentIndex !== -1 && currentIndex < fetchVital.length - 1) {
+        const nextItem = fetchVital[currentIndex + 1];
+        const nextName = nextItem.screening_list;
+        setNextName(nextName);
+        console.log('Next Name Setttt:', nextName);
       } else {
-        setNextVitalName5(''); // Clear the state if no next vital is available or current part name is not found
+        setNextName('');
+        console.log('No next item or selectedName not found');
       }
-    } else {
-      setNextVitalName5(''); // Clear the state if fetchVital is not valid
     }
-  }, [fetchVital, selectedName]);
+  }, [selectedName, fetchVital]);
+  //_________________________________END
+
 
   const userGroup = localStorage.getItem('usergrp');
   const [referredToSpecialist, setReferredToSpecialist] = useState(null);
@@ -81,8 +85,6 @@ const Auditory = ({ pkid, citizensPkId, onMoveToDental, lastview, recall, nextEm
     reading_right: null,
     right_ear_observations_remarks: '',
   });
-  // const [preCheckbox, setPreCheckbox] = useState([]);
-
   console.log(formData, 'fdddddddddd');
 
   useEffect(() => {
@@ -103,28 +105,6 @@ const Auditory = ({ pkid, citizensPkId, onMoveToDental, lastview, recall, nextEm
 
     fetchData();
   }, [Port]);
-
-  // const handleCheckboxChange = (index) => {
-  //   console.log('Before Update:', formData.checkboxes);
-  //   setFormData((prevFormData) => {
-  //     const updatedCheckboxes = [...prevFormData.checkboxes];
-  //     updatedCheckboxes[index] = !updatedCheckboxes[index];
-
-  //     console.log('Updated Checkboxes:', updatedCheckboxes);
-
-  //     const selectedNames = auditoryChechBox
-  //       .filter((item, i) => updatedCheckboxes[i])
-  //       .map((item) => item.audit_name);
-
-  //     console.log('Selected Names:', selectedNames);
-
-  //     return {
-  //       ...prevFormData,
-  //       checkboxes: updatedCheckboxes,
-  //       selectedNames: selectedNames,
-  //     };
-  //   });
-  // };
 
   const handleCheckboxChange = (name) => {
     setFormData((prevFormData) => {
@@ -199,7 +179,7 @@ const Auditory = ({ pkid, citizensPkId, onMoveToDental, lastview, recall, nextEm
         }
       );
       // onMoveToVital('dentalsection');
-      onMoveToDental(nextVitalName5);
+      onAcceptClick(nextName);
       recall();
       console.log('POST response:', response);
     } catch (error) {

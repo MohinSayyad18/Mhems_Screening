@@ -15,7 +15,7 @@ const PftDashboard = ({ selectedSource, selctedType, selectedClassType }) => {
             try {
                 let endpoint = `${Port}/Screening/NEW_pft_count/?source_id=${selectedSource}&type_id=${selctedType}&source_name_id=${SourceNameUrlId}`;
                 if (selectedSource && selctedType && selectedClassType) {
-                    endpoint = `${Port}/Screening/NEW_pft_count/?source_id=${selectedSource}&type_id=${selctedType}&class_id=${selectedClassType}&source_name_id=${SourceNameUrlId}`;
+                    endpoint = `${Port}/Screening/NEW_pft_count/?source_id=${selectedSource}&type_id=${selctedType}&Class_id=${selectedClassType}&source_name_id=${SourceNameUrlId}`;
                 }
                 else if (selectedSource) {
                     endpoint = `${Port}/Screening/NEW_pft_count/?source_id=${selectedSource}&source_name_id=${SourceNameUrlId}`;

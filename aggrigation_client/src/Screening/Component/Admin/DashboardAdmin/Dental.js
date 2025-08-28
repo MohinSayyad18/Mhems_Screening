@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Chart from 'react-apexcharts';
 import './Dashboard.css';
 
-const Dental = ({ selectedSource, selctedType, selectedClassType }) => {
+const Dental = ({ selectedSource, selctedType, selectedClassType, selectedScreenID }) => {
     const Port = process.env.REACT_APP_API_KEY;
     const accessToken = localStorage.getItem('token');
 
@@ -32,7 +32,8 @@ const Dental = ({ selectedSource, selctedType, selectedClassType }) => {
             if (selectedSource) apiUrl += `source_id=${selectedSource}&`;
             if (selctedType) apiUrl += `type_id=${selctedType}&`;
             if (selectedClassType) apiUrl += `class_id=${selectedClassType}&`;
-            if (SourceNameUrlId) apiUrl += `source_name_id=${SourceNameUrlId}`;
+            if (SourceNameUrlId) apiUrl += `source_name_id=${SourceNameUrlId}&`;
+            if (selectedScreenID) apiUrl += `schedule_id=${selectedScreenID}`;
 
             const response = await fetch(apiUrl, {
                 headers: {
@@ -59,10 +60,10 @@ const Dental = ({ selectedSource, selctedType, selectedClassType }) => {
     };
 
     useEffect(() => {
-        if (selectedSource || selctedType || selectedClassType) {
+        if (selectedSource || selctedType || selectedClassType || selectedScreenID) {
             fetchData();
         }
-    }, [selectedSource, selctedType, selectedClassType]);
+    }, [selectedSource, selctedType, selectedClassType, selectedScreenID]);
 
     return (
         <div className="donut donutttttt">

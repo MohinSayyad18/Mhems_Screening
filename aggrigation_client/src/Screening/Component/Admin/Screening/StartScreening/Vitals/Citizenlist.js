@@ -12,7 +12,6 @@ import RemoveRedEyeOutlinedIcon from '@mui/icons-material/RemoveRedEyeOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import TablePagination from '@mui/material/TablePagination';
 import CircularProgress from '@mui/material/CircularProgress';
-import { Button } from '@mui/material';
 
 const Citizenlist = () => {
     //permission code start
@@ -23,13 +22,9 @@ const Citizenlist = () => {
     const userID = localStorage.getItem('userID');
     console.log(userID);
     const accessToken = localStorage.getItem('token');
-
+    
     //// access the source from local storage
-    const SourceUrlId = localStorage.getItem('loginSource');
-
-    //// access the source name from local storage
-    const SourceNameUrlId = localStorage.getItem('SourceNameFetched');
-    console.log('fetched sourcename in citizen', SourceNameUrlId);
+    const source = localStorage.getItem('source');
 
     /////////// Roshni's Code Start /////////////////////
     const [viewInvestigation, setViewInvestigation] = useState(false);
@@ -73,22 +68,6 @@ const Citizenlist = () => {
 
         ////// roshni code start
 
-        // const investigationModules = parsedPermissions.map(permission => {
-        //     const modules = permission.modules_submodule.find(module => module.moduleName === 'Investigation');
-        //     if (modules) {
-        //         return {
-        //             moduleId: modules.moduleId,
-        //             moduleName: modules.moduleName,
-        //             selectedSubmodules: modules.selectedSubmodules
-        //         };
-        //     } else {
-        //         return null;
-        //     }
-        // }).filter(module => module !== null);
-        // console.log("investigationModules", investigationModules);
-        // setViewInvestigation(investigationModules[0].selectedSubmodules);
-        // localStorage.setItem('investiData', JSON.stringify(investigationModules[0].selectedSubmodules));
-
         const investigationModules = parsedPermissions.map(permission => {
             const modules = permission.modules_submodule.find(module => module.moduleName === 'Investigation');
             if (modules) {
@@ -101,18 +80,9 @@ const Citizenlist = () => {
                 return null;
             }
         }).filter(module => module !== null);
-
         console.log("investigationModules", investigationModules);
-
-        if (investigationModules.length > 0) {
-            setViewInvestigation(investigationModules[0].selectedSubmodules);
-            localStorage.setItem('investiData', JSON.stringify(investigationModules[0].selectedSubmodules));
-        } else {
-            // Handle the case when investigationModules is empty
-            setViewInvestigation([]);
-            localStorage.setItem('investiData', JSON.stringify([]));
-        }
-
+        setViewInvestigation(investigationModules[0].selectedSubmodules);
+        localStorage.setItem('investiData', JSON.stringify(investigationModules[0].selectedSubmodules));
 
         ////// roshni code end
     }, []);
@@ -123,7 +93,7 @@ const Citizenlist = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedAge, setSelectedAge] = useState('');
     const [selectedGender, setSelectedGender] = useState('');
-    const [selectedSource, setSelectedSource] = useState(SourceUrlId || '');
+    const [selectedSource, setSelectedSource] = useState('');
     const [selectedDisease, setSelectedDisease] = useState('');
     const [selectedClassNav, setSelectedClassNav] = useState('');
     const [selectedDivision, setSelectedDivision] = useState('');
@@ -164,7 +134,7 @@ const Citizenlist = () => {
 
         try {
             const accessToken = localStorage.getItem('token'); // Retrieve access token
-            const response = await axios.get(`${Port}/Screening/filter-citizens/?date_filter=${type}&source=${SourceUrlId}&source_name=${SourceNameUrlId}`, {
+            const response = await axios.get(`${Port}/Screening/filter-citizens/?date_filter=${type}`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json'
@@ -191,8 +161,6 @@ const Citizenlist = () => {
             disease: selectedDisease,
             Class: selectedClassNav,
             division: selectedDivision,
-            sourceurl_id: SourceUrlId,
-            source_name: SourceNameUrlId,
         };
 
         const accessToken = localStorage.getItem('token'); // Retrieve access token
@@ -217,14 +185,30 @@ const Citizenlist = () => {
         }
     };
 
+    ///////////// Citizen get API
+    // useEffect(() => {
+    //     const fetchTableData = async () => {
+    //         try {
+    //             const response = await axios.get(`${Port}/Screening/add_citizen_get/`)
+    //             setTableFetch(response.data)
+    //             console.log(tableFetch);
+    //             setLoading(false);
+    //         }
+    //         catch (error) {
+    //             console.log('Error while fetching data', error)
+    //             setLoading(false)
+    //         }
+    //     }
+    //     fetchTableData()
+    // }, []);
 
     /////////////DELETE API
     const handleDeleteClick = (citizenID) => {
-        // const confirmDelete = window.confirm('Are you sure you want to delete this citizen?');
+        const confirmDelete = window.confirm('Are you sure you want to delete this citizen?');
 
-        // if (!confirmDelete) {
-        //     return;
-        // }
+        if (!confirmDelete) {
+            return;
+        }
 
         const userID = localStorage.getItem('userID');
         console.log(userID);
@@ -254,7 +238,7 @@ const Citizenlist = () => {
     useEffect(() => {
         const fetchUserAgeDropdown = async () => {
             try {
-                const response = await axios.get(`${Port}/Screening/Age_GET/?source_id=${SourceUrlId}`, {
+                const response = await axios.get(`${Port}/Screening/Age_GET/`, {
                     headers: {
                         'Authorization': `Bearer ${accessToken}`,
                         'Content-Type': 'application/json'
@@ -294,7 +278,7 @@ const Citizenlist = () => {
     useEffect(() => {
         const fetchUserSourceDropdown = async () => {
             try {
-                const response = await axios.get(`${Port}/Screening/source_GET/?source_pk_id=${SourceUrlId}`, {
+                const response = await axios.get(`${Port}/Screening/source_GET/`, {
                     headers: {
                         'Authorization': `Bearer ${accessToken}`,
                         'Content-Type': 'application/json'
@@ -396,36 +380,13 @@ const Citizenlist = () => {
                             <div className="card userlistcard">
                                 <div class="row">
                                     <div class="col">
-                                        <h5 className='name mt-3'>Search Citizen</h5>
-                                    </div>
-                                    <div className='mt-2 mr-2'>
-                                        {canAddCitizen && (
-                                            <div className='mr-2'>
-                                                <Button
-                                                    size='small'
-                                                    variant="contained"
-                                                    startIcon={<PersonAddAltIcon />}
-                                                    component={Link}
-                                                    to="/mainscreen/Citizenheader"
-                                                    sx={{
-                                                        color: 'black',
-                                                        backgroundColor: 'white',
-                                                        '&:hover': {
-                                                            backgroundColor: 'white',
-                                                            color: 'black',
-                                                        },
-                                                    }}
-                                                >
-                                                    Add Citizen
-                                                </Button>
-                                            </div>
-                                        )}
+                                        <h5 className='name'>Search Citizen</h5>
                                     </div>
                                 </div>
 
-                                {/* <div className="dropdownall mb-3">
+                                <div className="dropdownall mb-3">
                                     <Box>
-                                        <div class="container text-left">
+                                        <div class="container text-center">
                                             <div class="row" style={{ display: 'flex', justifyContent: 'center' }}>
                                                 <div class="col textfiledcol" style={{ color: "white" }}>
                                                     <TextField
@@ -615,7 +576,7 @@ const Citizenlist = () => {
                                             </div>
                                         </div>
                                     </Box>
-                                </div> */}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -700,7 +661,7 @@ const Citizenlist = () => {
                                     <th className="col-md-1 haedtitle">Sr No.</th>
                                     <th className="col-md-3 haedtitle">Citizen Name</th>
                                     <th className="col-md-2 haedtitle">Age</th>
-                                    <th className="col-md-3 haedtitle">Institution Name</th>
+                                    <th className="col-md-3 haedtitle">Source Name</th>
                                     <th className="col-md-1 haedtitle">Added By</th>
                                     {/* <th className="col haedtitle">Disease</th> */}
                                     <th className="col haedtitle">Action</th>
@@ -731,7 +692,7 @@ const Citizenlist = () => {
                                                             return (
                                                                 <tr key={data.srNo} className="card cardbodyuser">
                                                                     <td className="col-md-1">{serialNumber}</td>
-                                                                    <td className="col-md-3 headbody">{data.name ? data.name : '-'}</td>
+                                                                    <td className="col-md-3 headbody">{data.name ? data.name.toLowerCase().charAt(0).toUpperCase() + data.name.toLowerCase().slice(1) : '-'}</td>
                                                                     <td className="col-md-2 headbody">{data.year} Year</td>
                                                                     <td className="col-md-3 headbody">{data.source_name_name}</td>
                                                                     <td className="col-md-1 headbody">{data.added_by ? data.added_by.clg_ref_id : '-'}</td>
@@ -748,7 +709,7 @@ const Citizenlist = () => {
                                                                         )}
                                                                         {canDelete && (
                                                                             <DeleteOutlineOutlinedIcon
-                                                                                className="ml-1 iconuser Deleteiconn"
+                                                                                className="ml-1 iconuser"
                                                                                 onClick={(e) => handleDeleteClick(data.citizens_pk_id)}
                                                                             />
                                                                         )}

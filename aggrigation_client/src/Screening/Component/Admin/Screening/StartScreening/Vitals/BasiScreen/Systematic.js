@@ -1,7 +1,32 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 
-const Systematic = ({ pkid, onAcceptClick, citizensPkId }) => {
+const Systematic = ({ pkid, onAcceptClick, citizensPkId, selectedTab, subVitalList }) => {
+
+    //_________________________________START
+    console.log(selectedTab, 'Present name');
+    console.log(subVitalList, 'Overall GET API');
+    const [nextName, setNextName] = useState('');
+
+    useEffect(() => {
+        if (subVitalList && selectedTab) {
+            const currentIndex = subVitalList.findIndex(item => item.screening_list === selectedTab);
+
+            console.log('Current Index:', currentIndex);
+
+            if (currentIndex !== -1 && currentIndex < subVitalList.length - 1) {
+                const nextItem = subVitalList[currentIndex + 1];
+                const nextName = nextItem.screening_list;
+                setNextName(nextName);
+                console.log('Next Name Set:', nextName);
+            } else {
+                setNextName('');
+                console.log('No next item or selectedTab not found');
+            }
+        }
+    }, [selectedTab, subVitalList]);
+    //_________________________________END
+
 
     // console.log('Systematic ID :', basicScreeningPkId);
     const basicScreeningPkId = localStorage.getItem('basicScreeningId');
@@ -153,7 +178,7 @@ const Systematic = ({ pkid, onAcceptClick, citizensPkId }) => {
                     const basicScreeningPkId = data.basic_screening_pk_id;
                     localStorage.setItem('basicScreeningId', basicScreeningPkId);
                     console.log('basicScreeningId', basicScreeningPkId);
-                    onAcceptClick('Disability Screening', basicScreeningPkId);
+                    onAcceptClick(nextName, basicScreeningPkId);
                 } else if (response.status === 400) {
                     console.error('Bad Request:', data.error);
                 } else {

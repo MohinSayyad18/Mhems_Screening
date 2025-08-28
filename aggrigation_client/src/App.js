@@ -15,6 +15,8 @@ import './App.css'
 import Desk from './Screening/Component/Followup/Desk';
 import ViewFollowup from './Screening/Component/Followup/FolloupForms/ViewFollowup';
 import AddFollowUp from './Screening/Component/Followup/FolloupForms/AddFollowUp';
+import DentalAssesment from './Screening/Component/Admin/Screening/StartScreening/Vitals/AI/DentalAssesment';
+import Other from './Screening/Component/Admin/Screening/StartScreening/Vitals/Other';
 //________________________________________Routing_______________________________________//
 const Citizenlist = lazy(() => import('./Screening/Component/Admin/Addcitizen/List/Citizenlist'));
 const Header = lazy(() => import('./Screening/Component/Admin/Addcitizen/Citizenforms/Citizennav/Header'));
@@ -93,6 +95,7 @@ const App = () => {
           <Suspense fallback={<div>Loading...</div>}>
             <SourceProvider>
               <Routes>
+                <Route path="/screening/dental_assesment" element={<DentalAssesment />} />
                 <Route path="/" element={<Login onLogin={handleLogin} isLoggedIn={isLoggedIn} />} />
                 <Route path="/mainscreen/Dashboard" element={<Main />} />
                 <Route path="/mainscreen/Citizen" element={<Citizenlist />} />
@@ -119,6 +122,8 @@ const App = () => {
                 {/* <Route path='/mainscreen/Follow-Up/viewFollowup/:id' element={<ViewFollowup />} /> */}
                 <Route path='/mainscreen/Follow-Up/viewFollowup/:citizenId/' element={<ViewFollowup />} />
                 <Route path='/mainscreen/Follow-Up/addFollowup/:citizenId/:scheduleId/:pkId' element={<AddFollowUp />} />
+                <Route path='/mainscreen/Follow-Up/addFollowup/:citizenId/:scheduleId/:pkId' element={<AddFollowUp />} />
+                <Route path="/other" element={<Other />} />
               </Routes>
             </SourceProvider>
           </Suspense>

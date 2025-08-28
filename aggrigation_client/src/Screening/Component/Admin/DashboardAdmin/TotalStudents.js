@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ReactApexChart from 'react-apexcharts';
 import './Dashboard.css'
 
-const TotalStudents = ({ selectedSource, selctedType, selectedClassType }) => {
+const TotalStudents = ({ selectedSource, selctedType, selectedClassType, selectedScreenID }) => {
     const Port = process.env.REACT_APP_API_KEY;
     const source = localStorage.getItem('loginSource');
 
@@ -14,28 +14,33 @@ const TotalStudents = ({ selectedSource, selctedType, selectedClassType }) => {
     const [totalStudentAdded, setTotalStudentAdded] = useState([]);
     const [totalScheduleAdded, setTotalScheduleAdded] = useState([]);
     const [totalScreened, setTotalScreened] = useState([]);
+    const [totalRemaining, setTotalRemaining] = useState([]);
     const accessToken = localStorage.getItem('token');
 
     const fetchData = async () => {
         try {
             let url = `${Port}/Screening/NEW_citizens_count/?`;
-    
+
             if (selectedSource) {
                 url += `source_id=${selectedSource}&`;
             }
-    
+
             if (selctedType) {
                 url += `type_id=${selctedType}&`;
             }
-    
+
             if (selectedClassType) {
-                url += `class_id=${selectedClassType}&`;
+                url += `Class_id=${selectedClassType}&`;
             }
-    
+
             if (SourceNameUrlId) {
-                url += `source_name_id=${SourceNameUrlId}`;
+                url += `source_name_id=${SourceNameUrlId}&`;
             }
-    
+
+            if (selectedScreenID) {
+                url += `schedule_id=${selectedScreenID}`;
+            }
+
             const response = await fetch(url, {
                 headers: {
                     Authorization: `Bearer ${accessToken}`
@@ -43,11 +48,11 @@ const TotalStudents = ({ selectedSource, selctedType, selectedClassType }) => {
             });
             const data = await response.json();
             console.log('API Data:', data);
-    
+
             const currentYear = new Date().getFullYear();
-    
+
             const categories = source === '1' ? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    
+
             const filteredData = {
                 citizen_counts_monthwise: {},
                 screening_counts_monthwise: {},
@@ -55,7 +60,7 @@ const TotalStudents = ({ selectedSource, selctedType, selectedClassType }) => {
                 total_added_count: {},
                 total_screened_count: {}
             };
-    
+
             for (const month in data.citizen_counts_monthwise) {
                 const year = new Date(month).getFullYear();
                 if (year === currentYear) {
@@ -64,7 +69,7 @@ const TotalStudents = ({ selectedSource, selctedType, selectedClassType }) => {
                     filteredData.total_screened_count_monthwise[month] = data.total_screened_count_monthwise[month];
                 }
             }
-    
+
             const options = source === '1' ? {
                 chart: { type: 'bar', height: 350, width: '100%', toolbar: { show: false } },
                 plotOptions: { bar: { horizontal: false } },
@@ -82,13 +87,13 @@ const TotalStudents = ({ selectedSource, selctedType, selectedClassType }) => {
                     xaxis: { type: 'category', categories, labels: { show: true } },
                     colors: ['#CA6B6E', '#478F96', '#D08726'],
                 };
-    
+
             const series = source === '1' ? [{
-                name: 'Total Students Added',
+                name: 'Total Citizen Added',
                 data: Object.values(filteredData.citizen_counts_monthwise)
             },
             {
-                name: 'Total Scheduled',
+                name: 'Total Citizen Remaining',
                 data: Object.values(filteredData.screening_counts_monthwise)
             },
             {
@@ -101,14 +106,14 @@ const TotalStudents = ({ selectedSource, selctedType, selectedClassType }) => {
                     data: Object.values(filteredData.citizen_counts_monthwise)
                 },
                 {
-                    name: 'Total Scheduled',
+                    name: 'Total Citizen Remaining',
                     data: Object.values(filteredData.screening_counts_monthwise)
                 },
                 ] :
                     [];
-    
+
             console.log('Chart Series:', series);
-    
+
             setChartData({
                 options,
                 series
@@ -116,9 +121,10 @@ const TotalStudents = ({ selectedSource, selctedType, selectedClassType }) => {
             setTotalStudentAdded(data.total_added_count);
             setTotalScreened(data.total_screened_count);
             setTotalScheduleAdded(data.total_schedule_count);
-    
+            setTotalRemaining(data.total_remaining_screening_employees);
+
             console.log();
-    
+
             setChartData({
                 options,
                 series
@@ -127,13 +133,12 @@ const TotalStudents = ({ selectedSource, selctedType, selectedClassType }) => {
             console.error('Error fetching data:', error);
         }
     };
-    
+
     useEffect(() => {
-        if (selectedSource || selctedType || selectedClassType) {
+        if (selectedSource || selctedType || selectedClassType || selectedScreenID) {
             fetchData();
         }
-    }, [selectedSource, selctedType, selectedClassType]);
-    
+    }, [selectedSource, selctedType, selectedClassType, selectedScreenID]);
 
     return (
         <div>
@@ -179,7 +184,7 @@ const TotalStudents = ({ selectedSource, selctedType, selectedClassType }) => {
                                     {source === '1' ? 'Total Citizen Remaining' : 'Total Employee Remaining'}
                                 </h6>
                                 {/* <h6 className="totalstudenttitlecard">Total Screening Scheduled</h6> */}
-                                <p className="countstudent">{totalScheduleAdded}</p>
+                                <p className="countstudent">{totalRemaining}</p>
                             </div>
                         </div>
                     </div>

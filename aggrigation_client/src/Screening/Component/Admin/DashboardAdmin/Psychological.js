@@ -1,47 +1,62 @@
 import React, { useState, useEffect } from 'react';
 import Chart from 'react-apexcharts';
 
-const Psychological = ({ selectedSource, selctedType, selectedClassType }) => {
+const Psychological = ({ selectedSource, selctedType, selectedClassType, selectedScreenID }) => {
   const [data, setData] = useState([]);
   const Port = process.env.REACT_APP_API_KEY;
   const accessToken = localStorage.getItem('token');
 
   const source = localStorage.getItem('loginSource');
+  const SourceNameUrlId = localStorage.getItem('SourceNameFetched');
 
   console.log(source, 'fetched source in the PFT');
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (selectedSource && selctedType && selectedClassType) {
-        try {
-          const res = await fetch(`${Port}/Screening/psyco-count/${selectedSource}/${selctedType}/${selectedClassType}/`, {
-            headers: {
-              Authorization: `Bearer ${accessToken}`
-            }
-          });
-          const apiData = await res.json();
-          setData(apiData);
-          console.log(apiData);
-        } catch (error) {
-          console.error("Error Data:", error);
-        }
-      } else if (selectedSource && selctedType) {
-        try {
-          const res = await fetch(`${Port}/Screening/psyco-count/${selectedSource}/${selctedType}/`, {
-            headers: {
-              Authorization: `Bearer ${accessToken}`
-            }
-          });
-          const apiData = await res.json();
-          setData(apiData);
-          console.log(apiData);
-        } catch (error) {
-          console.error("Error Data:", error);
-        }
+  const fetchData = async () => {
+    try {
+      let url = `${Port}/Screening/NEW_PsycoCount/?`;
+
+      if (selectedSource) {
+        url += `source_id=${selectedSource}&`;
       }
-    };
-    fetchData();
-  }, [selectedSource, selctedType, selectedClassType, accessToken]);
+
+      if (selctedType) {
+        url += `type_id=${selctedType}&`;
+      }
+
+      if (selectedClassType) {
+        url += `Class_id=${selectedClassType}&`;
+      }
+
+      if (SourceNameUrlId) {
+        url += `source_name_id=${SourceNameUrlId}&`;
+      }
+
+      if (selectedScreenID) {
+        url += `schedule_id=${selectedScreenID}`;
+      }
+
+
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setData(data); 
+      } else {
+        throw new Error('Failed to fetch data');
+      }
+    } catch (error) {
+      console.error('Error Fetching Data:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedSource || selctedType || selectedClassType || selectedScreenID) {
+      fetchData();
+    }
+  }, [selectedSource, selctedType, selectedClassType || selectedScreenID]);
 
   const xAxisCategories = source === '1' ?
     ['Reading', 'Writing', 'Hyper', 'Aggressive'] :
