@@ -1540,8 +1540,8 @@ def agg_sc_add_new_source_ViewSet_DELETE(request, pk, user_id):
 # _____________________ Add New Schedule __________________________________
 # _____________________ Add New Schedule (GET Method) ______________________________
 class agg_sc_schedule_screening_ViewSet_GET(APIView):
-    renderer_classes = [UserRenderer]
-    permission_classes = [IsAuthenticated]
+    # renderer_classes = [UserRenderer]
+    # permission_classes = [IsAuthenticated]
     def get(self,request):
         source_id = request.query_params.get('source_id')
         source_name_id = request.query_params.get('source_name_id')
@@ -2126,6 +2126,7 @@ def agg_sc_add_new_citizen_post_info_ViewSet1(request):
                     state=source_state,
                     district=source_district,
                     tehsil=source_tahasil,
+                    
                     # Class=source_class,
                     # type=type
                 )
@@ -2137,7 +2138,8 @@ def agg_sc_add_new_citizen_post_info_ViewSet1(request):
 
                     # Find the latest schedule count for the corresponding schedule
                     latest_schedule_count_entry = agg_sc_citizen_schedule.objects.filter(
-                        schedule_id__in=schedule_ids
+                        schedule_id__in=schedule_ids,
+                        is_deleted=False
                     ).order_by('-schedule_count').first()
 
                     if latest_schedule_count_entry:
@@ -2153,6 +2155,7 @@ def agg_sc_add_new_citizen_post_info_ViewSet1(request):
                         schedule_id=schedule_ids[0],  # Assign to the first schedule in the list
                         schedule_count=schedule_count,  # Assign the same schedule count
                         citizen_pk_id=new_citizen,
+                        is_deleted=False
                     )
                     return Response({"message": "Citizen has been allocated an existing screening schedule"}, status=status.HTTP_200_OK)
                 else:
@@ -2772,136 +2775,335 @@ from django.utils import timezone
 
 #         return Response(response_data)
 
-@api_view(['GET'])
+# @api_view(['GET'])
 # @renderer_classes([UserRenderer])
 # @permission_classes([IsAuthenticated])
+# def agg_sc_get_start_screening_info_ViewSet1(request):
+#     if request.method == 'GET':
+#         filter_params = {}
+        
+#         type_id = request.query_params.get('type_id')
+#         source_id = request.query_params.get('source_id')
+#         class_id = request.query_params.get('class_id')
+#         schedule_count = request.query_params.get('schedule_count')
+#         department_id = request.query_params.get('department_id')
+#         source_name = request.query_params.get('source_name')
+#         district = request.query_params.get('district')
+#         tehsil = request.query_params.get('tehsil')
+#         location = request.query_params.get('location')
+        
+        
+#         if type_id is not None:
+#             filter_params['citizen_pk_id__type'] = type_id
+#         if source_id is not None:
+#             filter_params['citizen_pk_id__source'] = source_id
+#         if class_id is not None:
+#             filter_params['citizen_pk_id__Class'] = class_id
+#         if schedule_count is not None:
+#             filter_params['schedule_count'] = schedule_count
+#         if department_id is not None:
+#             filter_params['citizen_pk_id__department_id'] = department_id
+#         if source_name is not None:
+#             filter_params['citizen_pk_id__source_name'] = source_name
+        
+#         if district is not None:
+#             filter_params['citizen_pk_id__district'] = district
+        
+#         if tehsil is not None:
+#             filter_params['citizen_pk_id__tehsil'] = tehsil
+        
+#         if location is not None:
+#             filter_params['citizen_pk_id__location'] = location
+        
+#         if source_id == '1':
+#             tables = [
+#                 ('agg_sc_citizen_vision_info', agg_sc_citizen_vision_info),
+#                 ('agg_sc_basic_screening_info', agg_sc_basic_screening_info),
+#                 ('agg_sc_citizen_audit_info', agg_sc_citizen_audit_info),
+#                 ('agg_sc_citizen_vital_info', agg_sc_citizen_vital_info),
+#                 ('agg_sc_citizen_dental_info', agg_sc_citizen_dental_info),
+#                 ('agg_sc_citizen_family_info', agg_sc_citizen_family_info),
+#                 ('citizen_basic_info', citizen_basic_info),
+#                 ('agg_sc_growth_monitoring_info', agg_sc_growth_monitoring_info),
+#                 ('agg_sc_citizen_pycho_info', agg_sc_citizen_pycho_info),
+#                 ('agg_sc_citizen_immunization_info', agg_sc_citizen_immunization_info),
+                
+                
+#             ]
+#         elif source_id == '5':
+#             tables = [
+#                 ('agg_sc_citizen_vision_info', agg_sc_citizen_vision_info),
+#                 ('agg_sc_basic_screening_info', agg_sc_basic_screening_info),
+#                 ('agg_sc_citizen_audit_info', agg_sc_citizen_audit_info),
+#                 ('agg_sc_citizen_vital_info', agg_sc_citizen_vital_info),
+#                 ('agg_sc_citizen_dental_info', agg_sc_citizen_dental_info),
+#                 ('agg_sc_citizen_family_info', agg_sc_citizen_family_info),
+#                 ('citizen_basic_info', citizen_basic_info),
+#                 ('agg_sc_growth_monitoring_info', agg_sc_growth_monitoring_info),
+#                 ('agg_sc_investigation', agg_sc_investigation),
+#                 ('agg_sc_citizen_medical_history', agg_sc_citizen_medical_history),
+#                 ('agg_sc_pft', agg_sc_pft)
+#             ]
+        
+#         elif source_id == '6':
+#             tables = [
+#                 ('agg_sc_citizen_vision_info', agg_sc_citizen_vision_info),
+#                 ('agg_sc_basic_screening_info', agg_sc_basic_screening_info),
+#                 ('agg_sc_citizen_audit_info', agg_sc_citizen_audit_info),
+#                 ('agg_sc_citizen_vital_info', agg_sc_citizen_vital_info),
+#                 ('agg_sc_citizen_dental_info', agg_sc_citizen_dental_info),
+#                 ('agg_sc_citizen_family_info', agg_sc_citizen_family_info),
+#                 ('citizen_basic_info', citizen_basic_info),
+#                 ('agg_sc_growth_monitoring_info', agg_sc_growth_monitoring_info),
+#                 ('agg_sc_investigation', agg_sc_investigation),
+#                 ('agg_sc_citizen_medical_history', agg_sc_citizen_medical_history),
+#                 ('agg_sc_pft', agg_sc_pft)
+#             ]
+        
+        
+#         schedules = agg_sc_citizen_schedule.objects.filter(**filter_params,closing_status=False)
+#         response_data = []
+
+#         for schedule in schedules:
+#             citizen_id = schedule.citizen_id
+
+#             try:
+#                 citizen = agg_sc_add_new_citizens.objects.get(citizen_id=citizen_id)
+#                 serializer = CitizenSerializer(citizen)
+
+#                 complete_forms = 0
+#                 incomplete_forms = 0
+#                 total_form_data = {}
+
+#                 for table_name, table in tables:
+#                     complete_count = table.objects.filter(citizen_id=citizen_id, form_submit=True).count()
+#                     incomplete_count = table.objects.filter(citizen_id=citizen_id, form_submit=False).count()
+
+#                     if complete_count > 0:
+#                         complete_forms += 1
+#                     else:
+#                         incomplete_forms += 1
+
+#                     total_form_data[table_name] = 'true' if complete_count > 0 else 'false'
+
+#                 response_data.append({
+#                     'pk_id': schedule.pk_id,
+#                     'citizen_id': schedule.citizen_id,
+#                     'schedule_id': schedule.schedule_id,
+#                     'schedule_count': schedule.schedule_count,
+#                     'citizen_info': serializer.data,
+#                     'form_counts': {
+#                         'complete_forms': complete_forms,
+#                         'incomplete_forms': incomplete_forms,
+#                         'total_tables': len(tables)
+#                     },
+#                     'Total_form_data': total_form_data
+#                 })
+
+#             except ObjectDoesNotExist:
+#                 response_data.append({
+#                     'pk_id': schedule.pk_id,
+#                     'citizen_id': schedule.citizen_id,
+#                     'schedule_id': schedule.schedule_id,
+#                     'schedule_count': schedule.schedule_count, 
+#                     'citizen_info': None,  # Or any other default value or message
+#                     'form_counts': {
+#                         'complete_forms': 0,
+#                         'incomplete_forms': len(tables),  # All forms are incomplete if citizen does not exist
+#                         'total_tables': len(tables)
+#                     },
+#                     'Total_form_data': {table_name: 'false' for table_name, _ in tables}
+#                 })
+
+#         return Response(response_data)
+
+
+    
+
+# from rest_framework.decorators import api_view
+# from rest_framework.response import Response
+# from django.core.exceptions import ObjectDoesNotExist
+
+@api_view(['GET'])
+@renderer_classes([UserRenderer])
+@permission_classes([IsAuthenticated])
 def agg_sc_get_start_screening_info_ViewSet1(request):
-    if request.method == 'GET':
-        filter_params = {}
-        
-        type_id = request.query_params.get('type_id')
-        source_id = request.query_params.get('source_id')
-        class_id = request.query_params.get('class_id')
-        schedule_count = request.query_params.get('schedule_count')
-        department_id = request.query_params.get('department_id')
-        source_name = request.query_params.get('source_name')
-        
-        if type_id is not None:
-            filter_params['citizen_pk_id__type'] = type_id
-        if source_id is not None:
-            filter_params['citizen_pk_id__source'] = source_id
-        if class_id is not None:
-            filter_params['citizen_pk_id__Class'] = class_id
-        if schedule_count is not None:
-            filter_params['schedule_count'] = schedule_count
-        if department_id is not None:
-            filter_params['citizen_pk_id__department_id'] = department_id
-        if source_name is not None:
-            filter_params['citizen_pk_id__source_name'] = source_name
-        
-        if source_id == '1':
-            tables = [
-                ('agg_sc_citizen_vision_info', agg_sc_citizen_vision_info),
-                ('agg_sc_basic_screening_info', agg_sc_basic_screening_info),
-                ('agg_sc_citizen_audit_info', agg_sc_citizen_audit_info),
-                ('agg_sc_citizen_vital_info', agg_sc_citizen_vital_info),
-                ('agg_sc_citizen_dental_info', agg_sc_citizen_dental_info),
-                ('agg_sc_citizen_family_info', agg_sc_citizen_family_info),
-                ('citizen_basic_info', citizen_basic_info),
-                ('agg_sc_growth_monitoring_info', agg_sc_growth_monitoring_info),
-                ('agg_sc_citizen_pycho_info', agg_sc_citizen_pycho_info),
-                ('agg_sc_citizen_immunization_info', agg_sc_citizen_immunization_info),
-                
-                
-            ]
-        elif source_id == '5':
-            tables = [
-                ('agg_sc_citizen_vision_info', agg_sc_citizen_vision_info),
-                ('agg_sc_basic_screening_info', agg_sc_basic_screening_info),
-                ('agg_sc_citizen_audit_info', agg_sc_citizen_audit_info),
-                ('agg_sc_citizen_vital_info', agg_sc_citizen_vital_info),
-                ('agg_sc_citizen_dental_info', agg_sc_citizen_dental_info),
-                ('agg_sc_citizen_family_info', agg_sc_citizen_family_info),
-                ('citizen_basic_info', citizen_basic_info),
-                ('agg_sc_growth_monitoring_info', agg_sc_growth_monitoring_info),
-                ('agg_sc_investigation', agg_sc_investigation),
-                ('agg_sc_citizen_medical_history', agg_sc_citizen_medical_history),
-                ('agg_sc_pft', agg_sc_pft)
-            ]
-        
-        elif source_id == '6':
-            tables = [
-                ('agg_sc_citizen_vision_info', agg_sc_citizen_vision_info),
-                ('agg_sc_basic_screening_info', agg_sc_basic_screening_info),
-                ('agg_sc_citizen_audit_info', agg_sc_citizen_audit_info),
-                ('agg_sc_citizen_vital_info', agg_sc_citizen_vital_info),
-                ('agg_sc_citizen_dental_info', agg_sc_citizen_dental_info),
-                ('agg_sc_citizen_family_info', agg_sc_citizen_family_info),
-                ('citizen_basic_info', citizen_basic_info),
-                ('agg_sc_growth_monitoring_info', agg_sc_growth_monitoring_info),
-                ('agg_sc_investigation', agg_sc_investigation),
-                ('agg_sc_citizen_medical_history', agg_sc_citizen_medical_history),
-                ('agg_sc_pft', agg_sc_pft)
-            ]
-        
-        
-        schedules = agg_sc_citizen_schedule.objects.filter(**filter_params,closing_status=False)
-        response_data = []
+    filter_params = {}
 
-        for schedule in schedules:
-            citizen_id = schedule.citizen_id
-
-            try:
-                citizen = agg_sc_add_new_citizens.objects.get(citizen_id=citizen_id)
-                serializer = CitizenSerializer(citizen)
-
-                complete_forms = 0
-                incomplete_forms = 0
-                total_form_data = {}
-
-                for table_name, table in tables:
-                    complete_count = table.objects.filter(citizen_id=citizen_id, form_submit=True).count()
-                    incomplete_count = table.objects.filter(citizen_id=citizen_id, form_submit=False).count()
-
-                    if complete_count > 0:
-                        complete_forms += 1
-                    else:
-                        incomplete_forms += 1
-
-                    total_form_data[table_name] = 'true' if complete_count > 0 else 'false'
-
-                response_data.append({
-                    'pk_id': schedule.pk_id,
-                    'citizen_id': schedule.citizen_id,
-                    'schedule_id': schedule.schedule_id,
-                    'schedule_count': schedule.schedule_count,
-                    'citizen_info': serializer.data,
-                    'form_counts': {
-                        'complete_forms': complete_forms,
-                        'incomplete_forms': incomplete_forms,
-                        'total_tables': len(tables)
-                    },
-                    'Total_form_data': total_form_data
-                })
-
-            except ObjectDoesNotExist:
-                response_data.append({
-                    'pk_id': schedule.pk_id,
-                    'citizen_id': schedule.citizen_id,
-                    'schedule_id': schedule.schedule_id,
-                    'schedule_count': schedule.schedule_count, 
-                    'citizen_info': None,  # Or any other default value or message
-                    'form_counts': {
-                        'complete_forms': 0,
-                        'incomplete_forms': len(tables),  # All forms are incomplete if citizen does not exist
-                        'total_tables': len(tables)
-                    },
-                    'Total_form_data': {table_name: 'false' for table_name, _ in tables}
-                })
-
-        return Response(response_data)
+    # Extract filters from query params
+    type_id = request.query_params.get('type_id')
+    source_id = request.query_params.get('source_id')
+    class_id = request.query_params.get('class_id')
+    schedule_count = request.query_params.get('schedule_count')
+    department_id = request.query_params.get('department_id')
+    source_name = request.query_params.get('source_name')
+    district = request.query_params.get('district')
+    tehsil = request.query_params.get('tehsil')
+    location = request.query_params.get('location')
+    search_info = request.query_params.get('search_info')  
     
-    
+
+    if type_id:
+        filter_params['citizen_pk_id__type'] = type_id
+    if source_id:
+        filter_params['citizen_pk_id__source'] = source_id
+    if class_id:
+        filter_params['citizen_pk_id__Class'] = class_id
+    if schedule_count:
+        filter_params['schedule_count'] = schedule_count
+    if department_id:
+        filter_params['citizen_pk_id__department_id'] = department_id
+    if source_name:
+        filter_params['citizen_pk_id__source_name'] = source_name
+    if district:
+        filter_params['citizen_pk_id__district'] = district
+    if tehsil:
+        filter_params['citizen_pk_id__tehsil'] = tehsil
+    if location:
+        filter_params['citizen_pk_id__location'] = location
+
+    # ✅ Default (all forms)
+    all_tables = [
+        ('agg_sc_citizen_vision_info', agg_sc_citizen_vision_info),
+        ('agg_sc_basic_screening_info', agg_sc_basic_screening_info),
+        ('agg_sc_citizen_audit_info', agg_sc_citizen_audit_info),
+        ('agg_sc_citizen_vital_info', agg_sc_citizen_vital_info),
+        ('agg_sc_citizen_dental_info', agg_sc_citizen_dental_info),
+        ('agg_sc_citizen_family_info', agg_sc_citizen_family_info),
+        ('citizen_basic_info', citizen_basic_info),
+        ('agg_sc_growth_monitoring_info', agg_sc_growth_monitoring_info),
+        ('agg_sc_citizen_pycho_info', agg_sc_citizen_pycho_info),
+        ('agg_sc_citizen_immunization_info', agg_sc_citizen_immunization_info),
+        ('agg_sc_investigation', agg_sc_investigation),
+        ('agg_sc_citizen_medical_history', agg_sc_citizen_medical_history),
+        ('agg_sc_pft', agg_sc_pft),
+    ]
+
+    # ✅ Choose tables by source_id
+    if source_id == '1':
+        tables = [
+            ('agg_sc_citizen_vision_info', agg_sc_citizen_vision_info),
+            ('agg_sc_basic_screening_info', agg_sc_basic_screening_info),
+            ('agg_sc_citizen_audit_info', agg_sc_citizen_audit_info),
+            ('agg_sc_citizen_vital_info', agg_sc_citizen_vital_info),
+            ('agg_sc_citizen_dental_info', agg_sc_citizen_dental_info),
+            ('agg_sc_citizen_family_info', agg_sc_citizen_family_info),
+            ('citizen_basic_info', citizen_basic_info),
+            ('agg_sc_growth_monitoring_info', agg_sc_growth_monitoring_info),
+            ('agg_sc_citizen_pycho_info', agg_sc_citizen_pycho_info),
+            ('agg_sc_citizen_immunization_info', agg_sc_citizen_immunization_info),
+        ]
+    elif source_id == '5':
+        tables = [
+            ('agg_sc_citizen_vision_info', agg_sc_citizen_vision_info),
+            ('agg_sc_basic_screening_info', agg_sc_basic_screening_info),
+            ('agg_sc_citizen_audit_info', agg_sc_citizen_audit_info),
+            ('agg_sc_citizen_vital_info', agg_sc_citizen_vital_info),
+            ('agg_sc_citizen_dental_info', agg_sc_citizen_dental_info),
+            ('agg_sc_citizen_family_info', agg_sc_citizen_family_info),
+            ('citizen_basic_info', citizen_basic_info),
+            ('agg_sc_growth_monitoring_info', agg_sc_growth_monitoring_info),
+            ('agg_sc_investigation', agg_sc_investigation),
+            ('agg_sc_citizen_medical_history', agg_sc_citizen_medical_history),
+            ('agg_sc_pft', agg_sc_pft),
+        ]
+    elif source_id == '6':
+        tables = [
+            ('agg_sc_citizen_vision_info', agg_sc_citizen_vision_info),
+            ('agg_sc_basic_screening_info', agg_sc_basic_screening_info),
+            ('agg_sc_citizen_audit_info', agg_sc_citizen_audit_info),
+            ('agg_sc_citizen_vital_info', agg_sc_citizen_vital_info),
+            ('agg_sc_citizen_dental_info', agg_sc_citizen_dental_info),
+            ('agg_sc_citizen_family_info', agg_sc_citizen_family_info),
+            ('citizen_basic_info', citizen_basic_info),
+            ('agg_sc_growth_monitoring_info', agg_sc_growth_monitoring_info),
+            ('agg_sc_investigation', agg_sc_investigation),
+            ('agg_sc_citizen_medical_history', agg_sc_citizen_medical_history),
+            ('agg_sc_pft', agg_sc_pft),
+        ]
+    elif source_id is None:
+        tables = all_tables
+    else:
+        return Response(
+            {"error": f"Invalid source_id {source_id}. Allowed values: 1, 5, 6, or empty."},
+            status=400
+        )
+
+    # ✅ Base queryset
+    schedules = agg_sc_citizen_schedule.objects.filter(closing_status=False, **filter_params)
+
+    # ✅ Apply search filter if provided
+    if search_info:
+        schedules = schedules.filter(
+            Q(citizen_pk_id__name__icontains=search_info) |
+            Q(citizen_id__icontains=search_info) |
+            Q(schedule_id__icontains=search_info) |
+            Q(citizen_pk_id__parents_mobile__icontains=search_info)
+        )
+
+    # ✅ Apply default limit only when no filters AND no search
+    if not filter_params and not search_info:
+        schedules = schedules[:6]
+
+    response_data = []
+
+    for schedule in schedules:
+        citizen_id = schedule.citizen_id
+        try:
+            citizen = agg_sc_add_new_citizens.objects.get(citizen_id=citizen_id)
+            # ✅ If using DRF serializer, keep context
+            serializer = CitizenSerializer(citizen, context={'request': request})
+
+            complete_forms = 0
+            incomplete_forms = 0
+            total_form_data = {}
+
+            for table_name, table in tables:
+                complete_count = table.objects.filter(citizen_id=citizen_id, form_submit=True).count()
+                incomplete_count = table.objects.filter(citizen_id=citizen_id, form_submit=False).count()
+
+                if complete_count > 0:
+                    complete_forms += 1
+                else:
+                    incomplete_forms += 1
+
+                total_form_data[table_name] = 'true' if complete_count > 0 else 'false'
+
+            response_data.append({
+                'pk_id': schedule.pk_id,
+                'citizen_id': schedule.citizen_id,
+                'schedule_id': schedule.schedule_id,
+                'schedule_count': schedule.schedule_count,
+                'citizen_info': serializer.data,
+                'form_counts': {
+                    'complete_forms': complete_forms,
+                    'incomplete_forms': incomplete_forms,
+                    'total_tables': len(tables)
+                },
+                'Total_form_data': total_form_data
+            })
+
+        except ObjectDoesNotExist:
+            response_data.append({
+                'pk_id': schedule.pk_id,
+                'citizen_id': schedule.citizen_id,
+                'schedule_id': schedule.schedule_id,
+                'schedule_count': schedule.schedule_count,
+                'citizen_info': None,
+                'form_counts': {
+                    'complete_forms': 0,
+                    'incomplete_forms': len(tables),
+                    'total_tables': len(tables)
+                },
+                'Total_form_data': {table_name: 'false' for table_name, _ in tables}
+            })
+
+    return Response(response_data)
+   
+
+
+
+
 
 
     
@@ -3254,7 +3456,7 @@ def agg_sc_get_citizen_growthmonitring_info_ViewSet1(request, pk):
                     'schedule_id': schedule.schedule_id,
                     'schedule_count': schedule.schedule_count,
                     'citizen_info': citizen_data,
-                    # 'citizen_pk_id': citizen.pk,
+                    'citizen_pk_id': citizen.pk,
                 })
 
         return Response(response_data)
@@ -9049,6 +9251,9 @@ class CitizenDataFilterAPIView(APIView):
         designation = request.query_params.get('designation')
         source_name = request.query_params.get('source_name')
         source_id = request.query_params.get('source')
+        district = request.query_params.get('district') 
+        tehsil = request.query_params.get('tehsil')
+        location = request.query_params.get('location')
 
         # Filtering the queryset based on the parameters
         queryset = agg_sc_add_new_citizens.objects.filter(is_deleted=False)
@@ -9075,6 +9280,13 @@ class CitizenDataFilterAPIView(APIView):
             queryset = queryset.filter(source_id=source_id)
         if source_name:
             queryset = queryset.filter(source_name=source_name)
+        if district:
+            queryset = queryset.filter(district=district)  
+        if tehsil:
+            queryset = queryset.filter(tehsil=tehsil)
+        if location:
+            queryset = queryset.filter(location=location)
+        
 
         # Applying additional date filters
         # if date_filter == 'today':
@@ -9764,11 +9976,12 @@ class HealthcardAPIView(APIView):
         source_pk_id = request.query_params.get('source_pk_id')
         source = request.query_params.get('source')
         state_id = request.query_params.get('state_id')
-        district_id = request.query_params.get('district_id')
-        tehsil_id = request.query_params.get('tehsil_id')
+        district = request.query_params.get('district')
+        tehsil = request.query_params.get('tehsil')
         source_name = request.query_params.get('source_name')
         source_id_id = request.query_params.get('source_id_id')
         source_name_id = request.query_params.get('source_name_id')
+        location = request.query_params.get('location')
 
         # Prepare kwargs for filtering
         filter_params = {}
@@ -9779,16 +9992,19 @@ class HealthcardAPIView(APIView):
             filter_params['citizen_pk_id__source'] = source
         if state_id:
             filter_params['citizen_pk_id__state'] = state_id
-        if district_id:
-            filter_params['citizen_pk_id__district_id'] = district_id
-        if tehsil_id:
-            filter_params['citizen_pk_id__tehsil_id'] = tehsil_id
+        if district:
+            filter_params['citizen_pk_id__district'] = district
+        if tehsil:
+            filter_params['citizen_pk_id__tehsil'] = tehsil
         if source_name:
             filter_params['citizen_pk_id__source_name'] = source_name
         if source_id_id:
             filter_params['citizen_pk_id__source'] = source_id_id
         if source_name_id:
             filter_params['citizen_pk_id__source_name'] = source_name_id
+        
+        if location:
+            filter_params['citizen_pk_id__location'] = location
 
         # Filtering the queryset based on the parameters
         healthcards = agg_sc_basic_screening_info.objects.filter(**filter_params, form_submit=True)
@@ -9873,6 +10089,10 @@ class CitizenInfoAPIView(APIView):
             
             basic_info2 = agg_sc_basic_screening_info.objects.filter(citizen_id=citizen_id, schedule_count=schedule_count)
             basic_serializer2 = Healthcard_basic_screening2(basic_info2, many=True) if basic_info2 else None
+            
+            
+            other_info = agg_sc_citizen_other_info.objects.filter(citizen_id=citizen_id, schedule_count=schedule_count)
+            other_serializer = Other_info_for_Healthcard(other_info, many=True) if other_info else None
 
             response_data = {
                 'psycho_info': psycho_serializer.data if psycho_serializer else None,
@@ -9887,6 +10107,7 @@ class CitizenInfoAPIView(APIView):
                 'pft_info':pft_serializer.data if pft_serializer else None,
                 'family_info':family_serializer.data if family_serializer else None,
                 'basic_info2': basic_serializer2.data if basic_serializer2 else None,
+                'other_info': other_serializer.data if other_serializer else None,
 
                
 
@@ -10032,6 +10253,11 @@ class Healt_card_DownloadAPIView(APIView):
             bmi_info = agg_sc_growth_monitoring_info.objects.filter(citizen_id=citizen_id, schedule_count=schedule_count)
             bmi_serializer = BMI_for_Healthcard(bmi_info, many=True) if basic_info else None
             
+            
+            other_info = agg_sc_citizen_other_info.objects.filter(citizen_id=citizen_id, schedule_count=schedule_count)
+            other_serializer = Other_info_for_Healthcard(other_info, many=True) if other_info else None
+            
+            
 
             response_data = {
                 'psycho_info': psycho_serializer.data if psycho_serializer else None,
@@ -10042,6 +10268,7 @@ class Healt_card_DownloadAPIView(APIView):
                 'vital_info': vital_serializer.data if vital_serializer else None,
                 'basic_info': basic_serializer.data if basic_serializer else None,
                 'bmi_info': bmi_serializer.data if bmi_serializer else None,
+                'other_info': other_serializer.data if other_serializer else None,
               
 
                 
@@ -11348,24 +11575,32 @@ class NEWVisionCountAPIView(APIView):
         source_id = request.query_params.get('source_id')
         type_id = request.query_params.get('type_id')
         class_id = request.query_params.get('class_id')
-        source_name_id = request.query_params.get('source_name_id')
+        source_name = request.query_params.get('source_name')
         schedule_id = request.query_params.get('schedule_id')
-         
+        district = request.query_params.get('district')
+        tehsil = request.query_params.get('tehsil')
+        location = request.query_params.get('location')
+        
         if source_id is not None:
             filter_params['citizen_pk_id__source'] = source_id
         if type_id is not None:
             filter_params['citizen_pk_id__type'] = type_id
         if class_id is not None:
             filter_params['citizen_pk_id__Class'] = class_id
-        if source_name_id is not None:
-            filter_params['citizen_pk_id__source_name'] = source_name_id
+        if source_name is not None:
+            filter_params['citizen_pk_id__source_name'] = source_name
         if schedule_id is not None:
             filter_params['schedule_id'] = schedule_id
-        
+        if district is not None:
+            filter_params['citizen_pk_id__district'] = district
+        if tehsil is not None:
+            filter_params['citizen_pk_id__tehsil'] = tehsil
+        if location is not None:
+            filter_params['citizen_pk_id__location'] = location  
         
         # Extract additional filters from query parameters
         for param, value in request.query_params.items():
-            if param not in ['source_id', 'type_id', 'class_id','source_name_id','schedule_id']:  # Add any other fields you want to filter by
+            if param not in ['source_id', 'type_id', 'class_id','source_name','schedule_id','district','tehsil','location']:  # Add any other fields you want to filter by
                 filter_params[param] = value
 
         # Filter for vision counts using filter_params
@@ -11399,7 +11634,11 @@ class NewStudentDentalConditionAPIView(APIView):
         class_id = request.query_params.get('class_id')
         source_name_id = request.query_params.get('source_name_id')
         schedule_id = request.query_params.get('schedule_id')
-
+        district = request.query_params.get('district')
+        tehsil = request.query_params.get('tehsil')
+        location = request.query_params.get('location')
+        
+        
         if source_id is not None:
             filter_params['citizen_pk_id__source'] = source_id
         if type_id is not None:
@@ -11410,10 +11649,17 @@ class NewStudentDentalConditionAPIView(APIView):
             filter_params['citizen_pk_id__source_name'] = source_name_id
         if schedule_id is not None:
             filter_params['schedule_id'] = schedule_id
+        
+        if district is not None:
+            filter_params['citizen_pk_id__district'] = district
+        if tehsil is not None:
+            filter_params['citizen_pk_id__tehsil'] = tehsil
+        if location is not None:
+            filter_params['citizen_pk_id__location'] = location
 
         # Extract additional filters from query parameters
         for param, value in request.query_params.items():
-            if param not in ['source_id', 'type_id', 'class_id','source_name_id','schedule_id']:  # Add any other fields you want to filter by
+            if param not in ['source_id', 'type_id', 'class_id','source_name_id','schedule_id','district','tehsil','location']:  # Add any other fields you want to filter by
                 filter_params[param] = value
 
         # Fetch the queryset based on provided filter parameters
@@ -11638,6 +11884,9 @@ class NEWCitizensCountAPIView(APIView):
         class_id = request.query_params.get('Class_id')
         source_name_id = request.query_params.get('source_name_id')
         schedule_id = request.query_params.get('schedule_id')
+        district = request.query_params.get('district')
+        tehsil = request.query_params.get('tehsil')
+        location = request.query_params.get('location')
 
         if source_id is not None:
             filter_params['source'] = source_id
@@ -11653,10 +11902,19 @@ class NEWCitizensCountAPIView(APIView):
             filter_params1['citizen_pk_id__source_name'] = source_name_id
         if schedule_id is not None:
             filter_params1['schedule_id'] = schedule_id
+        if district is not None:
+            filter_params['district'] = district
+            filter_params1['citizen_pk_id__district'] = district
+        if tehsil is not None:
+            filter_params['tehsil'] = tehsil
+            filter_params1['citizen_pk_id__tehsil'] = tehsil
+        if location is not None:
+            # filter_params['location'] = location
+            filter_params1['citizen_pk_id__location'] = location
 
         # Extract additional filters from query parameters
         for param, value in request.query_params.items():
-            if param not in ['source_id', 'type_id', 'Class_id', 'source_name_id','schedule_id']:
+            if param not in ['source_id', 'type_id', 'Class_id', 'source_name_id','schedule_id','district','tehsil','location']:
                 filter_params[param] = value
                 filter_params1[param] = value
 
@@ -11665,12 +11923,31 @@ class NEWCitizensCountAPIView(APIView):
             .annotate(month=TruncMonth('created_date')) \
             .values('month') \
             .annotate(count=Count('citizens_pk_id', distinct=True))
+            
+            
+        
+        screening_queryset = agg_sc_schedule_screening.objects.filter(
+            **{k: v for k, v in filter_params.items() if k != 'location'}
+        )
+
+        if location is not None:
+            screening_queryset = screening_queryset.filter(
+                Q(location1=location) |
+                Q(location2=location) |
+                Q(location3=location) |
+                Q(location4=location)
+            )
+        
+        
+        
 
         # Get counts month-wise for agg_sc_schedule_screening
         screening_counts = agg_sc_schedule_screening.objects.filter(**filter_params) \
             .annotate(month=TruncMonth('from_date')) \
             .values('month') \
             .annotate(count=Count('schedule_screening_pk_id'))
+        
+        
 
         # Get counts month-wise for agg_sc_basic_screening_info
         screening_done_counts = agg_sc_basic_screening_info.objects.filter(**filter_params1, form_submit=True) \
@@ -11693,6 +11970,15 @@ class NEWCitizensCountAPIView(APIView):
             additional_filter_params['citizen_pk_id__type_id'] = type_id
         if schedule_id:
             additional_filter_params['schedule_id'] = schedule_id
+        if class_id:
+            additional_filter_params['citizen_pk_id__Class'] = class_id
+        if district:
+            additional_filter_params['citizen_pk_id__district'] = district
+        if tehsil:
+            additional_filter_params['citizen_pk_id__tehsil'] = tehsil
+        if location:
+            additional_filter_params['citizen_pk_id__location'] = location
+        
 
         count2_filtered = agg_sc_basic_screening_info.objects.filter(
             **additional_filter_params,
@@ -11873,6 +12159,9 @@ class ReferredToSpecialistCountAPIView(APIView):
         class_id = request.query_params.get('Class_id')
         source_name_id = request.query_params.get('source_name_id')
         schedule_id = request.query_params.get('schedule_id')
+        district = request.query_params.get('district')
+        tehsil = request.query_params.get('tehsil')
+        location = request.query_params.get('location')
         
         # Initialize count variables for each table
         vital_info_count = audit_info_count = dental_info_count = vision_info_count = screening_info_count = 0
@@ -11890,7 +12179,12 @@ class ReferredToSpecialistCountAPIView(APIView):
             filter_params_vital['citizen_pk_id__source_name_id'] = filter_params_audit['citizen_pk_id__source_name_id'] = filter_params_dental['citizen_pk_id__source_name_id'] = filter_params_vision['citizen_pk_id__source_name_id'] = filter_params_screening['citizen_pk_id__source_name_id'] = source_name_id
         if schedule_id is not None:
             filter_params_vital['schedule_id'] = filter_params_audit['schedule_id'] = filter_params_dental['schedule_id'] = filter_params_vision['schedule_id'] = filter_params_screening['schedule_id'] = schedule_id
-
+        if district is not None:
+            filter_params_vital['citizen_pk_id__district'] = filter_params_audit['citizen_pk_id__district'] = filter_params_dental['citizen_pk_id__district'] = filter_params_vision['citizen_pk_id__district'] = filter_params_screening['citizen_pk_id__district'] = district
+        if tehsil is not None:
+            filter_params_vital['citizen_pk_id__tehsil'] = filter_params_audit['citizen_pk_id__tehsil'] = filter_params_dental['citizen_pk_id__tehsil'] = filter_params_vision['citizen_pk_id__tehsil'] = filter_params_screening['citizen_pk_id__tehsil'] = tehsil
+        if location is not None:
+            filter_params_vital['citizen_pk_id__location'] = filter_params_audit['citizen_pk_id__location'] = filter_params_dental['citizen_pk_id__location'] = filter_params_vision['citizen_pk_id__location'] = filter_params_screening['citizen_pk_id__location'] = location
         # Retrieve counts from each model
         try:
             vital_info_count = agg_sc_citizen_vital_info.objects.filter(reffered_to_specialist=1, **filter_params_vital).count()
@@ -11989,6 +12283,9 @@ class gender_count_viewset(APIView):
         source_name_id = request.query_params.get('source_name_id')
         type_id = request.query_params.get('type_id')
         Class_id = request.query_params.get('Class_id') 
+        district = request.query_params.get('district')
+        tehsil = request.query_params.get('tehsil')
+        location = request.query_params.get('location')
 
         if schedule_id:
             filter_params['schedule_id'] = schedule_id
@@ -12006,6 +12303,12 @@ class gender_count_viewset(APIView):
             citizen_filter['type_id'] = type_id
         if Class_id:
             citizen_filter['Class_id'] = Class_id  
+        if district:
+            citizen_filter['district'] = district
+        if tehsil:
+            citizen_filter['tehsil'] = tehsil
+        if location:
+            citizen_filter['location'] = location
 
         gender_counts = agg_sc_add_new_citizens.objects.filter(
             **citizen_filter
@@ -12043,6 +12346,10 @@ class Age_Count_Get_viewset(APIView):
         source_id = request.query_params.get('source_id')
         source_name_id = request.query_params.get('source_name_id')
         class_id = request.query_params.get('Class_id')  
+        district = request.query_params.get('district')
+        tehsil = request.query_params.get('tehsil')
+        location = request.query_params.get('location')
+        
 
         if schedule_id:
             filter_params['schedule_id'] = schedule_id
@@ -12056,6 +12363,12 @@ class Age_Count_Get_viewset(APIView):
                 source_name_id = int(source_name_id)
             if class_id:
                 class_id = int(class_id)
+            if district:
+                district = int(district)
+            if tehsil:
+                tehsil = int(tehsil)
+            if location:
+                location = int(location)
         except ValueError:
             return Response({"error": "Invalid parameter format"}, status=status.HTTP_400_BAD_REQUEST)
         
@@ -12068,7 +12381,13 @@ class Age_Count_Get_viewset(APIView):
             citizen_ids_query = citizen_ids_query.filter(source_name_id=source_name_id)
         if class_id:
             citizen_ids_query = citizen_ids_query.filter(Class_id=class_id)  
-
+        if district:
+            citizen_ids_query = citizen_ids_query.filter(district=district)
+        if tehsil:
+            citizen_ids_query = citizen_ids_query.filter(tehsil=tehsil)
+        if location:
+            citizen_ids_query = citizen_ids_query.filter(location=location)
+            
         citizen_ids = citizen_ids_query.values_list('citizens_pk_id', flat=True)
         snippet = agg_sc_citizen_schedule.objects.filter(
             citizen_pk_id__in=citizen_ids,
@@ -12142,13 +12461,16 @@ class BMI_Count_GET_Api_Viewset(APIView):
         source_id = request.query_params.get('source_id', None)
         source_name_id = request.query_params.get('source_name_id', None)
         class_id = request.query_params.get('Class_id', None) 
-
+        district = request.query_params.get('district', None)
+        tehsil = request.query_params.get('tehsil', None)
+        location = request.query_params.get('location', None)
+        
         if schedule_id is not None:
             snippets = agg_sc_citizen_schedule.objects.filter(schedule_id=schedule_id)
         else:
             snippets = agg_sc_citizen_schedule.objects.all()
 
-        if any([type_id, source_id, source_name_id, class_id]):
+        if any([type_id, source_id, source_name_id, class_id, district, tehsil, location]):
             snippets = snippets.filter(
                 citizen_pk_id__in=agg_sc_add_new_citizens.objects.filter(
                     **{k: v for k, v in {
@@ -12207,6 +12529,9 @@ class Birth_Defect_Count_APIView(APIView):
         source_id = request.query_params.get('source_id', None)
         source_name_id = request.query_params.get('source_name_id', None)
         class_id = request.query_params.get('Class_id', None)
+        district = request.query_params.get('district', None)
+        tehsil = request.query_params.get('tehsil', None)
+        location = request.query_params.get('location', None)
 
         queryset = agg_sc_basic_screening_info.objects.all()
 
@@ -12224,6 +12549,12 @@ class Birth_Defect_Count_APIView(APIView):
             queryset = queryset.filter(citizen_pk_id__source_name_id=source_name_id)
         if class_id:
             queryset = queryset.filter(citizen_pk_id__Class_id=class_id)
+        if district:
+            queryset = queryset.filter(citizen_pk_id__district=district)
+        if tehsil:
+            queryset = queryset.filter(citizen_pk_id__tehsil=tehsil)
+        if location:
+            queryset = queryset.filter(citizen_pk_id__location=location)
 
         valid_birth_defects_count = 0
         for snippet in queryset:
@@ -14284,3 +14615,109 @@ class pilot_get_api(APIView):
     
 
 
+from django.http import JsonResponse
+from django.db import connection
+from rest_framework.views import APIView
+
+class location_get_APIView(APIView):
+    def get(self, request):
+        try:
+            wrd_inst = request.GET.get("wrd_inst")  
+
+            data = []
+            if wrd_inst:   
+                with connection.cursor() as cursor:
+                    cursor.execute("SELECT ward_id, ward_name FROM ems_mas_ward WHERE wrd_inst = %s", [wrd_inst])
+                    rows = cursor.fetchall()
+                    columns = [col[0] for col in cursor.description]
+                    data = [dict(zip(columns, row)) for row in rows]
+
+            return JsonResponse(data, safe=False, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+
+
+
+class OtherInfoCount(APIView):
+    renderer_classes = [UserRenderer]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # Initialize filter parameters with required filters
+        filter_params = {}
+
+        # Extract optional query parameters
+        source_id = request.query_params.get('source_id')
+        type_id = request.query_params.get('type_id')
+        class_id = request.query_params.get('class_id')
+        source_name = request.query_params.get('source_name')
+        schedule_id = request.query_params.get('schedule_id')
+        district = request.query_params.get('district')
+        tehsil = request.query_params.get('tehsil')
+        location = request.query_params.get('location')
+        
+        if source_id is not None:
+            filter_params['citizen_pk_id__source'] = source_id
+        if type_id is not None:
+            filter_params['citizen_pk_id__type'] = type_id
+        if class_id is not None:
+            filter_params['citizen_pk_id__Class'] = class_id
+        if source_name is not None:
+            filter_params['citizen_pk_id__source_name'] = source_name
+        if schedule_id is not None:
+            filter_params['schedule_id'] = schedule_id
+        if district is not None:
+            filter_params['citizen_pk_id__district'] = district
+        if tehsil is not None:
+            filter_params['citizen_pk_id__tehsil'] = tehsil
+        if location is not None:
+            filter_params['citizen_pk_id__location'] = location  
+        
+        # Extract additional filters from query parameters
+        for param, value in request.query_params.items():
+            if param not in ['source_id', 'type_id', 'class_id','source_name','schedule_id','district','tehsil','location']:  # Add any other fields you want to filter by
+                filter_params[param] = value
+
+        # Filter for other counts using filter_params
+        total_footfall_count = agg_sc_citizen_other_info.objects.filter(**filter_params, footfall=1).count()
+        total_anc_services_count = agg_sc_citizen_other_info.objects.filter(**filter_params, anc_services=1).count()
+        total_ifa_supplementation_count = agg_sc_citizen_other_info.objects.filter(**filter_params, ifa_supplementation=1).count()
+        total_high_risk_pregnancy_count = agg_sc_citizen_other_info.objects.filter(**filter_params, high_risk_pregnancy=1).count()
+        total_pnc_services_count = agg_sc_citizen_other_info.objects.filter(**filter_params, pnc_services=1).count()
+        total_leprosy_count = agg_sc_citizen_other_info.objects.filter(**filter_params, leprosy=1).count()
+        total_tuberculosis_count = agg_sc_citizen_other_info.objects.filter(**filter_params, tuberculosis=1).count()
+        total_scd_count = agg_sc_citizen_other_info.objects.filter(**filter_params, scd=1).count()
+        total_hypertension_count = agg_sc_citizen_other_info.objects.filter(**filter_params, hypertension=1).count()
+        total_diabetes_count = agg_sc_citizen_other_info.objects.filter(**filter_params, diabetes=1).count()
+        total_anaemia_count = agg_sc_citizen_other_info.objects.filter(**filter_params, anaemia=1).count()
+        total_cervical_cancer_count = agg_sc_citizen_other_info.objects.filter(**filter_params, cervical_cancer=1).count()
+        total_other_conditions_count = agg_sc_citizen_other_info.objects.filter(**filter_params, other_conditions=1).count()
+        total_malaria_dengue_rdt_count = agg_sc_citizen_other_info.objects.filter(**filter_params, malaria_dengue_rdt=1).count()
+        total_diagnostic_tests_count = agg_sc_citizen_other_info.objects.filter(**filter_params, diagnostic_tests=1).count()
+        total_higher_facility_count = agg_sc_citizen_other_info.objects.filter(**filter_params, higher_facility=1).count()
+
+        
+        
+
+        
+
+        return Response({
+            "total_footfall_count": total_footfall_count,
+            "total_anc_services_count": total_anc_services_count,
+            "total_ifa_supplementation_count": total_ifa_supplementation_count,
+            "total_high_risk_pregnancy_count": total_high_risk_pregnancy_count,
+            "total_pnc_services_count": total_pnc_services_count,
+            "total_leprosy_count": total_leprosy_count,
+            "total_tuberculosis_count": total_tuberculosis_count,
+            "total_scd_count": total_scd_count,
+            "total_hypertension_count": total_hypertension_count,
+            "total_diabetes_count": total_diabetes_count,
+            "total_anaemia_count": total_anaemia_count,
+            "total_cervical_cancer_count": total_cervical_cancer_count,
+            "total_other_conditions_count": total_other_conditions_count,
+            "total_malaria_dengue_rdt_count": total_malaria_dengue_rdt_count,
+            "total_diagnostic_tests_count": total_diagnostic_tests_count,
+            "total_higher_facility_count": total_higher_facility_count,
+        }, status=status.HTTP_200_OK)

@@ -440,6 +440,10 @@ urlpatterns = [
     path('age_count/', Age_Count_Get_viewset.as_view(), name='age_count'),
     path('Bmi_count/', BMI_Count_GET_Api_Viewset.as_view(), name='Bmi_count'),
     path('Birth_defect_count/', Birth_Defect_Count_APIView.as_view(), name='Birth_defect_count'),
+    path('other_count/', OtherInfoCount.as_view(), name='other_count'),
+    
+    
+    
     
     
     
@@ -467,7 +471,10 @@ urlpatterns = [
     
     
     #-----------------------Location API-----------------------
-    path('location_get_api/<int:source_name_id>/', location_get_api.as_view(), name='location_get_api'),
+    
+    path('location_get_api/', location_get_APIView.as_view(), name='location_get_api'),
+    
+    # path('location_get_api/<int:source_name_id>/', location_get_api.as_view(), name='location_get_api'),
     path('route_get_api/<int:source_name_id>/', route_get_api.as_view(), name='route_get_api'),
     
     path('amb_get_api/', ambulance_get_api.as_view(), name='ambulance_get_api'),

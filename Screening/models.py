@@ -1370,6 +1370,7 @@ class agg_sc_schedule_screening (models.Model):
     sub_screening_vitals = models.JSONField(null=True)
     created_at = models.DateField(default=timezone.now, editable=False)
     
+    
     is_deleted = models.BooleanField(default=False)
     added_by =	models.ForeignKey('agg_com_colleague', related_name='screenings_added',on_delete=models.CASCADE, null=True, blank=True)
     added_date = models.DateTimeField(auto_now_add=True)
@@ -1379,6 +1380,9 @@ class agg_sc_schedule_screening (models.Model):
     location2 = models.CharField(max_length=255, null=True, blank=True)
     location3 = models.CharField(max_length=255, null=True, blank=True)
     location4 = models.CharField(max_length=255, null=True, blank=True)
+    route = models.CharField(max_length=255, null=True, blank=True)
+    ambulance_no = models.CharField(max_length=255, null=True, blank=True)
+    pilot_name = models.CharField(max_length=255, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.schedule_id:
@@ -1572,6 +1576,7 @@ class agg_sc_add_new_citizens(models.Model):
     pincode = models.CharField(max_length=255)
     address = models.CharField(max_length=255,null=True,blank=True)
     permanant_address = models.CharField(max_length=255,null=True,blank=True)
+    location = models.CharField(max_length=255,null=True,blank=True)
 #___________GROWTH MONITORING________________
     height = models.FloatField(blank=True,null=True)
     weight = models.FloatField(blank=True,null=True)
@@ -1830,7 +1835,7 @@ class agg_sc_citizen_family_info(models.Model):
 class agg_sc_growth_monitoring_info(models.Model):
     citizen_id = models.CharField(max_length=255) 
     schedule_id = models.CharField(max_length=255)
-    # citizen_pk_id = models.ForeignKey("agg_sc_add_new_citizens", on_delete=models.CASCADE,null=True,blank=True)
+    citizen_pk_id = models.ForeignKey("agg_sc_add_new_citizens", on_delete=models.CASCADE,null=True,blank=True)
     schedule_count = models.IntegerField()
     gender = models.CharField(max_length=255)
     dob = models.DateField(max_length=20)
@@ -2779,7 +2784,7 @@ class agg_sc_citizen_other_info(models.Model):
     higher_facility_refer = models.IntegerField(null=True, blank=True)
     
     is_deleted = models.BooleanField(default=False)
-    form_submit = models.BooleanField(default=False)
+    form_submit = models.BooleanField(default=False,null=True,blank=True)
     reffered_to_specialist = models.IntegerField(null=True, blank=True)
     added_by =	models.ForeignKey('agg_com_colleague', related_name='other_info_added_by',on_delete=models.CASCADE, blank=True,null=True)
     added_date = models.DateTimeField(auto_now_add=True)

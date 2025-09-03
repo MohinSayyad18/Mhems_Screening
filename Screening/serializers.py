@@ -549,29 +549,21 @@ class agg_sc_schedule_screening_get_Serializer(serializers.ModelSerializer): # A
         state = serializers.CharField(source='state.state_name',allow_null=True)  
         district = serializers.CharField(source='district.dist_name',allow_null=True)  
         tehsil = serializers.CharField(source='tehsil.tahsil_name',allow_null=True)
-        Class = serializers.CharField(source='Class.class_name',allow_null=True)
-        department = serializers.CharField(source='department.department',allow_null=True)
-        type = serializers.CharField(source='type.type',allow_null=True)
-        Disease = serializers.CharField(source='Disease.disease',allow_null=True)
-        
         
         source_id = serializers.IntegerField(source='source.source_pk_id',allow_null=True)
         source_name_id = serializers.IntegerField(source='source_name.source_pk_id',allow_null=True)
         state_id = serializers.IntegerField(source='state.state_id',allow_null=True)
         district_id = serializers.IntegerField(source='district.dist_id',allow_null=True)
         tehsil_id = serializers.IntegerField(source='tehsil.tal_id',allow_null=True)  
-        class_id = serializers.IntegerField(source='Class.class_name',allow_null=True)
-        disease_id = serializers.IntegerField(source='Disease.disease_pk_id',allow_null=True)
-        # type_id = serializers.IntegerField(source='type.type',allow_null=True)
 
         added_by = agg_com_colleague_Serializer() #Amit
         modify_by = agg_com_colleague_Serializer() #Amit                
         class Meta:
                 model = agg_sc_schedule_screening
-                fields = ( 'schedule_screening_pk_id', 'from_date', 'to_date', 'source_name', 'source', 'Disease', 'screening_person_name', 'mobile_number','Class','type','state','district','tehsil','source_id','source_name_id','state_id','district_id','tehsil_id','class_id','type_id','added_by', 'modify_by','disease_id','department','screening_vitals','sub_screening_vitals')
+                fields = ( 'schedule_screening_pk_id', 'from_date', 'to_date', 'source_name', 'source','mobile_number','state','district','tehsil','source_id','source_name_id','state_id','district_id','tehsil_id','added_by', 'modify_by','screening_vitals','sub_screening_vitals','route','ambulance_no','pilot_name','screening_person_name')
 
 
-class agg_sc_schedule_screening_POST_Serializer(serializers.ModelSerializer): #AMIT
+class agg_sc_schedule_screening_POST_Serializer(serializers.ModelSerializer):
         class Meta:
                 model = agg_sc_schedule_screening
                 fields = ( 'schedule_screening_pk_id', 'from_date', 'to_date', 'source_name', 'source', 'Disease', 'screening_person_name', 'mobile_number','Class','type','department','state','district','tehsil','added_by','screening_vitals','sub_screening_vitals')
@@ -633,7 +625,7 @@ class agg_sc_add_new_citizens_DELETE_Serializer(serializers.ModelSerializer):
 class agg_sc_add_new_citizens_POST_Serializer(serializers.ModelSerializer):
         class Meta:
             model = agg_sc_add_new_citizens
-            fields = ['citizens_pk_id','age', 'gender', 'source','type','disease','prefix','name','dob', 'blood_groups', 'year', 'months', 'days', 'aadhar_id','Class','division','father_name', 'mother_name', 'occupation_of_father', 'occupation_of_mother', 'parents_mobile', 'sibling_count', 'state', 'district', 'tehsil', 'pincode', 'address', 'source_name', 'height', 'weight', 'weight_for_age', 'height_for_age', 'weight_for_height', 'bmi', 'arm_size', 'symptoms', 'added_by']# 'added_by' 
+            fields = ['citizens_pk_id','age', 'gender', 'source','type','disease','prefix','name','dob', 'blood_groups', 'year', 'months', 'days', 'aadhar_id','Class','division','father_name', 'mother_name', 'occupation_of_father', 'occupation_of_mother', 'parents_mobile', 'sibling_count', 'state', 'district', 'tehsil', 'pincode', 'address', 'source_name', 'height', 'weight', 'weight_for_age', 'height_for_age', 'weight_for_height', 'bmi', 'arm_size', 'symptoms', 'added_by','location']# 'added_by' 
 
                  
 class agg_sc_add_new_citizens_PUT_Serializer(serializers.ModelSerializer):
@@ -641,7 +633,7 @@ class agg_sc_add_new_citizens_PUT_Serializer(serializers.ModelSerializer):
         # added_by = agg_com_colleague_Serializer() #Amit
         class Meta:
                 model = agg_sc_add_new_citizens
-                fields = ('citizens_pk_id','age', 'gender', 'source','type','disease', 'name', 'gender', 'dob', 'blood_groups', 'year', 'months', 'days', 'aadhar_id','Class','division','father_name', 'mother_name', 'occupation_of_father', 'occupation_of_mother', 'parents_mobile', 'sibling_count', 'state', 'district', 'tehsil', 'pincode', 'address', 'source_name', 'height', 'weight', 'weight_for_age', 'height_for_age', 'weight_for_height', 'bmi', 'arm_size', 'symptoms', 'modify_by')# 'modify_by' 
+                fields = ('citizens_pk_id','age', 'gender', 'source','type','disease', 'name', 'gender', 'dob', 'blood_groups', 'year', 'months', 'days', 'aadhar_id','Class','division','father_name', 'mother_name', 'occupation_of_father', 'occupation_of_mother', 'parents_mobile', 'sibling_count', 'state', 'district', 'tehsil', 'pincode', 'address', 'source_name', 'height', 'weight', 'weight_for_age', 'height_for_age', 'weight_for_height', 'bmi', 'arm_size', 'symptoms', 'modify_by','location')# 'modify_by' 
 
 
 
@@ -693,7 +685,7 @@ class agg_sc_add_new_citizens_get_Serializer(serializers.ModelSerializer):
                   'year', 'months', 'days', 'aadhar_id', 'Class', 'division', 'father_name', 'mother_name',
                   'occupation_of_father', 'occupation_of_mother', 'parents_mobile', 'sibling_count', 'state',
                   'district', 'tehsil', 'pincode', 'address', 'source_name', 'height', 'weight', 'weight_for_age',
-                  'height_for_age', 'weight_for_height', 'bmi', 'arm_size', 'symptoms', 'age_name','gender_name','type_name','state_name','district_name','tehsil_name','class_name','division_name','disease_name','source_name_name','source_id_name', 'added_by', 'modify_by' )
+                  'height_for_age', 'weight_for_height', 'bmi', 'arm_size', 'symptoms', 'age_name','gender_name','type_name','state_name','district_name','tehsil_name','class_name','division_name','disease_name','source_name_name','source_id_name', 'added_by', 'modify_by','location' )
     # def to_representation(self, instance):
     #     data = super().to_representation(instance)
     #     return data 
@@ -923,7 +915,7 @@ from .models import agg_sc_add_new_citizens
 class CitizenSerializer(serializers.ModelSerializer):
     class Meta:
         model = agg_sc_add_new_citizens
-        fields = ['prefix','citizens_pk_id','name', 'parents_mobile','source','source_name','state','district','tehsil','disease','gender','dob','year','months','days','height','weight','weight_for_age','height_for_age','weight_for_height','bmi','arm_size','emp_mobile_no']
+        fields = ['prefix','citizens_pk_id','name', 'parents_mobile','source','source_name','state','district','tehsil','disease','gender','dob','year','months','days','height','weight','weight_for_age','height_for_age','weight_for_height','bmi','arm_size','emp_mobile_no','location']
              
      
 
@@ -1919,7 +1911,7 @@ class CitizenDataGetSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = agg_sc_add_new_citizens
-        fields = ['source_name_name','disease_name','prefix','name','year','citizens_pk_id','source','modify_date', 'added_by', 'modify_by','photo']
+        fields = ['source_name_name','disease_name','prefix','name','year','citizens_pk_id','source','modify_date', 'added_by', 'modify_by','photo','location']
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -2069,7 +2061,12 @@ class Psyco_For_download(serializers.ModelSerializer):
     class Meta:
         model = agg_sc_citizen_pycho_info
         fields = "__all__"
-        
+
+
+class Other_info_for_Healthcard(serializers.ModelSerializer):
+    class Meta:
+        model = agg_sc_citizen_other_info
+        fields = '__all__'
 
                 
                 
